@@ -1,11 +1,10 @@
-
+rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Malawi'
 
 # Load libraries and info ----------------------------------------------------------
 
-rm(list = ls())
 options(gsubfn.engine = "R")
 library(rgdal)
 library(raster)

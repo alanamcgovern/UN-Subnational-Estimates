@@ -1,19 +1,9 @@
-#  DataProcessing.R
-#  
-#  This script processes and prepares data from DHS surveys
-#  (adjust later for non-Standard DHS and MICS)
-#                           
-################################################################
-#########   Load libraries
-################################################################
-
-# Download most recent version of SUMMER from Github
-# library(devtools)
-# devtools::install_github("bryandmartin/SUMMER",
-#                          build_vignettes = F, force = T)
-# 
-
 rm(list = ls())
+# ENTER COUNTRY OF INTEREST -----------------------------------------------
+# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+country <- 'Malawi'
+
+# Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
 library(rgdal)
 library(spdep)
@@ -21,29 +11,18 @@ library(SUMMER)
 library(geosphere)
 library(stringr)
 
-
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-# enter country being analyzed
-# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-# retrieve user-specified directory
+# retrieve directories
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
-################################################################
-#########   load polygon files
-################################################################
+# Load polygon files ----------------------------------------------------------
 
 setwd(data.dir)
 
@@ -64,9 +43,7 @@ if(exists("poly.adm2")){
   proj4string(poly.adm0) <- proj4string(poly.adm1)
 }
 
-################################################################
-#########   Create Adj Matrix
-################################################################ 
+# Create Adjacency Matrix ----------------------------------------------------------
 
 # Adjacency matrix is a symmetric matrix with each entry of 1's or 0's indicating if the two administrative regions are adjacent. 
 # Each row or column represents an administrative region.
@@ -95,9 +72,7 @@ save(admin1.mat, admin2.mat, file = paste0(poly.path,'/', country, '_Amat.rda'))
 save(admin1.names, admin2.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
 
 
-################################################################
-#########   Process DHS data for each survey year
-################################################################ 
+# Process DHS data for each survey year ----------------------------------------------------------
 
 # The codes below first loads the raw DHS data, then it assigns the GPS coordinates to each sampling cluster and admin regions where
 # the sampling is conducted and assigns the admin regions where the clusters are located.
@@ -214,7 +189,7 @@ for(survey_year in survey_years){
       unique(dat.tmp[which(check == "neno" & dat.tmp$admin1.name == "Balaka"), "v001"])
     }
 
-    # prepare and save the raw data ###
+    # finish preparing data ###
     dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", 
                       "strata", "v025", "LONGNUM", "LATNUM",
                       "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")]
@@ -229,7 +204,9 @@ for(survey_year in survey_years){
     }else{mod.dat <- rbind(mod.dat,dat.tmp)}
   
   }
-  
-  save(mod.dat, file = paste0(country,'_cluster_dat.rda'))
+
+# Save processed data  ----------------------------------------------------------
+
+save(mod.dat, file = paste0(country,'_cluster_dat.rda'))
 
 
