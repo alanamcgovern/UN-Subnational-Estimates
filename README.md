@@ -4,7 +4,7 @@
 
 ## Summary
 
-This document provides detailed instructions for obtaining direct, smoothed direct, and urban/rural stratified Beta-binomial estimates for for U5MR and NMR, as well as maps and figures of these results.
+This document provides detailed instructions for obtaining direct, smoothed direct, and urban/rural stratified Beta-binomial estimates for U5MR and NMR, as well as maps and figures of these results.
 
 ## The Data Source
 
@@ -35,14 +35,12 @@ Run each script from the "Rcode" folder in the following order. This will proces
 
 1. DataProcessing.R
 
-2. prepare_thresh.R
+2. ur_prop.R (add a lot more info)
 
-3. ur_prop.R (add a lot more info)
-
-4. thresh.R
+3. UR_thresholding.R
 
 #### Step 7:
-Run Direct_SmoothDirect.R and then Direct_Smooth_Figures.R. These scripts will calculate direct and smoothed direct estimates for (U5MR) and generate figures for them (polygon and spaghetti plots). *Make sure to specify the country of interest where it is requested at the top of each script*
+Run Direct_SmoothDirect.R. These script will calculate direct and smoothed direct estimates for (U5MR) and generate figures for them (polygon and spaghetti plots). *Make sure to specify the country of interest where it is requested at the top of each script*
 
 #### Step 8:
 Run BB8.R (add a lot more info after model is figured out)

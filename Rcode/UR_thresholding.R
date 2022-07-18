@@ -55,6 +55,7 @@ setwd(paste0(data.dir,'/worldpop'))
 options(timeout = 1000) # adjust this time, should be longer than each download
 for(year in pop.year){
   print(year)
+  # includes ages 0-1 years and 1-5 years
   for(age in c(0, 1)){
     for(sex in c("f", "m")){
       file <- paste0(pop.abbrev,'_', sex, '_', age, '_', year,'.tif')
@@ -321,7 +322,7 @@ for(year in pop.year){
   save(uncrc_dat_final,file='prepared_dat/uncrc_dat.rda')
 
 
-# Prepare U5 Population ----------------------------------------------------------
+# Prepare U1 and U5 Populations ----------------------------------------------------------
   
   # aggregate the under-five population spatial surface to resolution of 1km*1km
   for (year in pop.year){
@@ -347,10 +348,33 @@ for(year in pop.year){
      proj4string(pop_m_0) <- proj4string(pop_m_1) <- 
       proj4string(poly.adm1)
   
-  
+    setwd(paste0(data.dir,'/Population'))
+    pop_grid<-as.data.frame(coordinates(worldpop))
+    colnames(pop_grid)<-c('x','y')
+    
+    #U1 Population
+    pop_u1<- pop_f_0+pop_m_0
+    
+    writeRaster(pop_u1, overwrite=TRUE,
+                paste0(pop.abbrev,'_u1_',year,'_100m','.tif'))
+    
+    pop_surf<-raster(paste0(country.abbrev,'_u1_',year,'_100m.tif'))
+    
+    
+    pop_u1_aggregate <- aggregate(pop_surf, fact=10,sum)
+    
+    pop_grid$u1_pop <- raster::extract(pop_u1_aggregate, 
+                                       pop_grid[c('x','y')])
+    
+    u1_pop<-worldpop
+    values(u1_pop)<-pop_grid$u1_pop 
+    
+    writeRaster(u1_pop, overwrite=TRUE,
+                paste0(country.abbrev,'_u1_',year,'_1km.tif'))
+    
+    #U5 Population
     pop_u5<- pop_f_0+pop_f_1+pop_m_0+pop_m_1
   
-    setwd(paste0(data.dir,'/Population'))
     writeRaster(pop_u5, overwrite=TRUE,
                 paste0(pop.abbrev,'_u5_',year,'_100m','.tif'))
   
@@ -358,9 +382,6 @@ for(year in pop.year){
   
   
     pop_u5_aggregate <- aggregate(pop_surf, fact=10,sum)
-  
-    pop_grid<-as.data.frame(coordinates(worldpop))
-    colnames(pop_grid)<-c('x','y')
   
     pop_grid$u5_pop <- raster::extract(pop_u5_aggregate, 
                                      pop_grid[c('x','y')])
@@ -398,7 +419,6 @@ for(year in pop.year){
   # index the grid
   urb_dat$index <- c(1:nrow(urb_dat))
   adm1_dat <- split( urb_dat , f = urb_dat$admin1 )
-  
   
   urb_list<-lapply(adm1_dat, FUN=thresh_urb,ref_tab=ref.tab)
   
@@ -460,15 +480,24 @@ for(year in pop.year){
   save(confmatrix_uncrc,file='Threshold/confmatrix_uncrc.rda')
   
   
-# Save national U5 urban proportion ----------------------------------------------------------  
+# Save national U1 and U5 urban proportions ----------------------------------------------------------  
   setwd(paste0(data.dir,'/Population'))
   years <- c(beg.year:end.proj.year)
+  natl.u1.urb <- vector()
   natl.u5.urb <- vector()
   
   for ( t in 1:length(years)){
     
     print(t)
     year <- years[t]
+    
+    # load U1 population at year t
+    u1_pop<-raster(paste0(country.abbrev,'_u1_',year,'_1km.tif'))
+    
+    # national urban fraction for U1 population at year t
+    u1_natl <- sum(urb_grid$urb_ind*values(u1_pop),na.rm=TRUE)/
+      sum(values(u1_pop),na.rm=TRUE)
+    natl.u1.urb[t] <- u1_natl
     
     # load U5 population at year t
     u5_pop<-raster(paste0(country.abbrev,'_u5_',year,'_1km.tif'))
@@ -480,27 +509,39 @@ for(year in pop.year){
     
   }
   
-  natl.urb.weights <- data.frame(years= years, urban=natl.u5.urb)
+  natl.u1.urb.weights <- data.frame(years= years, urban=natl.u1.urb)
+  natl.u5.urb.weights <- data.frame(years= years, urban=natl.u5.urb)
   
   
   setwd(paste0(res.dir,'/UR'))
-  saveRDS(natl.urb.weights,paste0('U5_fraction/natl_urban_weights.rds'))
+  saveRDS(natl.u1.urb.weights,paste0('U1_fraction/natl_u1_urban_weights.rds'))
+  saveRDS(natl.u5.urb.weights,paste0('U5_fraction/natl_u5_urban_weights.rds'))
  
-# Save subnational U5 urban proportion ----------------------------------------------------------  
+# Save subnational U1 and U5 urban proportions ----------------------------------------------------------  
 
-  adm1.weight.frame <- data.frame()
-  adm2.weight.frame <- data.frame()
+  adm1.u1.weight.frame <- data.frame()
+  adm2.u1.weight.frame <- data.frame()
+  adm1.u5.weight.frame <- data.frame()
+  adm2.u5.weight.frame <- data.frame()
   
   for ( t in 1:length(years)){
     
     print(t)
     year <- years[t]
     
-    # load U5 population at year t
+    # load populations at year t
     setwd(paste0(data.dir,'/','/Population'))
+    u1_pop<-raster(paste0(country.abbrev,'_u1_',year,'_1km.tif'))
     u5_pop<-raster(paste0(country.abbrev,'_u5_',year,'_1km.tif'))
     
-    # admin1 urban fraction for U5 population at year t
+    # admin1 urban fraction for populations at year t
+    u1_urb_admin1<-get_subnatl_frac(adm.names = admin1.names$GADM,
+                                    adm.idx = admin1.names$Internal,
+                                    wp=u1_pop,
+                                    poly_file = poly.adm1,
+                                    wp_adm = NULL,
+                                    urb_vec = urb_grid$urb_ind)
+    
     u5_urb_admin1<-get_subnatl_frac(adm.names = admin1.names$GADM,
                                     adm.idx = admin1.names$Internal,
                                     wp=u5_pop,
@@ -508,10 +549,18 @@ for(year in pop.year){
                                     wp_adm = NULL,
                                     urb_vec = urb_grid$urb_ind)
     
-    u5_urb_admin1$years <- year
-    adm1.weight.frame <- rbind(adm1.weight.frame,u5_urb_admin1)
+    u1_urb_admin1$years <- u5_urb_admin1$years <- year
+    adm1.u1.weight.frame <- rbind(adm1.u1.weight.frame,u1_urb_admin1)
+    adm1.u5.weight.frame <- rbind(adm1.u5.weight.frame,u5_urb_admin1)
     
     # admin2 urban fraction for U5 population at year t
+    u1_urb_admin2<-get_subnatl_frac(adm.names = admin2.names$GADM,
+                                    adm.idx = admin2.names$Internal,
+                                    wp=u1_pop,
+                                    poly_file = poly.adm2,
+                                    wp_adm = NULL,
+                                    urb_vec = urb_grid$urb_ind)
+    
     u5_urb_admin2<-get_subnatl_frac(adm.names = admin2.names$GADM,
                                     adm.idx = admin2.names$Internal,
                                     wp=u5_pop,
@@ -519,32 +568,45 @@ for(year in pop.year){
                                     wp_adm = NULL,
                                     urb_vec = urb_grid$urb_ind)
     
-    u5_urb_admin2$years <- year
-    adm2.weight.frame <- rbind(adm2.weight.frame,u5_urb_admin2)
+    u1_urb_admin2$years <- u5_urb_admin2$years <- year
+    adm2.u1.weight.frame <- rbind(adm2.u1.weight.frame,u1_urb_admin2)
+    adm2.u5.weight.frame <- rbind(adm2.u5.weight.frame,u5_urb_admin2)
     
     setwd(paste0(res.dir,'/UR'))
     
     # save calculated urban fractions
-    saveRDS(u5_urb_admin1,file=paste0('U5_fraction/','admin1_',
+    saveRDS(u1_urb_admin1,file=paste0('U1_fraction/','admin1_u1_',
                                       year, '_urban_frac.rds'))
-    saveRDS(u5_urb_admin2,file=paste0('U5_fraction/','admin2_',
+    saveRDS(u1_urb_admin2,file=paste0('U1_fraction/','admin2_u1_',
+                                      year, '_urban_frac.rds'))
+    saveRDS(u5_urb_admin1,file=paste0('U5_fraction/','admin1_u5_',
+                                      year, '_urban_frac.rds'))
+    saveRDS(u5_urb_admin2,file=paste0('U5_fraction/','admin2_u5_',
                                       year, '_urban_frac.rds'))
     
   }
   
   
   # process admin 1 urban rural weights data frame
-  adm1.weight.frame <- adm1.weight.frame[,c('adm_idx','years','urb_frac')]
-  colnames(adm1.weight.frame) <- c('region','years','urban')
-  adm1.weight.frame$rural <- 1 - adm1.weight.frame$urban
+  adm1.u1.weight.frame <- adm1.u1.weight.frame[,c('adm_idx','years','urb_frac')]
+  colnames(adm1.u1.weight.frame) <- c('region','years','urban')
+  adm1.u1.weight.frame$rural <- 1 - adm1.u1.weight.frame$urban
+  saveRDS(adm1.u1.weight.frame,paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
+  
+  adm1.u5.weight.frame <- adm1.u5.weight.frame[,c('adm_idx','years','urb_frac')]
+  colnames(adm1.u5.weight.frame) <- c('region','years','urban')
+  adm1.u5.weight.frame$rural <- 1 - adm1.u5.weight.frame$urban
+  saveRDS(adm1.u5.weight.frame,paste0('U5_fraction/','admin1_u5_urban_weights.rds'))
   
   # process admin 2 urban rural weights data frame
-  adm2.weight.frame <- adm2.weight.frame[,c('adm_idx','years','urb_frac')]
-  colnames(adm2.weight.frame) <- c('region','years','urban')
-  adm2.weight.frame$rural <- 1 - adm2.weight.frame$urban
+  adm2.u1.weight.frame <- adm2.u1.weight.frame[,c('adm_idx','years','urb_frac')]
+  colnames(adm2.u1.weight.frame) <- c('region','years','urban')
+  adm2.u1.weight.frame$rural <- 1 - adm2.u1.weight.frame$urban
+  saveRDS(adm2.u1.weight.frame,paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
   
-  # save weights frames
-  saveRDS(adm1.weight.frame,paste0('U5_fraction/','admin1_urban_weights.rds'))
-  saveRDS(adm2.weight.frame,paste0('U5_fraction/','admin2_urban_weights.rds'))
+  adm2.u5.weight.frame <- adm2.u5.weight.frame[,c('adm_idx','years','urb_frac')]
+  colnames(adm2.u5.weight.frame) <- c('region','years','urban')
+  adm2.u5.weight.frame$rural <- 1 - adm2.u5.weight.frame$urban
+  saveRDS(adm2.u5.weight.frame,paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
   
 

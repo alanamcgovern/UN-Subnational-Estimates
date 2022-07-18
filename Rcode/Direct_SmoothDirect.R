@@ -22,20 +22,6 @@ res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
-# Create directories for results  ------------------------------------------------------
-
-if(!dir.exists(paste0(res.dir,'/Figures/Direct'))){
-  dir.create(paste0(res.dir,'/Figures/Direct'))}
-if(!dir.exists(paste0(res.dir,'/Figures/SmoothedDirect'))){
-  dir.create(paste0(res.dir,'/Figures/SmoothedDirect'))}
-if(!dir.exists(paste0(res.dir,'/Figures/Direct/National'))){
-  dir.create(paste0(res.dir,'/Figures/Direct/National'))}
-if(!dir.exists(paste0(res.dir,'/Figures/Direct/Admin1'))){
-  dir.create(paste0(res.dir,'/Figures/Direct/Admin1'))}
-if(!dir.exists(paste0(res.dir,'/Figures/Direct/Admin2'))){
-  dir.create(paste0(res.dir,'/Figures/Direct/Admin2'))}
-
-
 # Load polygon files  ------------------------------------------------------
 setwd(data.dir)
 
@@ -85,23 +71,34 @@ periods <- paste(beg.period.years, end.period.years, sep = "-") # convert the pe
 # Load data and separate each survey  ------------------------------------------------------
 svy.idx <- 0
 births.list <- list()
-  load(paste0(country,'_cluster_dat.rda'),
+births.list.nmr <- list()
+
+load(paste0(country,'_cluster_dat.rda'),
        envir = .GlobalEnv)
-  mod.dat$years <- as.numeric(as.character(mod.dat$years)) # convert the years from string into numbers
-  # After we process the data, we compute for the direct U5MR estimates at national level
-  mod.dat$v005 <- mod.dat$v005/1e6
+mod.dat$years <- as.numeric(as.character(mod.dat$years)) # convert the years from string into numbers
+mod.dat$v005 <- mod.dat$v005/1e6
+# create subset of data for nmr estimates
+mod.dat.nmr <- mod.dat %>% filter(age == '0')
   for(survey in survey_years){
     svy.idx <- svy.idx + 1
+    # data for u5mr
     births.list[[svy.idx]] <- mod.dat[mod.dat$survey == survey,] %>%
       as.data.frame()
     births.list[[svy.idx]]$died <- births.list[[svy.idx]]$Y
     births.list[[svy.idx]]$total <- as.numeric(births.list[[svy.idx]]$total)
     births.list[[svy.idx]]$period <- as.character(cut(births.list[[svy.idx]]$years, breaks = c(beg.period.years, beg.period.years[length(beg.period.years)]+5),
                                        include.lowest = T, right = F, labels = periods)) # generate period label 
+    # data for nmr
+    births.list.nmr[[svy.idx]] <- mod.dat.nmr[mod.dat.nmr$survey == survey,] %>%
+      as.data.frame()
+    births.list.nmr[[svy.idx]]$died <- births.list.nmr[[svy.idx]]$Y
+    births.list.nmr[[svy.idx]]$total <- as.numeric(births.list.nmr[[svy.idx]]$total)
+    births.list.nmr[[svy.idx]]$period <- as.character(cut(births.list.nmr[[svy.idx]]$years, breaks = c(beg.period.years, beg.period.years[length(beg.period.years)]+5),
+                                                      include.lowest = T, right = F, labels = periods)) # generate period label 
   }
 
-
 names(births.list) <- survey_years
+names(births.list.nmr) <- survey_years
 
 
 # Direct Estimates  ------------------------------------------------------
@@ -113,52 +110,79 @@ setwd(paste0(res.dir,'/Direct'))
 #if there is more than one survey
 if(length(births.list) != 1){
     # 3-year estimates
-     direct.natl <-  SUMMER::getDirectList(births.list, periods,
+     direct.natl.u5 <-  SUMMER::getDirectList(births.list, periods,
                                            regionVar = "admin1.char",
                                            timeVar = "period", 
                                            clusterVar =  "~cluster",
                                           ageVar = "age", Ntrials = "total",
                                            weightsVar = "v005",national.only = T)
+     direct.natl.nmr <-  SUMMER::getDirectList(births.list.nmr, periods,
+                                              regionVar = "admin1.char",
+                                              timeVar = "period", 
+                                              clusterVar =  "~cluster",
+                                              ageVar = "age", Ntrials = "total",
+                                              weightsVar = "v005",national.only = T)
      # yearly estimates
-    direct.natl.yearly <- SUMMER::getDirectList(births.list, beg.year:end.year,
+    direct.natl.yearly.u5 <- SUMMER::getDirectList(births.list, beg.year:end.year,
+                                                regionVar = "admin1.char",
+                                                timeVar = "years", 
+                                                clusterVar =  "~cluster",
+                                                ageVar = "age", Ntrials = "total",
+                                                weightsVar = "v005",national.only = T)
+    direct.natl.yearly.nmr <- SUMMER::getDirectList(births.list.nmr, beg.year:end.year,
+                                                   regionVar = "admin1.char",
+                                                   timeVar = "years", 
+                                                   clusterVar =  "~cluster",
+                                                   ageVar = "age", Ntrials = "total",
+                                                   weightsVar = "v005",national.only = T)
+    
+    direct.natl.u5$region_num <- direct.natl.u5$region
+    direct.natl.yearly.u5$region_num <- direct.natl.yearly.u5$region
+    direct.natl.nmr$region_num <- direct.natl.nmr$region
+    direct.natl.yearly.nmr$region_num <- direct.natl.yearly.nmr$region
+#if there is only one survey
+}else{
+      # 3-year estimates
+     direct.natl.u5 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), periods,
+                                       regionVar = "admin1.char",
+                                       timeVar = "period", 
+                                       clusterVar =  "~cluster",
+                                       ageVar = "age", Ntrials = "total",
+                                       weightsVar = "v005",national.only = T)
+     direct.natl.nmr <-  SUMMER::getDirect(as.data.frame(births.list.nmr[[1]]), periods,
+                                         regionVar = "admin1.char",
+                                         timeVar = "period", 
+                                         clusterVar =  "~cluster",
+                                         ageVar = "age", Ntrials = "total",
+                                         weightsVar = "v005",national.only = T)
+     # yearly estimates
+    direct.natl.yearly.u5 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), beg.year:end.year,
+                                             regionVar = "admin1.char",
+                                             timeVar = "years", 
+                                             clusterVar =  "~cluster",
+                                             ageVar = "age", Ntrials = "total",
+                                             weightsVar = "v005",national.only = T)
+    direct.natl.yearly.nmr <-  SUMMER::getDirect(as.data.frame(births.list.nmr[[1]]), beg.year:end.year,
                                                 regionVar = "admin1.char",
                                                 timeVar = "years", 
                                                 clusterVar =  "~cluster",
                                                 ageVar = "age", Ntrials = "total",
                                                 weightsVar = "v005",national.only = T)
     
-    direct.natl$region_num <- direct.natl$region
-    direct.natl.yearly$region_num <- direct.natl.yearly$region
-#if there is only one survey
-}else{
-      # 3-year estimates
-     direct.natl <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), periods,
-                                       regionVar = "admin1.char",
-                                       timeVar = "period", 
-                                       clusterVar =  "~cluster",
-                                       ageVar = "age", Ntrials = "total",
-                                       weightsVar = "v005",national.only = T)
-     # yearly estimates
-    direct.natl.yearly <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), beg.year:end.year,
-                                             regionVar = "admin1.char",
-                                             timeVar = "years", 
-                                             clusterVar =  "~cluster",
-                                             ageVar = "age", Ntrials = "total",
-                                             weightsVar = "v005",national.only = T)
-    
-    direct.natl$survey <- 1
-    direct.natl$surveyYears <- surveys[1]
-    direct.natl$region_num <- direct.natl$region
-    
-    direct.natl.yearly$survey <- 1
-    direct.natl.yearly$surveyYears <- surveys[1]
-    direct.natl.yearly$region_num <- direct.natl.yearly$region
+    direct.natl.u5$survey <- direct.natl.nmr$survey <- direct.natl.yearly.u5$survey <- direct.natl.yearly.nmr$survey <- 1
+    direct.natl.u5$surveyYears <- direct.natl.nmr$surveyYears <- direct.natl.yearly.u5$surveyYears <- direct.natl.yearly.nmr$surveyYears <- surveys[1]
+    direct.natl.u5$region_num <- direct.natl.u5$region
+    direct.natl.nmr$region_num <- direct.natl.nmr$region
+    direct.natl.yearly.u5$region_num <- direct.natl.yearly.u5$region
+    direct.natl.yearly.nmr$region_num <- direct.natl.yearly.nmr$region
     
   }
 
   # save national direct estimates
-  save(direct.natl, file = paste0(country, '_direct_natl.rda'))
-  save(direct.natl.yearly, file = paste0(country, '_direct_natl_yearly.rda'))
+  save(direct.natl.u5, file = paste0('U5MR/',country, '_direct_natl_u5.rda'))
+  save(direct.natl.yearly.u5, file = paste0('U5MR/',country, '_direct_natl_yearly_u5.rda'))
+  save(direct.natl.nmr, file = paste0('NMR/',country, '_direct_natl_nmr.rda'))
+  save(direct.natl.yearly.nmr, file = paste0('NMR/',country, '_direct_natl_yearly_nmr.rda'))
   
 ## Admin1 ------------------------------------------------------
   
