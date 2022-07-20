@@ -1,6 +1,8 @@
 # UN Pipeline Overview
 
-**Need to add: CSDE info, MICS, NMR, new UR?
+**TO DO: check BB8 model runs properly, determine which countires need UR stratification, create info files
+
+**Waiting on: CSDE info (data pulls + cluster use), MICS implementation, benchmarking in BB8 model
 
 ## Summary
 

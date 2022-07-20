@@ -1,34 +1,25 @@
-################################################################
-#########   load libraries
-################################################################
 rm(list = ls())
+### ENTER COUNTRY OF INTEREST -----------------------------------------------
+# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+country <- 'Malawi'
 
-#### Libraries ####
+### Libraries -----------------------------------------------
 library(SUMMER)
 library(INLA)
 options(gsubfn.engine = "R")
 library(rgdal)
 
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-# ENTER COUNTRY BEING ANALYZED
-# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-
+### Retrieve directories and country info -----------------------------------------------
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
-load(file = paste0(home.dir,'/Info/',country, "_general_info.Rdata", sep=''))
+info.name <- paste0(country, "_general_info.Rdata")
+load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
-################################################################
-#########   load polygon files
-################################################################
-
+### Load polygon files -----------------------------------------------
 setwd(data.dir)
 
 poly.adm0 <- readOGR(dsn = poly.path,
@@ -42,9 +33,7 @@ proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
 load(paste0('shapeFiles_gadm/', country, '_Amat.rda'))
 load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))
 
-################################################################
-#########   load data
-################################################################
+### Load data -----------------------------------------------
 load(paste0(country,'_cluster_dat.rda'),
      envir = .GlobalEnv)
 
@@ -52,9 +41,7 @@ mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat<-mod.dat[as.numeric(mod.dat$years)>=beg.year,]
 mod.dat$country <- as.character(country)
 
-################################################################
-#########  Add HIV Adjustment -- is this sufficient or is there something else I need to add after model fit?
-################################################################
+### Load HIV Adjustment info -----------------------------------------------
 
 if(doHIVAdj){
   load(paste0(home.dir,'/Data/HIV/',
@@ -91,108 +78,141 @@ if(doHIVAdj){
   adj.varnames <- c("country", "years")
 }
 
-##################################################################
-###### Fit BB8 model
-##################################################################
+### Load UR proportions -----------------------------------------------
+setwd(paste0(res.dir,'/UR'))
+weight.strata.natl.u5 <- readRDS(paste0('U5_fraction/','natl_u5_urban_weights.rds'))
+weight.strata.natl.u5$rural <- 1-weight.strata.natl.u5$urban
+weight.strata.adm1.u5 <- readRDS(paste0('U5_fraction/','admin1_u5_urban_weights.rds'))
+weight.strata.adm2.u5 <- readRDS(paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
 
+weight.strata.natl.u1 <- readRDS(paste0('U1_fraction/','natl_u1_urban_weights.rds'))
+weight.strata.natl.u1$rural <- 1-weight.strata.natl.u1$urban
+weight.strata.adm1.u1 <- readRDS(paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
+weight.strata.adm2.u1 <- readRDS(paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
+
+# Fit BB8 models -----------------------------------------------
 setwd(paste0(res.dir))
 
-## _____________________________________________________________________
-## National unstratified
-## _____________________________________________________________________
+### National U5MR -----------------------------------------------
 
-mod.dat$strata <- NA
-mod.dat$region <- "All"
-message(paste0('Starting unstratified national model for ',country,'\n'))
+#### Unstratified
+bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=NULL, admin.level='National',
+                             stratified=F, weight.strata=NULL,
+                             outcome='u5mr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
 
-fit.natl.unstrat <- smoothCluster(data = mod.dat, family = "betabinomial",
-                                  Amat = NULL,
-                                  year_label = c(beg.year:end.proj.year),
-                                  time.model = "rw2",
-                                  pc.st.slope.u = 1, pc.st.slope.alpha = 0.01,
-                                  bias.adj = adj.frame,
-                                  bias.adj.by = adj.varnames,
-                                  overdisp.mean = -7.5,
-                                  overdisp.prec = 0.39,
-                                  survey.effect = TRUE)
-
-res.natl.unstrat <- getSmoothed(inla_mod = fit.natl.unstrat, 
-                                year_range = c(beg.year:end.proj.year),
-                                year_label = c(beg.year:end.proj.year),
-                                nsim = 1000, 
-                                draws = NULL, save.draws = TRUE,save.draws.est=TRUE)
-
-save(fit.natl.unstrat, file = paste0('Betabinomial/',country,'_fit_natl_unstrat.rda'))
-save(res.natl.unstrat, file = paste0('Betabinomial/',country,'_res_natl_unstrat.rda'))
-
-## _____________________________________________________________________
-## National stratified
-## _____________________________________________________________________
-
-mod.dat$strata <- mod.dat$urban
-mod.dat$region <- "All"
-message(paste0('Starting stratified national model for ',country,'\n'))
-
-fit.natl.strat <- smoothCluster(data = mod.dat, family = "betabinomial",
-                                Amat = NULL,
-                                year_label = c(beg.year:end.proj.year),
-                                strata.time.effect = TRUE,
-                                time.model = "rw2",
-                                pc.st.slope.u = 1, pc.st.slope.alpha = 0.01,
-                                bias.adj = adj.frame,
-                                bias.adj.by = adj.varnames,
-                                overdisp.mean = -7.5,
-                                overdisp.prec = 0.39,
-                                survey.effect = TRUE)
-
-# load the national urban population fraction, this is needed to weight urban/rural estimators
-natl.urb.weights <- readRDS(paste0('UR/U5_fraction/natl_urban_weights.rds'))
-natl.urb.weights$rural <- 1- natl.urb.weights$urban
-
-res.natl.strat <- getSmoothed(inla_mod = fit.natl.strat, 
-                              year_range = c(beg.year:end.proj.year),
-                              year_label = c(beg.year:end.proj.year),
-                              nsim = 1000, 
-                              weight.strata = natl.urb.weights, 
-                              weight.frame = NULL,
-                              draws = NULL, save.draws = TRUE,save.draws.est=TRUE)
-
-save(fit.natl.strat, file = paste0('Betabinomial/',country,'_fit_natl_strat.rda'))
-save(res.natl.strat, file = paste0('Betabinomial/',country,'_res_natl_strat.rda'))
+#### Stratified
+bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=NULL, admin.level='National',
+                             stratified=T, weight.strata=weight.strata.natl.u5,
+                             outcome='u5mr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
 
 
-## _____________________________________________________________________
-## Admin1 unstratified
-## _____________________________________________________________________
-mod.dat$strata <- NA
-mod.dat$region <- mod.dat$admin1.char
-message(paste0('Starting unstratified admin1 model ',country, '\n'))
+### Admin1 U5MR -----------------------------------------------
 
-fit.admin1.unstrat <- smoothCluster(data = mod.dat, 
-                                    family = "betabinomial",
-                                    Amat = admin1.mat, 
-                                    year_label = c(beg.year:end.proj.year),
-                                    time.model = "rw2", 
-                                    st.time.model = 'ar1',
-                                    pc.st.slope.u = 1, 
-                                    pc.st.slope.alpha = 0.01,
-                                    type.st = 4,
-                                    bias.adj = adj.frame,
-                                    bias.adj.by = adj.varnames,
-                                    survey.effect = TRUE,
-                                    age.groups = levels(mod.dat$age),
-                                    age.n = c(1, 11, 12, 12, 12, 12),
-                                    age.rw.group = c(1, 2, 3, 3, 3, 3),
-                                    overdisp.mean = -7.5,
-                                    overdisp.prec = 0.39)
+#### Unstratified
+bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin1.mat, admin.level='Admin1',
+                             stratified=F, weight.strata=NULL,
+                             outcome='u5mr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
 
-res.admin1.unstrat <- getSmoothed(fit.admin1.unstrat,
-                                  nsim = 1000,
-                                  save.draws.est = TRUE,
-                                  draws = NULL,
-                                  save.draws = TRUE)
+#### Stratified
+bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin1.mat, admin.level='Admin1',
+                             stratified=T, weight.strata=weight.strata.adm1.u5,
+                             outcome='u5mr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
 
-save(fit.admin1.unstrat, file = paste0('Betabinomial/',country,'_fit_admin1_',st.time.model,'_unstrat.rda'))
-save(res.admin1.unstrat, file = paste0('Betabinomial/',country,'_res_admin1_',st.time.model,'_unstrat.rda'))
+### Admin2 U5MR -----------------------------------------------
+
+#### Unstratified
+bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin2.mat, admin.level='Admin2',
+                             stratified=F, weight.strata=NULL,
+                             outcome='u5mr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
+
+#### Stratified
+bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin2.mat, admin.level='Admin2',
+                             stratified=T, weight.strata=weight.strata.adm2.u5,
+                             outcome='u5mr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
+
+## National NMR -----------------------------------------------
+
+#### Unstratified
+bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=NULL, admin.level='National',
+                             stratified=F, weight.strata=NULL,
+                             outcome='nmr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
+
+#### Stratified
+bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                           Amat=NULL, admin.level='National',
+                           stratified=T, weight.strata=weight.strata.natl.u1,
+                           outcome='nmr',
+                           time.model='ar1', st.time.model='ar1',
+                           adj.frame=adj.frame, adj.varnames=adj.varnames,
+                           doBenchmark=F,doHIVAdj=doHIVAdj)
+
+
+### Admin1 NMR -----------------------------------------------
+
+#### Unstratified
+bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin1.mat, admin.level='Admin1',
+                             stratified=F, weight.strata=NULL,
+                             outcome='nmr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
+
+#### Stratified
+bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin1.mat, admin.level='Admin1',
+                             stratified=T, weight.strata=weight.strata.adm1.u1,
+                             outcome='nmr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
+
+### Admin2 U5MR -----------------------------------------------
+
+#### Unstratified
+bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin2.mat, admin.level='Admin2',
+                             stratified=F, weight.strata=NULL,
+                             outcome='nmr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
+
+#### Stratified
+bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                             Amat=admin2.mat, admin.level='Admin2',
+                             stratified=T, weight.strata=weight.strata.adm2.u1,
+                             outcome='nmr',
+                             time.model='ar1', st.time.model='ar1',
+                             adj.frame=adj.frame, adj.varnames=adj.varnames,
+                             doBenchmark=F,doHIVAdj=doHIVAdj)
 
 
