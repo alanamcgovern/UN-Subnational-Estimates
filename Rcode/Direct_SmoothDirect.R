@@ -187,75 +187,118 @@ if(length(births.list) != 1){
 ## Admin1 ------------------------------------------------------
   
   if(length(births.list) != 1){
-     direct.admin1 <-  SUMMER::getDirectList(births.list, periods,
+     direct.admin1.u5 <-  SUMMER::getDirectList(births.list, periods,
                                            regionVar = "admin1.char",
                                            timeVar = "period", 
                                            clusterVar =  "~cluster",
                                            ageVar = "age", Ntrials = "total",
                                            weightsVar = "v005",national.only = F)
-    direct.admin1.yearly <- SUMMER::getDirectList(births.list, beg.year:end.year,
+    direct.admin1.yearly.u5 <- SUMMER::getDirectList(births.list, beg.year:end.year,
                                                 regionVar = "admin1.char",
                                                 timeVar = "years", 
                                                 clusterVar =  "~cluster",
                                                 ageVar = "age", Ntrials = "total",
                                                 weightsVar = "v005",national.only = F)
+    direct.admin1.nmr <-  SUMMER::getDirectList(births.list.nmr, periods,
+                                               regionVar = "admin1.char",
+                                               timeVar = "period", 
+                                               clusterVar =  "~cluster",
+                                               ageVar = "age", Ntrials = "total",
+                                               weightsVar = "v005",national.only = F)
+    direct.admin1.yearly.nmr <- SUMMER::getDirectList(births.list.nmr, beg.year:end.year,
+                                                     regionVar = "admin1.char",
+                                                     timeVar = "years", 
+                                                     clusterVar =  "~cluster",
+                                                     ageVar = "age", Ntrials = "total",
+                                                     weightsVar = "v005",national.only = F)
     
-    direct.admin1$region_num <- direct.admin1$region
-    direct.admin1.yearly$region_num <- direct.admin1.yearly$region
+    direct.admin1.u5$region_num <- direct.admin1.u5$region
+    direct.admin1.yearly.u5$region_num <- direct.admin1.yearly.u5$region
+    direct.admin1.nmr$region_num <- direct.admin1.nmr$region
+    direct.admin1.yearly.nmr$region_num <- direct.admin1.yearly.nmr$region
   }else{
-     direct.admin1 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), periods,
+     direct.admin1.u5 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), periods,
                                        regionVar = "admin1.char",
                                        timeVar = "period", 
                                        clusterVar =  "~cluster",
                                        ageVar = "age", Ntrials = "total",
                                        weightsVar = "v005",national.only = F)
-    direct.admin1.yearly <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), beg.year:end.year,
+    direct.admin1.yearly.u5 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), beg.year:end.year,
                                              regionVar = "admin1.char",
                                              timeVar = "years", 
                                              clusterVar =  "~cluster",
                                              ageVar = "age", Ntrials = "total",
                                              weightsVar = "v005",national.only = F)
+    direct.admin1.nmr <-  SUMMER::getDirect(as.data.frame(births.list.nmr[[1]]), periods,
+                                           regionVar = "admin1.char",
+                                           timeVar = "period", 
+                                           clusterVar =  "~cluster",
+                                           ageVar = "age", Ntrials = "total",
+                                           weightsVar = "v005",national.only = F)
+    direct.admin1.yearly.nmr <-  SUMMER::getDirect(as.data.frame(births.list.nmr[[1]]), beg.year:end.year,
+                                                  regionVar = "admin1.char",
+                                                  timeVar = "years", 
+                                                  clusterVar =  "~cluster",
+                                                  ageVar = "age", Ntrials = "total",
+                                                  weightsVar = "v005",national.only = F)
     
-    direct.admin1$survey <- 1
-    direct.admin1$surveyYears <- surveys[1]
-    direct.admin1$region_num <- direct.admin1$region
+    direct.admin1.u5$survey <- direct.admin1.yearly.u5$survey <- direct.admin1.nmr$survey <- direct.admin1.yearly.nmr$survey <- 1
+    direct.admin1.u5$surveyYears <- direct.admin1.yearly.u5$surveyYears <- direct.admin1.nmr$surveyYears <- direct.admin1.yearly.nmr$surveyYears <- surveys[1]
     
-    direct.admin1.yearly$survey <- 1
-    direct.admin1.yearly$surveyYears <- surveys[1]
-    direct.admin1.yearly$region_num <- direct.admin1.yearly$region
+    direct.admin1.u5$region_num <- direct.admin1.u5$region
+    direct.admin1.yearly.u5$region_num <- direct.admin1.yearly.u5$region
+    direct.admin1.nmr$region_num <- direct.admin1.nmr$region
+    direct.admin1.yearly.nmr$region_num <- direct.admin1.yearly.nmr$region
     
   }
   
-  save(direct.admin1, file = paste0(country, '_direct_admin1.rda'))
-  save(direct.admin1.yearly, file = paste0(country, '_direct_admin1_yearly.rda'))
+  save(direct.admin1.u5, file = paste0('U5MR/',country, '_direct_admin1_u5.rda'))
+  save(direct.admin1.yearly.u5, file = paste0('U5MR/',country, '_direct_admin1_yearly_u5.rda'))
+  save(direct.admin1.nmr, file = paste0('NMR/',country, '_direct_admin1_nmr.rda'))
+  save(direct.admin1.yearly.nmr, file = paste0('NMR/',country, '_direct_admin1_yearly_nmr.rda'))
   
 ## Admin2  ------------------------------------------------------
   
   # compute 3-year direct U5MR for at admin2 level. But this may fail due to the data sparsity at admin2 level.
     if(length(births.list) != 1){
-      direct.admin2 <-  SUMMER::getDirectList(births.list, periods,
+      direct.admin2.u5 <-  SUMMER::getDirectList(births.list, periods,
                                               regionVar = "admin2.char",
                                               timeVar = "period", 
                                               clusterVar =  "~cluster",
                                               ageVar = "age", Ntrials = "total",
                                               weightsVar = "v005",national.only = F)
-      direct.admin2$region_num <- direct.admin2$region
+      direct.admin2.nmr <-  SUMMER::getDirectList(births.list.nmr, periods,
+                                              regionVar = "admin2.char",
+                                              timeVar = "period", 
+                                              clusterVar =  "~cluster",
+                                              ageVar = "age", Ntrials = "total",
+                                              weightsVar = "v005",national.only = F)
+      direct.admin2.u5$region_num <- direct.admin2.u5$region
+      direct.admin2.nmr$region_num <- direct.admin2.nmr$region
     }else{
-      direct.admin2 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), periods,
+      direct.admin2.u5 <-  SUMMER::getDirect(as.data.frame(births.list[[1]]), periods,
+                                          regionVar = "admin2.char",
+                                          timeVar = "period", 
+                                          clusterVar =  "~cluster",
+                                          ageVar = "age", Ntrials = "total",
+                                          weightsVar = "v005",national.only = F)
+      direct.admin2.nmr <-  SUMMER::getDirect(as.data.frame(births.list.nmr[[1]]), periods,
                                           regionVar = "admin2.char",
                                           timeVar = "period", 
                                           clusterVar =  "~cluster",
                                           ageVar = "age", Ntrials = "total",
                                           weightsVar = "v005",national.only = F)
       
-      direct.admin2$survey <- 1
-      direct.admin2$surveyYears <- surveys[1]
-      direct.admin2$region_num <- direct.admin2$region
+      direct.admin2.u5$survey <- direct.admin2.nmr$survey <- 1
+      direct.admin2.nmr$surveyYears <- direct.admin2.nmr$surveyYears <- surveys[1]
+      direct.admin2.u5$region_num <- direct.admin2.u5$region
+      direct.admin2.nmr$region_num <- direct.admin2.nmr$region
       
     }
     
-  save(direct.admin2, file = paste0(country,'_direct_admin2.rda')) # save the admin2 3-year direct U5MR
-
+  save(direct.admin2.u5, file = paste0('U5MR/',country,'_direct_admin2_u5.rda')) # save the admin2 3-year direct U5MR
+  save(direct.admin2.nmr, file = paste0('NMR/',country,'_direct_admin2_nmr.rda'))
+  
 # Make HIV adjustment ------------------------------------------------------
   
   if(doHIVAdj){
@@ -283,27 +326,54 @@ if(length(births.list) != 1){
       # warning if HIV adjustment has not been calculated for that year
       if(nrow(adj.frame)==0){message(paste0('HIV Adjustment for ',country,' ',survey,' survey has not been calculated. Please calculate the HIV adjustment before proceeding.'))}
       
-      tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly[direct.natl.yearly$surveyYears == survey,],
+      # adjustment for yearly u5mr
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,],
                                      ratio = adj.frame, 
                                      logit.lower = NULL,
                                      logit.upper = NULL,
                                      prob.upper = "upper",
                                      prob.lower = "lower")
-      direct.natl.yearly[direct.natl.yearly$surveyYears == survey,] <- 
-        tmp.adj[ ,  match(colnames(direct.natl.yearly),
+      direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.yearly.u5),
                           colnames(tmp.adj))]
       
       adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
       adj.frame.tmp$years <- periods
       
-      tmp.adj <- SUMMER::getAdjusted(direct.natl[direct.natl$surveyYears == survey,],
+      # adjustment for 3-year period u5mr
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.u5[direct.natl.u5$surveyYears == survey,],
                                      ratio = adj.frame.tmp, 
                                      logit.lower = NULL,
                                      logit.upper = NULL,
                                      prob.upper = "upper",
                                      prob.lower = "lower")
-      direct.natl[direct.natl$surveyYears == survey,] <- 
-        tmp.adj[ ,  match(colnames(direct.natl),
+      direct.natl.u5[direct.natl.u5$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.u5),
+                          colnames(tmp.adj))]
+      
+      # adjustment for yearly nmr
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,],
+                                     ratio = adj.frame, 
+                                     logit.lower = NULL,
+                                     logit.upper = NULL,
+                                     prob.upper = "upper",
+                                     prob.lower = "lower")
+      direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.yearly.nmr),
+                          colnames(tmp.adj))]
+      
+      adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      adj.frame.tmp$years <- periods
+      
+      # adjustment for 3-year period nmr
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.nmr[direct.natl.nmr$surveyYears == survey,],
+                                     ratio = adj.frame.tmp, 
+                                     logit.lower = NULL,
+                                     logit.upper = NULL,
+                                     prob.upper = "upper",
+                                     prob.lower = "lower")
+      direct.natl.nmr[direct.natl.nmr$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.nmr),
                           colnames(tmp.adj))]
     }
     
@@ -334,31 +404,61 @@ if(length(births.list) != 1){
         }
         
         area.int <- admin1.names$Internal[match(area, admin1.names$GADM)]
-         tmp.adj <- SUMMER::getAdjusted(direct.admin1[direct.admin1$region == as.character(area.int) &
-                                                        direct.admin1$surveyYears == survey,],
+        
+        #adjustment for 3-year period U5MR
+         tmp.adj <- SUMMER::getAdjusted(direct.admin1.u5[direct.admin1.u5$region == as.character(area.int) &
+                                                        direct.admin1.u5$surveyYears == survey,],
                                         ratio = adj.frame.tmp, 
                                         logit.lower = NULL,
                                         logit.upper = NULL,
                                         prob.upper = "upper",
                                         prob.lower = "lower")
-         direct.admin1[direct.admin1$region == as.character(area.int) &
-                         direct.admin1$surveyYears == survey,] <- 
-           tmp.adj[ , match(colnames(direct.admin1),
+         direct.admin1.u5[direct.admin1.u5$region == as.character(area.int) &
+                         direct.admin1.u5$surveyYears == survey,] <- 
+           tmp.adj[ , match(colnames(direct.admin1.u5),
                             colnames(tmp.adj))]
         
-        tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly[direct.admin1.yearly$region == as.character(area.int) &
-                                                       direct.admin1.yearly$surveyYears == survey,],
+         #adjustment for yearly U5MR
+        tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly.u5[direct.admin1.yearly.u5$region == as.character(area.int) &
+                                                       direct.admin1.yearly.u5$surveyYears == survey,],
                                        ratio = adj.frame, 
                                        logit.lower = NULL,
                                        logit.upper = NULL,
                                        prob.upper = "upper",
                                        prob.lower = "lower")
-        direct.admin1.yearly[direct.admin1.yearly$region == as.character(area.int) &
-                        direct.admin1.yearly$surveyYears == survey,] <- 
-          tmp.adj[ , match(colnames(direct.admin1.yearly),
+        direct.admin1.yearly.u5[direct.admin1.yearly.u5$region == as.character(area.int) &
+                        direct.admin1.yearly.u5$surveyYears == survey,] <- 
+          tmp.adj[ , match(colnames(direct.admin1.yearly.u5),
                            colnames(tmp.adj))]
         
-        if(exists('direct.admin2')){
+        #adjustment for 3-year period NMR
+        tmp.adj <- SUMMER::getAdjusted(direct.admin1.nmr[direct.admin1.nmr$region == as.character(area.int) &
+                                                          direct.admin1.nmr$surveyYears == survey,],
+                                       ratio = adj.frame.tmp, 
+                                       logit.lower = NULL,
+                                       logit.upper = NULL,
+                                       prob.upper = "upper",
+                                       prob.lower = "lower")
+        direct.admin1.nmr[direct.admin1.nmr$region == as.character(area.int) &
+                           direct.admin1.nmr$surveyYears == survey,] <- 
+          tmp.adj[ , match(colnames(direct.admin1.nmr),
+                           colnames(tmp.adj))]
+        
+        #adjustment for yearly NMR
+        tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly.nmr[direct.admin1.yearly.nmr$region == as.character(area.int) &
+                                                                 direct.admin1.yearly.nmr$surveyYears == survey,],
+                                       ratio = adj.frame, 
+                                       logit.lower = NULL,
+                                       logit.upper = NULL,
+                                       prob.upper = "upper",
+                                       prob.lower = "lower")
+        direct.admin1.yearly.nmr[direct.admin1.yearly.nmr$region == as.character(area.int) &
+                                  direct.admin1.yearly.nmr$surveyYears == survey,] <- 
+          tmp.adj[ , match(colnames(direct.admin1.yearly.nmr),
+                           colnames(tmp.adj))]
+        
+        if(exists('direct.admin2.u5')){
+          #adjustment for 3-year period U5MR
           admin2.to.admin1 <- births.list[[1]][!duplicated(births.list[[1]]$admin2.name),] %>% 
             dplyr::select(GADM.adm2=admin2.name,Internal.adm2=admin2.char,GADM.adm1 = admin1.name)
           admin2.to.admin1 <- data.frame(admin2.to.admin1,
@@ -367,27 +467,55 @@ if(length(births.list) != 1){
                                                                         admin1.names$GADM)]
           admin2s <- admin2.to.admin1$Internal.adm2[admin2.to.admin1$Internal.adm1 == 
                                                       as.character(area.int)]
-          tmp.adj <- SUMMER::getAdjusted(direct.admin2[direct.admin2$region %in% admin2s &
-                                                         direct.admin2$surveyYears == survey,],
+          tmp.adj <- SUMMER::getAdjusted(direct.admin2.u5[direct.admin2.u5$region %in% admin2s &
+                                                         direct.admin2.u5$surveyYears == survey,],
                                          ratio = adj.frame.tmp, 
                                          logit.lower = NULL,
                                          logit.upper = NULL,
                                          prob.upper = "upper",
                                          prob.lower = "lower")
-          direct.admin2[direct.admin2$region %in% admin2s &
-                          direct.admin2$surveyYears == survey,] <- 
-            tmp.adj[ , match(colnames(direct.admin2), 
+          direct.admin2.u5[direct.admin2.u5$region %in% admin2s &
+                          direct.admin2.u5$surveyYears == survey,] <- 
+            tmp.adj[ , match(colnames(direct.admin2.u5), 
+                             colnames(tmp.adj))]
+          
+          #adjustment for 3-year period NMR
+          admin2.to.admin1 <- births.list.nmr[[1]][!duplicated(births.list.nmr[[1]]$admin2.name),] %>% 
+            dplyr::select(GADM.adm2=admin2.name,Internal.adm2=admin2.char,GADM.adm1 = admin1.name)
+          admin2.to.admin1 <- data.frame(admin2.to.admin1,
+                                         Internal.adm1 = NA)
+          admin2.to.admin1$Internal.adm1 <- admin1.names$Internal[match(admin2.to.admin1$GADM.adm1,
+                                                                        admin1.names$GADM)]
+          admin2s <- admin2.to.admin1$Internal.adm2[admin2.to.admin1$Internal.adm1 == 
+                                                      as.character(area.int)]
+          tmp.adj <- SUMMER::getAdjusted(direct.admin2.nmr[direct.admin2.nmr$region %in% admin2s &
+                                                            direct.admin2.nmr$surveyYears == survey,],
+                                         ratio = adj.frame.tmp, 
+                                         logit.lower = NULL,
+                                         logit.upper = NULL,
+                                         prob.upper = "upper",
+                                         prob.lower = "lower")
+          direct.admin2.nmr[direct.admin2.nmr$region %in% admin2s &
+                             direct.admin2.nmr$surveyYears == survey,] <- 
+            tmp.adj[ , match(colnames(direct.admin2.nmr), 
                              colnames(tmp.adj))]
         }
       }
     }
     
-    save(direct.natl.yearly, file = paste0(country, '_directHIV_natl_yearly.rda'))
-    save(direct.natl, file = paste0(country, '_directHIV_natl.rda'))
-    save(direct.admin1, file = paste0(country, '_directHIV_admin1.rda'))
-    save(direct.admin1.yearly, file = paste0(country, '_directHIV_admin1_yearly.rda'))
-    if(exists('direct.admin2')){
-      save(direct.admin2, file = paste0(country, '_directHIV_admin2.rda'))
+    save(direct.natl.u5, file = paste0('U5MR/',country, '_directHIV_natl_u5.rda'))
+    save(direct.natl.yearly.u5, file = paste0('U5MR/',country, '_directHIV_natl_yearly_u5.rda'))
+    save(direct.admin1.u5, file = paste0('U5MR/',country, '_directHIV_admin1_u5.rda'))
+    save(direct.admin1.yearly.u5, file = paste0('U5MR/',country, '_directHIV_admin1_yearly_u5.rda'))
+    if(exists('direct.admin2.u5')){
+      save(direct.admin2.u5, file = paste0('U5MR/',country, '_directHIV_admin2_u5.rda'))
+    }
+    save(direct.natl.nmr, file = paste0('NMR/',country, '_directHIV_natl_nmr.rda'))
+    save(direct.natl.yearly.nmr, file = paste0('NMR/',country, '_directHIV_natl_yearly_nmr.rda'))
+    save(direct.admin1.nmr, file = paste0('NMR/',country, '_directHIV_admin1_nmr.rda'))
+    save(direct.admin1.yearly.nmr, file = paste0('NMR/',country, '_directHIV_admin1_yearly_nmr.rda'))
+    if(exists('direct.admin2.nmr')){
+      save(direct.admin2.nmr, file = paste0('NMR/',country, '_directHIV_admin2_nmr.rda'))
     }
     
   }
@@ -398,29 +526,43 @@ if(length(births.list) != 1){
 
 ## load in appropriate direct estimates  ------------------------------------------------------
 if(doHIVAdj){
-  load( paste0(country, '_directHIV_natl_yearly.rda'))
-  load(paste0(country, '_directHIV_natl.rda'))
-  load(paste0(country, '_directHIV_admin1.rda'))
-  load(paste0(country, '_directHIV_admin1_yearly.rda'))
-  #if(exists('direct.admin2')){
-    load(paste0(country, '_directHIV_admin2.rda'))
-  #}
+  load(paste0('U5MR/',country, '_directHIV_natl_u5.rda'))
+  load(paste0('U5MR/',country, '_directHIV_natl_yearly_u5.rda'))
+  load(paste0('U5MR/',country, '_directHIV_admin1_u5.rda'))
+  load(paste0('U5MR/',country, '_directHIV_admin1_yearly_u5.rda'))
+  load(paste0('U5MR/',country, '_directHIV_admin2_u5.rda'))
+  
+  load(paste0('NMR/',country, '_directHIV_natl_nmr.rda'))
+  load(paste0('NMR/',country, '_directHIV_natl_yearly_nmr.rda'))
+  load(paste0('NMR/',country, '_directHIV_admin1_nmr.rda'))
+  load(paste0('NMR/',country, '_directHIV_admin1_yearly_nmr.rda'))
+  load(paste0('NMR/',country, '_directHIV_admin2_nmr.rda'))
 }else{
-  load( paste0(country, '_direct_natl_yearly.rda'))
-  load(paste0(country, '_direct_natl.rda'))
-  load(paste0(country, '_direct_admin1.rda'))
-  load(paste0(country, '_direct_admin1_yearly.rda'))
-  #if(exists('direct.admin2')){
-    load(paste0(country, '_direct_admin2.rda'))
-  #}
+  load(paste0('U5MR/',country, '_direct_natl_u5.rda'))
+  load(paste0('U5MR/',country, '_direct_natl_yearly_u5.rda'))
+  load(paste0('U5MR/',country, '_direct_admin1_u5.rda'))
+  load(paste0('U5MR/',country, '_direct_admin1_yearly_u5.rda'))
+  load(paste0('U5MR/',country, '_direct_admin2_u5.rda'))
+  
+  load(paste0('NMR/',country, '_direct_natl_nmr.rda'))
+  load(paste0('NMR/',country, '_direct_natl_yearly_nmr.rda'))
+  load(paste0('NMR/',country, '_direct_admin1_nmr.rda'))
+  load(paste0('NMR/',country, '_direct_admin1_yearly_nmr.rda'))
+  load(paste0('NMR/',country, '_direct_admin2_nmr.rda'))
 }
   
 ## aggregate surveys  ------------------------------------------------------
-data.natl <- SUMMER::aggregateSurvey(direct.natl)
-data.natl.yearly <- SUMMER::aggregateSurvey(direct.natl.yearly)
-data.admin1 <- SUMMER::aggregateSurvey(direct.admin1)
-data.admin1.yearly <- SUMMER::aggregateSurvey(direct.admin1.yearly)
-data.admin2 <- SUMMER::aggregateSurvey(direct.admin2)
+data.natl.u5 <- SUMMER::aggregateSurvey(direct.natl.u5)
+data.natl.yearly.u5 <- SUMMER::aggregateSurvey(direct.natl.yearly.u5)
+data.admin1.u5 <- SUMMER::aggregateSurvey(direct.admin1.u5)
+data.admin1.yearly.u5 <- SUMMER::aggregateSurvey(direct.admin1.yearly.u5)
+data.admin2.u5 <- SUMMER::aggregateSurvey(direct.admin2.u5)
+
+data.natl.nmr <- SUMMER::aggregateSurvey(direct.natl.nmr)
+data.natl.yearly.nmr <- SUMMER::aggregateSurvey(direct.natl.yearly.nmr)
+data.admin1.nmr <- SUMMER::aggregateSurvey(direct.admin1.nmr)
+data.admin1.yearly.nmr <- SUMMER::aggregateSurvey(direct.admin1.yearly.nmr)
+data.admin2.nmr <- SUMMER::aggregateSurvey(direct.admin2.nmr)
 
 
 ## extend periods to include projected years  ------------------------------------------------------
@@ -433,86 +575,165 @@ periods.survey <- periods
 periods <- c(periods,proj.per)
 
 ## National, 3-year period ------------------------------------------------------
-fit.natl <- smoothDirect(data.natl, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
+
+## U5MR
+fit.natl.u5 <- smoothDirect(data.natl.u5, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
                      year_label = c(periods),
                      year_range = c(beg.year, max(end.proj.years)), is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
 ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
 
- res.natl <- getSmoothed(fit.natl,year_range = c(beg.year, max(end.proj.years)),
+ res.natl.u5 <- getSmoothed(fit.natl.u5,year_range = c(beg.year, max(end.proj.years)),
                          year_label = periods) # sample for smoothed direct estimates
  
- res.natl$years.num <- seq(beg.year,max(end.proj.years),3)
- res.natl$region.gadm <- country
- save(res.natl, file = paste0(country, "_res_natl_SmoothedDirect.rda")) # save the national 3-year smoothed direct U5MR
+ res.natl.u5$years.num <- seq(beg.year,max(end.proj.years),3)
+ res.natl.u5$region.gadm <- country
+ save(res.natl.u5, file = paste0('U5MR/',country, "_res_natl_u5_SmoothedDirect.rda")) # save the national 3-year smoothed direct U5MR
+ 
+ ## NMR
+ fit.natl.nmr <- smoothDirect(data.natl.nmr, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
+                             year_label = c(periods),
+                             year_range = c(beg.year, max(end.proj.years)), is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
+ ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
+ 
+ res.natl.nmr <- getSmoothed(fit.natl.nmr,year_range = c(beg.year, max(end.proj.years)),
+                            year_label = periods) # sample for smoothed direct estimates
+ 
+ res.natl.nmr$years.num <- seq(beg.year,max(end.proj.years),3)
+ res.natl.nmr$region.gadm <- country
+ save(res.natl.nmr, file = paste0('NMR/',country, "_res_natl_nmr_SmoothedDirect.rda"))
+ 
 
 ## National, yearly  ------------------------------------------------------
   # include 3 years after last survey
-fit.natl.yearly <- smoothDirect(data.natl.yearly, geo = NULL, Amat = NULL,
+ #U5MR
+fit.natl.yearly.u5 <- smoothDirect(data.natl.yearly.u5, geo = NULL, Amat = NULL,
                            year_label = as.character(beg.year:max(end.proj.years)),
                            year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
-res.natl.yearly <- getSmoothed(fit.natl.yearly, year_range = c(beg.year, max(end.proj.years)),
+res.natl.yearly.u5 <- getSmoothed(fit.natl.yearly.u5, year_range = c(beg.year, max(end.proj.years)),
                                year_label = as.character(beg.year:max(end.proj.years)))
-res.natl.yearly$years.num <- beg.year:max(end.proj.years)
-res.natl.yearly$region.gadm <- country
-save(res.natl.yearly, file = paste0(country, "_res_natl_yearly_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
+res.natl.yearly.u5$years.num <- beg.year:max(end.proj.years)
+res.natl.yearly.u5$region.gadm <- country
+save(res.natl.yearly.u5, file = paste0('U5MR/',country, "_res_natl_yearly_u5_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
+
+#NMR
+fit.natl.yearly.nmr <- smoothDirect(data.natl.yearly.nmr, geo = NULL, Amat = NULL,
+                                   year_label = as.character(beg.year:max(end.proj.years)),
+                                   year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
+res.natl.yearly.nmr <- getSmoothed(fit.natl.yearly.nmr, year_range = c(beg.year, max(end.proj.years)),
+                                  year_label = as.character(beg.year:max(end.proj.years)))
+res.natl.yearly.nmr$years.num <- beg.year:max(end.proj.years)
+res.natl.yearly.nmr$region.gadm <- country
+save(res.natl.yearly.nmr, file = paste0('NMR/',country, "_res_natl_yearly_nmr_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
 
 
 ## Admin 1, 3-year period  ------------------------------------------------------
-data.admin1 <- data.admin1[data.admin1$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
-fit.admin1 <- smoothDirect(data.admin1, Amat = admin1.mat,
+
+## U5MR
+data.admin1.u5 <- data.admin1.u5[data.admin1.u5$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
+fit.admin1.u5 <- smoothDirect(data.admin1.u5, Amat = admin1.mat,
                       year_label = periods,
                       year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
-res.admin1 <- getSmoothed_sd(fit.admin1, Amat = admin1.mat,
+res.admin1.u5 <- getSmoothed_sd(fit.admin1.u5, Amat = admin1.mat,
                              year_label = periods,
                              year_range = c(beg.year, max(end.proj.years)),
                              save.draws = TRUE)
 
-res.admin1$results$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin1$results$years, periods)]
-res.admin1$results$region.gadm <- admin1.names$GADM[match(res.admin1$results$region, admin1.names$Internal)]
+res.admin1.u5$results$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin1.u5$results$years, periods)]
+res.admin1.u5$results$region.gadm <- admin1.names$GADM[match(res.admin1.u5$results$region, admin1.names$Internal)]
 
-save(res.admin1, file = paste0(country, "_res_admin1_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
+save(res.admin1.u5, file = paste0('U5MR/',country, "_res_admin1_u5_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
+
+## NMR
+data.admin1.nmr <- data.admin1.nmr[data.admin1.nmr$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
+fit.admin1.nmr <- smoothDirect(data.admin1.nmr, Amat = admin1.mat,
+                              year_label = periods,
+                              year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
+res.admin1.nmr <- getSmoothed_sd(fit.admin1.nmr, Amat = admin1.mat,
+                                year_label = periods,
+                                year_range = c(beg.year, max(end.proj.years)),
+                                save.draws = TRUE)
+
+res.admin1.nmr$results$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin1.nmr$results$years, periods)]
+res.admin1.nmr$results$region.gadm <- admin1.names$GADM[match(res.admin1.nmr$results$region, admin1.names$Internal)]
+
+save(res.admin1.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
 
 
 ## Admin 1, yearly  ------------------------------------------------------
-data.admin1.yearly <- data.admin1.yearly[data.admin1.yearly$region!='All',]
-fit.admin1.yearly <- smoothDirect(data.admin1.yearly, Amat = admin1.mat,
+
+##U5MR
+data.admin1.yearly.u5 <- data.admin1.yearly.u5[data.admin1.yearly.u5$region!='All',]
+fit.admin1.yearly.u5 <- smoothDirect(data.admin1.yearly.u5, Amat = admin1.mat,
                              year_label = as.character(beg.year:max(end.proj.years)),
                              year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
-sd.admin1.yearly <- getSmoothed_sd(fit.admin1.yearly, Amat = admin1.mat,
+sd.admin1.yearly.u5 <- getSmoothed_sd(fit.admin1.yearly.u5, Amat = admin1.mat,
                                    year_label = as.character(beg.year:max(end.proj.years)),
                                    year_range = c(beg.year, max(end.proj.years)),
                                    save.draws = TRUE)
-sd.admin1.yearly$results$region.gadm <- admin1.names$GADM[match(sd.admin1.yearly$results$region, admin1.names$Internal)]
+sd.admin1.yearly.u5$results$region.gadm <- admin1.names$GADM[match(sd.admin1.yearly.u5$results$region, admin1.names$Internal)]
 
-save(sd.admin1.yearly, file = paste0(country, "_res_admin1_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
+save(sd.admin1.yearly.u5, file = paste0('U5MR/',country, "_res_admin1_u5_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
+
+##NMR
+data.admin1.yearly.nmr <- data.admin1.yearly.nmr[data.admin1.yearly.nmr$region!='All',]
+fit.admin1.yearly.nmr <- smoothDirect(data.admin1.yearly.nmr, Amat = admin1.mat,
+                                     year_label = as.character(beg.year:max(end.proj.years)),
+                                     year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
+sd.admin1.yearly.nmr <- getSmoothed_sd(fit.admin1.yearly.nmr, Amat = admin1.mat,
+                                      year_label = as.character(beg.year:max(end.proj.years)),
+                                      year_range = c(beg.year, max(end.proj.years)),
+                                      save.draws = TRUE)
+sd.admin1.yearly.nmr$results$region.gadm <- admin1.names$GADM[match(sd.admin1.yearly.nmr$results$region, admin1.names$Internal)]
+
+save(sd.admin1.yearly.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
+
 
 ## Admin 2, 3-year period ------------------------------------------------------
 
-data.admin2 <- data.admin2[data.admin2$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
-fit.admin2 <- smoothDirect(data.admin2, Amat = admin2.mat,
+## U5MR
+data.admin2.u5 <- data.admin2.u5[data.admin2.u5$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
+fit.admin2.u5 <- smoothDirect(data.admin2.u5, Amat = admin2.mat,
                       year_label = periods,
                       year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
-res.admin2 <- getSmoothed_sd(fit.admin2, Amat = admin2.mat,
+res.admin2.u5 <- getSmoothed_sd(fit.admin2.u5, Amat = admin2.mat,
                              year_label = periods,
                              year_range = c(beg.year, max(end.proj.years)),
                              save.draws = TRUE)
 
-res.admin2$results$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin2$results$years, periods)]
-res.admin2$results$region.gadm <- admin2.names$GADM[match(res.admin2$results$region, admin2.names$Internal)]
+res.admin2.u5$results$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin2.u5$results$years, periods)]
+res.admin2.u5$results$region.gadm <- admin2.names$GADM[match(res.admin2.u5$results$region, admin2.names$Internal)]
 
-save(res.admin2, file = paste0(country, "_res_admin2_SmoothedDirect.rda"))
+save(res.admin2.u5, file = paste0('U5MR/',country, "_res_admin2_u5_SmoothedDirect.rda"))
+
+## NMR
+data.admin2.nmr <- data.admin2.nmr[data.admin2.nmr$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
+fit.admin2.nmr <- smoothDirect(data.admin2.nmr, Amat = admin2.mat,
+                              year_label = periods,
+                              year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
+res.admin2.nmr <- getSmoothed_sd(fit.admin2.nmr, Amat = admin2.mat,
+                                year_label = periods,
+                                year_range = c(beg.year, max(end.proj.years)),
+                                save.draws = TRUE)
+
+res.admin2.nmr$results$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin2.nmr$results$years, periods)]
+res.admin2.nmr$results$region.gadm <- admin2.names$GADM[match(res.admin2.nmr$results$region, admin2.names$Internal)]
+
+save(res.admin2.nmr, file = paste0('NMR/',country, "_res_admin2_nmr_SmoothedDirect.rda"))
+
 
 # Polygon plots ------------------------------------------------------
 setwd(res.dir)
 ## Admin 1 Direct, by survey  ------------------------------------------------------
 
 for(plotyears in periods.survey){
-  tmp <- direct.admin1[direct.admin1$years == paste(plotyears),]
+  
+  # U5MR
+  tmp <- direct.admin1.u5[direct.admin1.u5$years == paste(plotyears),]
   tmp$regionPlot <- admin1.names$GADM[match(tmp$region, admin1.names$Internal)]
   
-  pdf(paste0("Figures/Direct/Admin1/",
+  pdf(paste0("Figures/Direct/U5MR/Admin1/",
              country, 
-             "_admin1_direct_poly_bySurvey_",
+             "_admin1_u5_direct_poly_bySurvey_",
              plotyears, ".pdf"),
       width = 3.5, height = 3.5)
   {
@@ -527,17 +748,41 @@ for(plotyears in periods.survey){
                           by.geo = paste0(sub(".*data[$]","",poly.label.adm1))))
   }
   dev.off()
+  
+  # NMR
+  tmp <- direct.admin1.nmr[direct.admin1.nmr$years == paste(plotyears),]
+  tmp$regionPlot <- admin1.names$GADM[match(tmp$region, admin1.names$Internal)]
+  
+  pdf(paste0("Figures/Direct/NMR/Admin1/",
+             country, 
+             "_admin1_nmr_direct_poly_bySurvey_",
+             plotyears, ".pdf"),
+      width = 3.5, height = 3.5)
+  {
+    print(SUMMER::mapPlot(data = tmp,
+                          is.long = T, 
+                          variables = "surveyYears", 
+                          values = "mean",direction = -1,
+                          geo = poly.adm1, ncol = 2,
+                          legend.label = "NMR",
+                          per1000 = TRUE,
+                          by.data = "regionPlot",
+                          by.geo = paste0(sub(".*data[$]","",poly.label.adm1))))
+  }
+  dev.off()
 }
 
 ## Admin 1 Direct, aggregated  ------------------------------------------------------
-plotagg.admin1 <- aggregateSurvey(direct.admin1)
-plotagg.admin1$regionPlot <- admin1.names$GADM[match(plotagg.admin1$region,
+
+## U5MR
+plotagg.admin1.u5 <- aggregateSurvey(direct.admin1.u5)
+plotagg.admin1.u5$regionPlot <- admin1.names$GADM[match(plotagg.admin1.u5$region,
                                                      admin1.names$Internal)]
-pdf(paste0("Figures/Direct/Admin1/",
+pdf(paste0("Figures/Direct/U5MR/Admin1/",
            country,
-           "_admin1_direct_poly_Meta.pdf"))
+           "_admin1_direct_u5_poly_Meta.pdf"))
 {
-  print(SUMMER::mapPlot(data = plotagg.admin1,
+  print(SUMMER::mapPlot(data = plotagg.admin1.u5,
                         is.long = T, 
                         variables = "years", 
                         values = "mean",
@@ -550,13 +795,38 @@ pdf(paste0("Figures/Direct/Admin1/",
                         by.geo = sub(".*data[$]","",poly.label.adm1)))
 }
 dev.off()
-## Admin 1 Smoothed Direct  ------------------------------------------------------
-pdf(paste0("Figures/SmoothedDirect/",
+
+## NMR
+plotagg.admin1.nmr <- aggregateSurvey(direct.admin1.nmr)
+plotagg.admin1.nmr$regionPlot <- admin1.names$GADM[match(plotagg.admin1.nmr$region,
+                                                        admin1.names$Internal)]
+pdf(paste0("Figures/Direct/NMR/Admin1/",
            country,
-           '_admin1_', 
-           'SmoothedDirect_poly.pdf'))
+           "_admin1_direct_nmr_poly_Meta.pdf"))
 {
-  print(SUMMER::mapPlot(data = res.admin1$results,
+  print(SUMMER::mapPlot(data = plotagg.admin1.nmr,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "mean",
+                        direction = -1,
+                        geo = poly.adm1,
+                        ncol = 3,
+                        legend.label = "NMR",
+                        per1000 = TRUE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+}
+dev.off()
+
+
+## Admin 1 Smoothed Direct  ------------------------------------------------------
+
+## U5MR
+pdf(paste0("Figures/SmoothedDirect/U5MR/",
+           country,
+           '_admin1_u5_SmoothedDirect_poly.pdf'))
+{
+  print(SUMMER::mapPlot(data = res.admin1.u5$results,
                         is.long = T, 
                         variables = "years", 
                         values = "median",
@@ -571,15 +841,37 @@ pdf(paste0("Figures/SmoothedDirect/",
 }
 dev.off()
 
+## NMR
+pdf(paste0("Figures/SmoothedDirect/NMR/",
+           country,
+           '_admin1_nmr_SmoothedDirect_poly.pdf'))
+{
+  print(SUMMER::mapPlot(data = res.admin1.nmr$results,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "median",
+                        direction = -1,
+                        geo = poly.adm1,
+                        ncol = 3,
+                        legend.label = "NMR",
+                        per1000 = TRUE,
+                        by.data = "region.gadm",
+                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+  
+}
+dev.off()
+
 
 ## Admin 2 Direct, by survey  ------------------------------------------------------
 for(plotyears in periods.survey){
-  tmp <- direct.admin2[direct.admin2$years == paste(plotyears),]
+  
+  ## U5MR
+  tmp <- direct.admin2.u5[direct.admin2.u5$years == paste(plotyears),]
   tmp$regionPlot <- admin2.names$GADM[match(tmp$region, admin2.names$Internal)]
   
-  pdf(paste0("Figures/Direct/Admin2/",
+  pdf(paste0("Figures/Direct/U5MR/Admin2/",
              country, 
-             "_admin2_direct_poly_bySurvey_",
+             "_admin2_u5_direct_poly_bySurvey_",
              plotyears, ".pdf"),
       width = 3.5, height = 3.5)
   {
@@ -595,17 +887,42 @@ for(plotyears in periods.survey){
                           by.geo = sub(".*data[$]","",poly.label.adm2)))
   }
   dev.off()
+  
+  ## NMR
+  tmp <- direct.admin2.nmr[direct.admin2.nmr$years == paste(plotyears),]
+  tmp$regionPlot <- admin2.names$GADM[match(tmp$region, admin2.names$Internal)]
+  
+  pdf(paste0("Figures/Direct/NMR/Admin2/",
+             country, 
+             "_admin2_nmr_direct_poly_bySurvey_",
+             plotyears, ".pdf"),
+      width = 3.5, height = 3.5)
+  {
+    print(SUMMER::mapPlot(data = tmp,
+                          is.long = T, 
+                          variables = "surveyYears", 
+                          values = "mean",direction = -1,
+                          geo = poly.adm2, ncol = 2,
+                          legend.label = "NMR",
+                          per1000 = TRUE,
+                          by.data = "regionPlot",
+                          #changed for Malawi (generalise later)
+                          by.geo = sub(".*data[$]","",poly.label.adm2)))
+  }
+  dev.off()
 }
 
 ## Admin 2 Direct, aggregated  ------------------------------------------------------
-plotagg.admin2 <- aggregateSurvey(direct.admin2)
-plotagg.admin2$regionPlot <- admin2.names$GADM[match(plotagg.admin2$region,
+
+## U5MR
+plotagg.admin2.u5 <- aggregateSurvey(direct.admin2.u5)
+plotagg.admin2.u5$regionPlot <- admin2.names$GADM[match(plotagg.admin2.u5$region,
                                                      admin2.names$Internal)]
-pdf(paste0("Figures/Direct/Admin2/",
+pdf(paste0("Figures/Direct/U5MR/Admin2/",
            country,
-           "_admin2_direct_poly_Meta.pdf"))
+           "_admin2_u5_direct_poly_Meta.pdf"))
 {
-  print(SUMMER::mapPlot(data = plotagg.admin2,
+  print(SUMMER::mapPlot(data = plotagg.admin2.u5,
                         is.long = T, 
                         variables = "years", 
                         values = "mean",
@@ -618,13 +935,38 @@ pdf(paste0("Figures/Direct/Admin2/",
                         by.geo =sub(".*data[$]","",poly.label.adm2)))
 }
 dev.off()
-## Admin 2 Smoothed Direct  ------------------------------------------------------
-pdf(paste0("Figures/SmoothedDirect/",
+
+## NMR
+plotagg.admin2.nmr <- aggregateSurvey(direct.admin2.nmr)
+plotagg.admin2.nmr$regionPlot <- admin2.names$GADM[match(plotagg.admin2.nmr$region,
+                                                        admin2.names$Internal)]
+pdf(paste0("Figures/Direct/NMR/Admin2/",
            country,
-           '_admin2_', 
+           "_admin2_nmr_direct_poly_Meta.pdf"))
+{
+  print(SUMMER::mapPlot(data = plotagg.admin2.nmr,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "mean",
+                        direction = -1,
+                        geo = poly.adm2,
+                        ncol = 3,
+                        legend.label = "NMR",
+                        per1000 = TRUE,
+                        by.data = "regionPlot",
+                        by.geo =sub(".*data[$]","",poly.label.adm2)))
+}
+dev.off()
+
+## Admin 2 Smoothed Direct  ------------------------------------------------------
+
+## U5MR
+pdf(paste0("Figures/SmoothedDirect/U5MR/",
+           country,
+           '_admin2_u5_', 
            'SmoothedDirect_poly.pdf'))
 {
-  print(SUMMER::mapPlot(data = res.admin2$results,
+  print(SUMMER::mapPlot(data = res.admin2.u5$results,
                         is.long = T, 
                         variables = "years", 
                         values = "median",
@@ -639,16 +981,48 @@ pdf(paste0("Figures/SmoothedDirect/",
 }
 dev.off()
 
+## NMR
+pdf(paste0("Figures/SmoothedDirect/NMR/",
+           country,
+           '_admin2_nmr_', 
+           'SmoothedDirect_poly.pdf'))
+{
+  print(SUMMER::mapPlot(data = res.admin2.nmr$results,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "median",
+                        direction = -1,
+                        geo = poly.adm2,
+                        ncol = 3,
+                        legend.label = "NMR",
+                        per1000 = TRUE,
+                        by.data = "region.gadm",
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
+  
+}
+dev.off()
+
 # Spaghetti plots ------------------------------------------------------
 
 ## Load IGME estimates ------------------------------------------------------
-setwd(data.dir)
-igme.ests <- read.csv(paste0(country.abbrev,'_igme_est.csv'),
+setwd(paste0(home.dir,'/Data/IGME'))
+
+## U5MR
+igme.ests.u5 <- read.csv(paste0(country.abbrev,'_u5_igme_est.csv'),
                       header = T)
-names(igme.ests) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
-igme.ests$year <- igme.ests$year-0.5
-igme.ests <- igme.ests[igme.ests$year %in% beg.year:max(end.proj.years),]
-igme.ests <- igme.ests[order(igme.ests$year),]
+names(igme.ests.u5) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
+igme.ests.u5$year <- igme.ests.u5$year-0.5
+igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:max(end.proj.years),]
+igme.ests.u5 <- igme.ests.u5[order(igme.ests.u5$year),]
+
+## NMR
+igme.ests.nmr <- read.csv(paste0(country.abbrev,'_nmr_igme_est.csv'),
+                         header = T)
+names(igme.ests.nmr) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
+igme.ests.nmr$year <- igme.ests.nmr$year-0.5
+igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:max(end.proj.years),]
+igme.ests.nmr <- igme.ests.nmr[order(igme.ests.nmr$year),]
+
 
 ## National, 3-year period ------------------------------------------------------
 cols <- rainbow(length(survey_years))
