@@ -1025,25 +1025,27 @@ igme.ests.nmr <- igme.ests.nmr[order(igme.ests.nmr$year),]
 
 
 ## National, 3-year period ------------------------------------------------------
+setwd(res.dir)
 cols <- rainbow(length(survey_years))
 pane.years <- jitter(end.period.years)
 
-direct.natl$width <- direct.natl$upper - direct.natl$lower
-direct.natl$cex2 <- median(direct.natl$width, na.rm = T)/direct.natl$width
-direct.natl$cex2[direct.natl$cex2 > 6] <- 6
+## U5MR
+direct.natl.u5$width <- direct.natl.u5$upper - direct.natl.u5$lower
+direct.natl.u5$cex2 <- median(direct.natl.u5$width, na.rm = T)/direct.natl.u5$width
+direct.natl.u5$cex2[direct.natl.u5$cex2 > 6] <- 6
 
-if(dim(direct.natl)[1] != 0 &
-   !(sum(is.na(direct.natl$mean)) == nrow(direct.natl))){
-  plot.max <- max(direct.natl$upper+.025, na.rm = T)
+if(dim(direct.natl.u5)[1] != 0 &
+   !(sum(is.na(direct.natl.u5$mean)) == nrow(direct.natl.u5))){
+  plot.max <- max(res.natl.u5$upper+.025, na.rm = T)
 }else{plot.max <- 0.25}
 
-pdf(paste0("Figures/SmoothedDirect/",
+pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country, 
-           '_natl_SmoothedDirect_spaghetti.pdf'),
+           '_natl_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1))
-  if(nrow(direct.natl) > 0 & sum(is.na(direct.natl$mean)) == nrow(direct.natl)){
+  if(nrow(direct.natl.u5) > 0 & sum(is.na(direct.natl.u5$mean)) == nrow(direct.natl.u5)){
     plot(NA,
          xlab = "Year",
          ylab = "U5MR",
@@ -1062,7 +1064,7 @@ pdf(paste0("Figures/SmoothedDirect/",
     
   }else{
     for(survey in survey_years){
-      tmp <- direct.natl[direct.natl$surveyYears == survey,]
+      tmp <- direct.natl.u5[direct.natl.u5$surveyYears == survey,]
       svy.idx <- match(survey, survey_years) 
       
       if(svy.idx==1){
@@ -1078,15 +1080,15 @@ pdf(paste0("Figures/SmoothedDirect/",
                cex = tmp$cex2)
         
         #add IGME reference lines
-        igme.years <- jitter(beg.year:max(igme.ests$year))
+        igme.years <- jitter(beg.year:max(igme.ests.u5$year))
         lines(igme.years,
-              igme.ests$OBS_VALUE/1000,
+              igme.ests.u5$OBS_VALUE/1000,
               lwd = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests$UPPER_BOUND/1000,
+              igme.ests.u5$UPPER_BOUND/1000,
               lty = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests$LOWER_BOUND/1000, 
+              igme.ests.u5$LOWER_BOUND/1000, 
               lty = 2, col  = 'grey37')
         
       }else{
@@ -1099,11 +1101,96 @@ pdf(paste0("Figures/SmoothedDirect/",
       
     }
   }
-  lines(res.natl$years.num, res.natl$median,
+  lines(res.natl.u5$years.num, res.natl.u5$median,
         col = 'black', lwd = 2)
-  lines(res.natl$years.num, res.natl$upper,
+  lines(res.natl.u5$years.num, res.natl.u5$upper,
         col = 'black', lty = 2)
-  lines(res.natl$years.num,res.natl$lower, 
+  lines(res.natl.u5$years.num,res.natl.u5$lower, 
+        col = 'black', lty = 2)
+  legend('topright', bty = 'n',
+         col = c(cols, 'grey37','black'),
+         lwd = 2, legend = c(survey_years,'UN IGME', "Smoothed"))
+  
+}
+dev.off()
+
+## NMR
+direct.natl.nmr$width <- direct.natl.nmr$upper - direct.natl.nmr$lower
+direct.natl.nmr$cex2 <- median(direct.natl.nmr$width, na.rm = T)/direct.natl.nmr$width
+direct.natl.nmr$cex2[direct.natl.nmr$cex2 > 6] <- 6
+
+if(dim(direct.natl.nmr)[1] != 0 &
+   !(sum(is.na(direct.natl.nmr$mean)) == nrow(direct.natl.nmr))){
+  plot.max <- max(res.natl.nmr$upper+.025, na.rm = T)
+}else{plot.max <- 0.25}
+
+pdf(paste0("Figures/SmoothedDirect/NMR/",
+           country, 
+           '_natl_nmr_SmoothedDirect_spaghetti.pdf'),
+    height = 6, width = 6)
+{
+  par(mfrow=c(1,1))
+  if(nrow(direct.natl.nmr) > 0 & sum(is.na(direct.natl.nmr$mean)) == nrow(direct.natl.nmr)){
+    plot(NA,
+         xlab = "Year",
+         ylab = "NMR",
+         ylim = c(0, plot.max),
+         xlim = c(beg.year, max(end.proj.years)),
+         type = 'l',
+         col = cols[svy.idx],
+         lwd = 2,
+         main = country)
+    
+    legend('topright',
+           bty = 'n',
+           col = c(cols, 'grey37', 'black'),
+           lwd = 2, lty = 1,
+           legend = c(survey_years,"UN IGME", "Smoothed"))
+    
+  }else{
+    for(survey in survey_years){
+      tmp <- direct.natl.nmr[direct.natl.nmr$surveyYears == survey,]
+      svy.idx <- match(survey, survey_years) 
+      
+      if(svy.idx==1){
+        plot(NA, xlab = "Year", ylab = "NMR",
+             ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)),
+             type = 'l', col = cols[svy.idx], lwd = 2, main = country)
+        
+        lines(pane.years, tmp$mean, cex = tmp$cex2,
+              type = 'l',  col = adjustcolor(cols[svy.idx], 0.35), lwd = 2)
+        
+        points(pane.years, tmp$mean, pch = 19,
+               col = adjustcolor(cols[svy.idx], 0.35),
+               cex = tmp$cex2)
+        
+        #add IGME reference lines
+        igme.years <- jitter(beg.year:max(igme.ests.nmr$year))
+        lines(igme.years,
+              igme.ests.nmr$OBS_VALUE/1000,
+              lwd = 2, col  = 'grey37')
+        lines(igme.years,
+              igme.ests.nmr$UPPER_BOUND/1000,
+              lty = 2, col  = 'grey37')
+        lines(igme.years,
+              igme.ests.nmr$LOWER_BOUND/1000, 
+              lty = 2, col  = 'grey37')
+        
+      }else{
+        lines(pane.years, tmp$mean, cex = tmp$cex2,
+              type = 'l',  col = adjustcolor(cols[svy.idx], 0.35), lwd = 2)
+        points(pane.years, tmp$mean, pch = 19, 
+               col = adjustcolor(cols[svy.idx], 0.35),
+               cex = tmp$cex2)
+      }
+      
+    }
+  }
+  lines(res.natl.nmr$years.num, res.natl.nmr$median,
+        col = 'black', lwd = 2)
+  lines(res.natl.nmr$years.num, res.natl.nmr$upper,
+        col = 'black', lty = 2)
+  lines(res.natl.nmr$years.num,res.natl.nmr$lower, 
         col = 'black', lty = 2)
   legend('topright', bty = 'n',
          col = c(cols, 'grey37','black'),
@@ -1117,21 +1204,22 @@ dev.off()
 
 cols <- rainbow(length(survey_years))
 
-direct.natl.yearly$width <- direct.natl.yearly$upper - direct.natl.yearly$lower
-direct.natl.yearly$cex2 <- median(direct.natl.yearly$width, na.rm = T)/direct.natl.yearly$width
-direct.natl.yearly$cex2[direct.natl.yearly$cex2 > 6] <- 6
+## U5MR
+direct.natl.yearly.u5$width <- direct.natl.yearly.u5$upper - direct.natl.yearly.u5$lower
+direct.natl.yearly.u5$cex2 <- median(direct.natl.yearly.u5$width, na.rm = T)/direct.natl.yearly.u5$width
+direct.natl.yearly.u5$cex2[direct.natl.yearly.u5$cex2 > 6] <- 6
 
-if(dim(direct.natl.yearly)[1] != 0 & !(sum(is.na(direct.natl.yearly$mean)) == nrow(direct.natl.yearly))){
-  plot.max <- max(direct.natl.yearly$upper+.025, na.rm = T)
+if(dim(direct.natl.yearly.u5)[1] != 0 & !(sum(is.na(direct.natl.yearly.u5$mean)) == nrow(direct.natl.yearly.u5))){
+  plot.max <- max(res.natl.yearly.u5$upper+.025, na.rm = T)
 }else{plot.max <- 0.25}
 
-pdf(paste0("Figures/SmoothedDirect/",
+pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country, 
-           '_natl_yearly_SmoothedDirect_spaghetti.pdf'),
+           '_natl_yearly_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1))
-  if (nrow(direct.natl.yearly) > 0 & sum(is.na(direct.natl.yearly$mean)) == nrow(direct.natl.yearly)) {
+  if (nrow(direct.natl.yearly.u5) > 0 & sum(is.na(direct.natl.yearly.u5$mean)) == nrow(direct.natl.yearly.u5)) {
     plot(NA, xlab = "Year", ylab = "U5MR",
          ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)),
          type = 'l', lwd = 2,col = cols[svy.idx], main = country)
@@ -1143,7 +1231,7 @@ pdf(paste0("Figures/SmoothedDirect/",
     
   }else{
     for(survey in survey_years){
-      tmp <- direct.natl.yearly[direct.natl.yearly$surveyYears == survey,]
+      tmp <- direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,]
       svy.idx <- match(survey, survey_years) 
       pane.years <- jitter(tmp$years)
       
@@ -1160,15 +1248,15 @@ pdf(paste0("Figures/SmoothedDirect/",
                cex = tmp$cex2)
         
         #add IGME reference lines
-        igme.years <- jitter(beg.year:max(igme.ests$year))
+        igme.years <- jitter(beg.year:max(igme.ests.u5$year))
         lines(igme.years,
-              igme.ests$OBS_VALUE/1000,
+              igme.ests.u5$OBS_VALUE/1000,
               lwd = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests$UPPER_BOUND/1000,
+              igme.ests.u5$UPPER_BOUND/1000,
               lty = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests$LOWER_BOUND/1000, 
+              igme.ests.u5$LOWER_BOUND/1000, 
               lty = 2, col  = 'grey37')
         
       }else{
@@ -1181,11 +1269,11 @@ pdf(paste0("Figures/SmoothedDirect/",
     }
   }
   
-  lines(res.natl.yearly$years.num, res.natl.yearly$median,
+  lines(res.natl.yearly.u5$years.num, res.natl.yearly.u5$median,
         col = 'black', lwd = 2)
-  lines(res.natl.yearly$years.num, res.natl.yearly$upper,
+  lines(res.natl.yearly.u5$years.num, res.natl.yearly.u5$upper,
         col = 'black', lty = 2)
-  lines(res.natl.yearly$years.num,res.natl.yearly$lower, 
+  lines(res.natl.yearly.u5$years.num,res.natl.yearly.u5$lower, 
         col = 'black', lty = 2)
   legend('topright', bty = 'n',
          col = c(cols, 'grey37','black'),
@@ -1193,15 +1281,95 @@ pdf(paste0("Figures/SmoothedDirect/",
 }
 dev.off()
 
+## NMR
+direct.natl.yearly.nmr$width <- direct.natl.yearly.nmr$upper - direct.natl.yearly.nmr$lower
+direct.natl.yearly.nmr$cex2 <- median(direct.natl.yearly.nmr$width, na.rm = T)/direct.natl.yearly.nmr$width
+direct.natl.yearly.nmr$cex2[direct.natl.yearly.nmr$cex2 > 6] <- 6
+
+if(dim(direct.natl.yearly.nmr)[1] != 0 & !(sum(is.na(direct.natl.yearly.nmr$mean)) == nrow(direct.natl.yearly.nmr))){
+  plot.max <- max(res.natl.yearly.nmr$upper+.025, na.rm = T)
+}else{plot.max <- 0.25}
+
+pdf(paste0("Figures/SmoothedDirect/NMR/",
+           country, 
+           '_natl_yearly_nmr_SmoothedDirect_spaghetti.pdf'),
+    height = 6, width = 6)
+{
+  par(mfrow=c(1,1))
+  if (nrow(direct.natl.yearly.nmr) > 0 & sum(is.na(direct.natl.yearly.nmr$mean)) == nrow(direct.natl.yearly.nmr)) {
+    plot(NA, xlab = "Year", ylab = "NMR",
+         ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)),
+         type = 'l', lwd = 2,col = cols[svy.idx], main = country)
+    
+    legend('topright', bty = 'n',
+           col = c(cols, 'grey37', 'black'),
+           lwd = 2,
+           legend = c(survey_years,"UN IGME","Smoothed"))
+    
+  }else{
+    for(survey in survey_years){
+      tmp <- direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,]
+      svy.idx <- match(survey, survey_years) 
+      pane.years <- jitter(tmp$years)
+      
+      if(svy.idx==1){
+        plot(NA, xlab = "Year", ylab = "NMR",
+             ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)),
+             type = 'l', col = cols[svy.idx], lwd = 2, main = country)
+        
+        lines(pane.years, tmp$mean, cex = tmp$cex2,
+              type = 'l', col = cols[svy.idx], lwd = 2)
+        
+        points(pane.years, tmp$mean, pch = 19,
+               col = adjustcolor(cols[svy.idx], 0.35),
+               cex = tmp$cex2)
+        
+        #add IGME reference lines
+        igme.years <- jitter(beg.year:max(igme.ests.nmr$year))
+        lines(igme.years,
+              igme.ests.nmr$OBS_VALUE/1000,
+              lwd = 2, col  = 'grey37')
+        lines(igme.years,
+              igme.ests.nmr$UPPER_BOUND/1000,
+              lty = 2, col  = 'grey37')
+        lines(igme.years,
+              igme.ests.nmr$LOWER_BOUND/1000, 
+              lty = 2, col  = 'grey37')
+        
+      }else{
+        lines(pane.years, tmp$mean, cex = tmp$cex2,
+              type = 'l', col = cols[svy.idx], lwd = 2)
+        points(pane.years, tmp$mean, pch = 19, 
+               col = adjustcolor(cols[svy.idx], 0.35),
+               cex = tmp$cex2)
+      }
+    }
+  }
+  
+  lines(res.natl.yearly.nmr$years.num, res.natl.yearly.nmr$median,
+        col = 'black', lwd = 2)
+  lines(res.natl.yearly.nmr$years.num, res.natl.yearly.nmr$upper,
+        col = 'black', lty = 2)
+  lines(res.natl.yearly.nmr$years.num,res.natl.yearly.nmr$lower, 
+        col = 'black', lty = 2)
+  legend('topright', bty = 'n',
+         col = c(cols, 'grey37','black'),
+         lwd = 2, legend = c(survey_years,"UN IGME", "Smoothed"))
+}
+dev.off()
+
+
 ## Admin 1, 3-year period ------------------------------------------------------
 
 cols <- rainbow(nrow(admin1.names))
-pdf(paste0("Figures/SmoothedDirect/",country, 
-           '_admin1_SmoothedDirect_spaghetti.pdf'),
+
+## U5MR
+pdf(paste0("Figures/SmoothedDirect/U5MR/",country, 
+           '_admin1_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1),lend=1)
-  plot.max <- max(direct.admin1$upper+.025, na.rm = T)
+  plot.max <- max(res.admin1.u5$results$upper+.025, na.rm = T)
   
   plot(NA, xlab = "Year", ylab = "U5MR",
        ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)), main = paste0(country,' - Admin 1 Regions'))
@@ -1209,13 +1377,13 @@ pdf(paste0("Figures/SmoothedDirect/",country,
            col = cols, lwd = 2,  legend = admin1.names$GADM)
   
   for(area in 1:dim(poly.adm1)[1]){
-    tmp.area <- direct.admin1[direct.admin1$region == 
+    tmp.area <- direct.admin1.u5[direct.admin1.u5$region == 
                                 as.character(admin1.names$Internal[area]),]
     tmp.area$width <- tmp.area$upper - tmp.area$lower
     tmp.area$cex2 <- median(tmp.area$width, na.rm = T)/tmp.area$width
     tmp.area$cex2[tmp.area$cex2 > 6] <- 6
     
-    res.area <- res.admin1$results[res.admin1$results$region == as.character(admin1.names$Internal[area]),]
+    res.area <- res.admin1.u5$results[res.admin1.u5$results$region == as.character(admin1.names$Internal[area]),]
     
     lines(res.area$years.num,res.area$median,
           col = cols[area], lwd = 2)
@@ -1228,27 +1396,90 @@ pdf(paste0("Figures/SmoothedDirect/",country,
 }
 dev.off()
 
-## Admin 2, 3-year period ------------------------------------------------------
-
-cols <- rainbow(nrow(admin2.names))
-pdf(paste0("Figures/SmoothedDirect/",country, 
-           '_admin2_SmoothedDirect_spaghetti.pdf'),
+## NMR
+pdf(paste0("Figures/SmoothedDirect/NMR/",country, 
+           '_admin1_nmr_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1),lend=1)
-  plot.max <- max(direct.admin2$mean+.025, na.rm = T)
+  plot.max <- max(res.admin1.nmr$results$upper+.025, na.rm = T)
+  
+  plot(NA, xlab = "Year", ylab = "NMR",
+       ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)), main = paste0(country,' - Admin 1 Regions'))
+  legend('topright', bty = 'n',
+         col = cols, lwd = 2,  legend = admin1.names$GADM)
+  
+  for(area in 1:dim(poly.adm1)[1]){
+    tmp.area <- direct.admin1.nmr[direct.admin1.nmr$region == 
+                                   as.character(admin1.names$Internal[area]),]
+    tmp.area$width <- tmp.area$upper - tmp.area$lower
+    tmp.area$cex2 <- median(tmp.area$width, na.rm = T)/tmp.area$width
+    tmp.area$cex2[tmp.area$cex2 > 6] <- 6
+    
+    res.area <- res.admin1.nmr$results[res.admin1.nmr$results$region == as.character(admin1.names$Internal[area]),]
+    
+    lines(res.area$years.num,res.area$median,
+          col = cols[area], lwd = 2)
+    lines(res.area$years.num, res.area$upper,
+          col = cols[area], lty = 2)
+    lines(res.area$years.num,
+          res.area$lower, col = cols[area], lty = 2)
+  }  
+  
+}
+dev.off()
+
+## Admin 2, 3-year period ------------------------------------------------------
+
+cols <- rainbow(nrow(admin2.names))
+
+## U5MR
+pdf(paste0("Figures/SmoothedDirect/U5MR/",country, 
+           '_admin2_u5_SmoothedDirect_spaghetti.pdf'),
+    height = 6, width = 6)
+{
+  par(mfrow=c(1,1),lend=1)
+  plot.max <- max(res.admin2.u5$results$median+.025, na.rm = T)
   
   plot(NA, xlab = "Year", ylab = "U5MR",
        ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)), main = paste0(country,' - Admin 2 Regions'))
   
   for(area in 1:dim(poly.adm2)[1]){
-    tmp.area <- direct.admin2[direct.admin2$region == 
+    tmp.area <- direct.admin2.u5[direct.admin2.u5$region == 
                                 as.character(admin2.names$Internal[area]),]
     tmp.area$width <- tmp.area$upper - tmp.area$lower
     tmp.area$cex2 <- median(tmp.area$width, na.rm = T)/tmp.area$width
     tmp.area$cex2[tmp.area$cex2 > 6] <- 6
     
-    res.area <- res.admin2$results[res.admin2$results$region == as.character(admin2.names$Internal[area]),]
+    res.area <- res.admin2.u5$results[res.admin2.u5$results$region == as.character(admin2.names$Internal[area]),]
+    
+    lines(res.area$years.num,res.area$median,
+          col = cols[area], lwd = 1)
+    
+  }  
+  
+}
+dev.off()
+
+## NMR
+pdf(paste0("Figures/SmoothedDirect/NMR/",country, 
+           '_admin2_nmr_SmoothedDirect_spaghetti.pdf'),
+    height = 6, width = 6)
+{
+  par(mfrow=c(1,1),lend=1)
+  plot.max <- max(res.admin2.nmr$results$median+.025, na.rm = T)
+  
+  plot(NA, xlab = "Year", ylab = "NMR",
+       ylim = c(0, plot.max), xlim = c(beg.year, max(end.proj.years)), main = paste0(country,' - Admin 2 Regions'))
+  
+  for(area in 1:dim(poly.adm2)[1]){
+    tmp.area <- direct.admin2.nmr[direct.admin2.nmr$region == 
+                                   as.character(admin2.names$Internal[area]),]
+    tmp.area$width <- tmp.area$upper - tmp.area$lower
+    tmp.area$cex2 <- median(tmp.area$width, na.rm = T)/tmp.area$width
+    tmp.area$cex2[tmp.area$cex2 > 6] <- 6
+    
+    res.area <- res.admin2.nmr$results[res.admin2.nmr$results$region == as.character(admin2.names$Internal[area]),]
     
     lines(res.area$years.num,res.area$median,
           col = cols[area], lwd = 1)
