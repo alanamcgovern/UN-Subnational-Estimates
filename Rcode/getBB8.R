@@ -40,10 +40,10 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   ## Set stratification parameters (still need to specify more for getSmoothed) -----------------------------------------------
   if(stratified){
     mod.dat$strata <- mod.dat$urban
-    st.time.model <- T
+    strata.time.effect <- T
   }else{
     mod.dat$strata <- NA
-    st.time.model <- F
+    strata.time.effect <- F
     weight.strata <- NULL
   }
   
@@ -74,9 +74,9 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   }else{
     if(admin.level=='Admin1'){
       mod.dat$region <- mod.dat$admin1.char
-    }elseif(admin.level=='Admin2'){
-      mod.dat$region <- mod.dat$admin2.char
-    }
+    }else if(admin.level=='Admin2'){
+      mod.dat$region <- mod.dat$admin2.char}
+    
     bb.fit <- smoothCluster(data = mod.dat, family = "betabinomial",
                             Amat = Amat, 
                             year_label = c(beg.year:end.year),
@@ -102,6 +102,8 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                   draws = NULL, save.draws = TRUE)
   
   ## Return fit and estimates -----------------------------------------------
-  ## need to figure out how to return this
+  out <- list(bb.fit,bb.res)
+  names(out) <- c('fit','results')
+  return(out)
   
 }

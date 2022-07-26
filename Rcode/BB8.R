@@ -19,6 +19,8 @@ res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
+source(file=paste0(home.dir, '/Rcode/getBB8.R'))
+
 ### Load polygon files -----------------------------------------------
 setwd(data.dir)
 
@@ -96,6 +98,7 @@ setwd(paste0(res.dir))
 ### National U5MR -----------------------------------------------
 
 #### Unstratified
+time_tmp <- Sys.time()
 bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
                              stratified=F, weight.strata=NULL,
@@ -103,8 +106,10 @@ bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_natl_unstrat_u5 <- Sys.time() - time_tmp #7.5 minutes
 
 #### Stratified
+time_tmp <- Sys.time()
 bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
                              stratified=T, weight.strata=weight.strata.natl.u5,
@@ -112,51 +117,61 @@ bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_natl_strat_u5 <- Sys.time() - time_tmp # 8.3 minutes
 
 
 ### Admin1 U5MR -----------------------------------------------
 
 #### Unstratified
-bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=F, weight.strata=NULL,
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm1_unstrat_u5 <- Sys.time() - time_tmp
 
 #### Stratified
-bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=T, weight.strata=weight.strata.adm1.u5,
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm1_strat_u5 <- Sys.time() - time_tmp
 
 ### Admin2 U5MR -----------------------------------------------
 
 #### Unstratified
-bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=F, weight.strata=NULL,
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm2_unstrat_u5 <- Sys.time() - time_tmp
 
 #### Stratified
-bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=T, weight.strata=weight.strata.adm2.u5,
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm2_strat_u5 <- Sys.time() - time_tmp
 
 ## National NMR -----------------------------------------------
 
 #### Unstratified
+time_tmp <- Sys.time()
 bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
                              stratified=F, weight.strata=NULL,
@@ -164,8 +179,10 @@ bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_natl_unstrat_nmr <- Sys.time() - time_tmp
 
 #### Stratified
+time_tmp <- Sys.time()
 bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                            Amat=NULL, admin.level='National',
                            stratified=T, weight.strata=weight.strata.natl.u1,
@@ -173,46 +190,55 @@ bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                            time.model='ar1', st.time.model='ar1',
                            adj.frame=adj.frame, adj.varnames=adj.varnames,
                            doBenchmark=F,doHIVAdj=doHIVAdj)
+time_natl_strat_nmr <- Sys.time() - time_tmp
 
 
 ### Admin1 NMR -----------------------------------------------
 
 #### Unstratified
-bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=F, weight.strata=NULL,
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm1_unstrat_nmr <- Sys.time() - time_tmp
 
 #### Stratified
-bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=T, weight.strata=weight.strata.adm1.u1,
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm1_strat_nmr <- Sys.time() - time_tmp
 
-### Admin2 U5MR -----------------------------------------------
+
+### Admin2 NMR -----------------------------------------------
 
 #### Unstratified
-bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+time_tmp <- Sys.time()
+bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=F, weight.strata=NULL,
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm2_unstrat_nmr <- Sys.time() - time_tmp
 
 #### Stratified
-bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=T, weight.strata=weight.strata.adm2.u1,
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
+time_adm2_strat_nmr <- Sys.time() - time_tmp
 
 
