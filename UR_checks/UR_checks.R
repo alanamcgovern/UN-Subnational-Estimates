@@ -41,4 +41,4 @@ colnames(comparisons) <- c('NumberofAreas','Chi-Square','p','MedianDiff','MaxDif
 comparisons
 
 par(mfrow=c(3,3))
-plot_list[[1]]
+plot_list

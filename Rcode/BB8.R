@@ -1,15 +1,16 @@
 rm(list = ls())
-### ENTER COUNTRY OF INTEREST -----------------------------------------------
+## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Malawi'
 
-### Libraries -----------------------------------------------
+## Libraries -----------------------------------------------
 library(SUMMER)
 library(INLA)
 options(gsubfn.engine = "R")
 library(rgdal)
+library(tidyverse)
 
-### Retrieve directories and country info -----------------------------------------------
+## Retrieve directories and country info -----------------------------------------------
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
@@ -21,7 +22,7 @@ load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
 source(file=paste0(home.dir, '/Rcode/getBB8.R'))
 
-### Load polygon files -----------------------------------------------
+## Load polygon files -----------------------------------------------
 setwd(data.dir)
 
 poly.adm0 <- readOGR(dsn = poly.path,
@@ -35,7 +36,7 @@ proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
 load(paste0('shapeFiles_gadm/', country, '_Amat.rda'))
 load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))
 
-### Load data -----------------------------------------------
+## Load data -----------------------------------------------
 load(paste0(country,'_cluster_dat.rda'),
      envir = .GlobalEnv)
 
@@ -43,7 +44,7 @@ mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat<-mod.dat[as.numeric(mod.dat$years)>=beg.year,]
 mod.dat$country <- as.character(country)
 
-### Load HIV Adjustment info -----------------------------------------------
+## Load HIV Adjustment info -----------------------------------------------
 
 if(doHIVAdj){
   load(paste0(home.dir,'/Data/HIV/',
@@ -80,7 +81,7 @@ if(doHIVAdj){
   adj.varnames <- c("country", "years")
 }
 
-### Load UR proportions -----------------------------------------------
+## Load UR proportions -----------------------------------------------
 setwd(paste0(res.dir,'/UR'))
 weight.strata.natl.u5 <- readRDS(paste0('U5_fraction/','natl_u5_urban_weights.rds'))
 weight.strata.natl.u5$rural <- 1-weight.strata.natl.u5$urban
@@ -92,12 +93,12 @@ weight.strata.natl.u1$rural <- 1-weight.strata.natl.u1$urban
 weight.strata.adm1.u1 <- readRDS(paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
 weight.strata.adm2.u1 <- readRDS(paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
 
-# Fit BB8 models -----------------------------------------------
+## Fit BB8 models -----------------------------------------------
 setwd(paste0(res.dir))
 
 ### National U5MR -----------------------------------------------
 
-#### Unstratified
+#### Unstratified (< 10 min)
 time_tmp <- Sys.time()
 bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
@@ -106,9 +107,15 @@ bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
-time_natl_unstrat_u5 <- Sys.time() - time_tmp #7.5 minutes
+time_natl_unstrat_u5 <- Sys.time() - time_tmp
 
-#### Stratified
+bb.fit.natl.unstrat.u5 <- bb.natl.unstrat.u5[[1]]
+bb.res.natl.unstrat.u5 <- bb.natl.unstrat.u5[[2]]
+
+save(bb.fit.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5.rda'))
+save(bb.res.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_unstrat_u5.rda'))
+
+#### Stratified (< 10 min)
 time_tmp <- Sys.time()
 bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
@@ -117,7 +124,13 @@ bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
-time_natl_strat_u5 <- Sys.time() - time_tmp # 8.3 minutes
+time_natl_strat_u5 <- Sys.time() - time_tmp
+
+bb.fit.natl.strat.u5 <- bb.natl.strat.u5[[1]]
+bb.res.natl.strat.u5 <- bb.natl.strat.u5[[2]]
+
+save(bb.fit.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_natl_strat_u5.rda'))
+save(bb.res.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_strat_u5.rda'))
 
 
 ### Admin1 U5MR -----------------------------------------------
@@ -168,9 +181,9 @@ bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm2_strat_u5 <- Sys.time() - time_tmp
 
-## National NMR -----------------------------------------------
+### National NMR -----------------------------------------------
 
-#### Unstratified
+#### Unstratified (< 1 min)
 time_tmp <- Sys.time()
 bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
@@ -181,7 +194,14 @@ bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_natl_unstrat_nmr <- Sys.time() - time_tmp
 
-#### Stratified
+bb.fit.natl.unstrat.nmr <- bb.natl.unstrat.nmr[[1]]
+bb.res.natl.unstrat.nmr <- bb.natl.unstrat.nmr[[2]]
+
+save(bb.fit.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr.rda'))
+save(bb.res.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_unstrat_nmr.rda'))
+
+
+#### Stratified (< 1 min)
 time_tmp <- Sys.time()
 bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                            Amat=NULL, admin.level='National',
@@ -192,6 +212,11 @@ bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                            doBenchmark=F,doHIVAdj=doHIVAdj)
 time_natl_strat_nmr <- Sys.time() - time_tmp
 
+bb.fit.natl.strat.nmr <- bb.natl.strat.nmr[[1]]
+bb.res.natl.strat.nmr <- bb.natl.strat.nmr[[2]]
+
+save(bb.fit.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_natl_strat_nmr.rda'))
+save(bb.res.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_strat_nmr.rda'))
 
 ### Admin1 NMR -----------------------------------------------
 
@@ -206,6 +231,12 @@ bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm1_unstrat_nmr <- Sys.time() - time_tmp
 
+bb.fit.adm1.unstrat.nmr <- bb.adm1.unstrat.nmr[[1]]
+bb.res.adm1.unstrat.nmr <- bb.adm1.unstrat.nmr[[2]]
+
+save(bb.fit.adm1.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm1_unstrat_nmr.rda'))
+save(bb.res.adm1.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm1_unstrat_nmr.rda'))
+
 #### Stratified
 time_tmp <- Sys.time()
 bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
@@ -217,6 +248,11 @@ bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm1_strat_nmr <- Sys.time() - time_tmp
 
+bb.fit.adm1.strat.nmr <- bb.adm1.strat.nmr[[1]]
+bb.res.adm1.strat.nmr <- bb.adm1.strat.nmr[[2]]
+
+save(bb.fit.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr.rda'))
+save(bb.res.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm1_strat_nmr.rda'))
 
 ### Admin2 NMR -----------------------------------------------
 
@@ -240,5 +276,35 @@ bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm2_strat_nmr <- Sys.time() - time_tmp
+
+## Polygon Plots -----------------------------------------------
+### Admin-1 U5MR est for 2010 on -----------------------------------------------
+### Admin-1 U5MR CI width for 2010 on -----------------------------------------------
+### Admin-2 U5MR est for most recent year -----------------------------------------------
+### Admin-2 U5MR CI width for most recent year -----------------------------------------------
+### Admin-2 U5MR est for 2010 on -----------------------------------------------
+### Admin-2 U5MR CI width for 2010 on -----------------------------------------------
+
+### Admin-1 NMR est for 2010 on -----------------------------------------------
+### Admin-1 NMR CI width for 2010 on -----------------------------------------------
+### Admin-2 NMR est for most recent year -----------------------------------------------
+### Admin-2 NMR CI width for most recent year -----------------------------------------------
+### Admin-2 NMR est for 2010 on -----------------------------------------------
+### Admin-2 NMR CI width for 2010 on -----------------------------------------------
+
+## Spaghetti Plots -----------------------------------------------
+### National U5MR -----------------------------------------------
+### Admin-1 U5MR w CI -----------------------------------------------
+### Admin-1 U5MR w/o CI -----------------------------------------------
+### Admin-2 U5MR w/o CI, w legend -----------------------------------------------
+### Admin-2 U5MR w/o CI, w/o legend -----------------------------------------------
+
+### National NMR -----------------------------------------------
+### Admin-1 NMR w CI -----------------------------------------------
+### Admin-1 NMR w/o CI -----------------------------------------------
+### Admin-2 NMR w/o CI, w legend -----------------------------------------------
+### Admin-2 NMR w/o CI, w/o legend -----------------------------------------------
+
+
 
 

@@ -9,6 +9,16 @@
 ## doBenchmark is not yet functional
 ## doHIVAdj may not be necessary, waiting to see how benchmark is implemented
 
+# end.year=end.proj.year
+#        Amat=admin1.mat
+#        admin.level='Admin1'
+#        stratified=F
+#        weight.strata=NULL
+#        outcome='nmr'
+#        time.model='ar1' 
+#        st.time.model='ar1'
+#        doBenchmark=F
+
 ##################################################################
 ###### Define BB8 function
 ##################################################################
@@ -50,8 +60,10 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   ## Set outcome specific parameters -----------------------------------------------
   if(outcome=='nmr'){
     mod.dat <- mod.dat %>% filter(age=='0')
+    age.groups <- c('0')
     age.n <- age.rw.group <- age.strata.fixed.group <- c(1)
   }else{
+    age.groups <- levels(mod.dat$age)
     age.n <- c(1, 11, 12, 12, 12, 12)
     age.rw.group <- c(1, 2, 3, 3, 3, 3)
     age.strata.fixed.group <- c(1, 2, 3, 4, 5, 6)
@@ -86,7 +98,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                             bias.adj = adj.frame, bias.adj.by = adj.varnames,
                             survey.effect = TRUE,
                             strata.time.effect = strata.time.effect,
-                            age.groups = levels(mod.dat$age),
+                            age.groups = age.groups,
                             age.n = age.n,
                             age.rw.group = age.rw.group,
                             age.strata.fixed.group = age.strata.fixed.group,
