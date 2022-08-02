@@ -44,6 +44,75 @@ mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat<-mod.dat[as.numeric(mod.dat$years)>=beg.year,]
 mod.dat$country <- as.character(country)
 
+## Load National IGME estimates ------------------------------------------------------
+setwd(paste0(data.dir,'/igme'))
+
+## U5MR
+igme.ests.u5 <- read.csv(paste0(country.abbrev,'_u5_igme_est.csv'), header = T)
+names(igme.ests.u5) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
+igme.ests.u5$year <- igme.ests.u5$year-0.5
+igme.ests.u5$OBS_VALUE <- igme.ests.u5$OBS_VALUE/1000
+igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.year,]
+igme.ests.u5 <- igme.ests.u5[order(igme.ests.u5$year),]
+igme.ests.u5$SD <- (igme.ests.u5$UPPER_BOUND - igme.ests.u5$LOWER_BOUND)/(2*1.645*1000)
+
+## NMR
+igme.ests.nmr <- read.csv(paste0(country.abbrev,'_nmr_igme_est.csv'),  header = T)
+names(igme.ests.nmr) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
+igme.ests.nmr$year <- igme.ests.nmr$year-0.5
+igme.ests.nmr$OBS_VALUE <- igme.ests.nmr$OBS_VALUE/1000
+igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:end.proj.year,]
+igme.ests.nmr <- igme.ests.nmr[order(igme.ests.nmr$year),]
+igme.ests.nmr$SD <- (igme.ests.nmr$UPPER_BOUND - igme.ests.nmr$LOWER_BOUND)/(2*1.645*1000)
+
+## Get Admin 1 and 2 population proportions by region (for benchmarking) ------------------------------------------------------
+
+## Admin 1
+weight.region.adm1.u5 <- expand.grid(region = admin1.names$Internal, years = beg.year:end.proj.year)
+weight.region.adm1.u5$proportion <- NA
+
+weight.region.adm1.nmr <- expand.grid(region = admin1.names$Internal, years = beg.year:end.proj.year)
+weight.region.adm1.nmr$proportion <- NA
+
+for (i in 1:nrow(weight.region.adm1.u5)) {
+  numerator <- sum(mod.dat$total[mod.dat$admin1.char==weight.region.adm1.u5[i,1] & mod.dat$years==weight.region.adm1.u5[i,2]])
+  denominator <- sum(mod.dat$total[mod.dat$years==weight.region.adm1.u5[i,2]])
+  weight.region.adm1.u5[i, "proportion"] <- numerator/denominator
+  
+  numerator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$admin1.char==weight.region.adm1.nmr[i,1] & mod.dat$years==weight.region.adm1.nmr[i,2]])
+  denominator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$years==weight.region.adm1.nmr[i,2]])
+  weight.region.adm1.nmr[i, "proportion"] <- numerator/denominator
+  
+  # Note: this makes the region weights for projected years the same as the last year of data (most recent sruvey year)
+  if(weight.region.adm1.u5[i,2]>max(end.years)){
+    numerator <- sum(mod.dat$total[mod.dat$admin1.char==weight.region.adm1.u5[i,1] & mod.dat$years==max(end.years)])
+    denominator <- sum(mod.dat$total[mod.dat$years==max(end.years)])
+    weight.region.adm1.u5[i, "proportion"] <- numerator/denominator
+    
+    numerator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$admin1.char==weight.region.adm1.nmr[i,1] & mod.dat$years==max(end.years)])
+    denominator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$years==max(end.years)])
+    weight.region.adm1.nmr[i, "proportion"] <- numerator/denominator
+    
+  }
+}
+
+## Admin 2
+weight.region.adm2.u5 <- expand.grid(region = admin2.names$Internal, years = beg.year:max(end.years))
+weight.region.adm2.u5$proportion <- NA
+
+weight.region.adm2.nmr <- expand.grid(region = admin2.names$Internal, years = beg.year:max(end.years))
+weight.region.adm2.nmr$proportion <- NA
+
+for (i in 1:nrow(weight.region.adm2.u5)) {
+  numerator <- sum(mod.dat$total[mod.dat$admin2.char==weight.region.adm2.u5[i,1] & mod.dat$years==weight.region.adm2.u5[i,2]])
+  denominator <- sum(mod.dat$total[mod.dat$years==weight.region.adm2.u5[i,2]])
+  weight.region.adm2.u5[i, "proportion"] <- numerator/denominator
+  
+  numerator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$admin2.char==weight.region.adm2.nmr[i,1] & mod.dat$years==weight.region.adm2.nmr[i,2]])
+  denominator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$years==weight.region.adm2.nmr[i,2]])
+  weight.region.adm2.nmr[i, "proportion"] <- numerator/denominator
+}
+
 ## Load HIV Adjustment info -----------------------------------------------
 
 if(doHIVAdj){
@@ -98,7 +167,7 @@ setwd(paste0(res.dir))
 
 ### National U5MR -----------------------------------------------
 
-#### Unstratified (< 10 min)
+#### Unstratified (< 1 min)
 time_tmp <- Sys.time()
 bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
@@ -112,10 +181,16 @@ time_natl_unstrat_u5 <- Sys.time() - time_tmp
 bb.fit.natl.unstrat.u5 <- bb.natl.unstrat.u5[[1]]
 bb.res.natl.unstrat.u5 <- bb.natl.unstrat.u5[[2]]
 
-save(bb.fit.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5.rda'))
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5.txt'))
+summary(bb.fit.natl.unstrat.u5)
+sink(file=NULL)
+# save results
+#save(bb.fit.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5.rda'))
 save(bb.res.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_unstrat_u5.rda'))
 
-#### Stratified (< 10 min)
+#### Stratified (< 5 min)
 time_tmp <- Sys.time()
 bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
@@ -129,13 +204,17 @@ time_natl_strat_u5 <- Sys.time() - time_tmp
 bb.fit.natl.strat.u5 <- bb.natl.strat.u5[[1]]
 bb.res.natl.strat.u5 <- bb.natl.strat.u5[[2]]
 
-save(bb.fit.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_natl_strat_u5.rda'))
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_strat_u5.txt'))
+summary(bb.fit.natl.strat.u5)
+sink(file=NULL)
+# save results
+#save(bb.fit.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_natl_strat_u5.rda'))
 save(bb.res.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_strat_u5.rda'))
-
 
 ### Admin1 U5MR -----------------------------------------------
 
-#### Unstratified
+#### Unstratified (can't get it to run)
 time_tmp <- Sys.time()
 bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
@@ -146,9 +225,21 @@ bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm1_unstrat_u5 <- Sys.time() - time_tmp
 
-#### Stratified
+bb.fit.adm1.unstrat.u5 <- bb.adm1.unstrat.u5[[1]]
+bb.res.adm1.unstrat.u5 <- bb.adm1.unstrat.u5[[2]]
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_unstrat_u5.txt'))
+summary(bb.fit.adm1.unstrat.u5)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm1.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_unstrat_u5.rda'))
+save(bb.res.adm1.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_unstrat_u5.rda'))
+
+
+#### Stratified (< 30 min)
 time_tmp <- Sys.time()
-bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+bb.adm1.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=T, weight.strata=weight.strata.adm1.u5,
                              outcome='u5mr',
@@ -157,9 +248,22 @@ bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm1_strat_u5 <- Sys.time() - time_tmp
 
+bb.fit.adm1.strat.u5 <- bb.adm1.strat.u5[[1]]
+bb.res.adm1.strat.u5 <- bb.adm1.strat.u5[[2]]
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_strat_u5.txt'))
+summary(bb.fit.adm1.strat.u5)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm1.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_strat_u5.rda'))
+save(bb.res.adm1.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_strat_u5.rda'))
+
+
+
 ### Admin2 U5MR -----------------------------------------------
 
-#### Unstratified
+#### Unstratified (< 10 min)
 time_tmp <- Sys.time()
 bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
@@ -170,9 +274,21 @@ bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm2_unstrat_u5 <- Sys.time() - time_tmp
 
-#### Stratified
+bb.fit.adm2.unstrat.u5 <- bb.adm2.unstrat.u5[[1]]
+bb.res.adm2.unstrat.u5 <- bb.adm2.unstrat.u5[[2]]
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm2_unstrat_u5.txt'))
+summary(bb.fit.adm2.unstrat.u5)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_adm2_unstrat_u5.rda'))
+save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_unstrat_u5.rda'))
+
+
+#### Stratified (< 15 min)
 time_tmp <- Sys.time()
-bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+bb.adm2.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=T, weight.strata=weight.strata.adm2.u5,
                              outcome='u5mr',
@@ -180,6 +296,18 @@ bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm2_strat_u5 <- Sys.time() - time_tmp
+
+bb.fit.adm2.strat.u5 <- bb.adm2.strat.u5[[1]]
+bb.res.adm2.strat.u5 <- bb.adm2.strat.u5[[2]]
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm2_strat_u5.txt'))
+summary(bb.fit.adm2.strat.u5)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm2.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fit_adm2_strat_u5.rda'))
+save(bb.res.adm2.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_strat_u5.rda'))
+
 
 ### National NMR -----------------------------------------------
 
@@ -197,7 +325,12 @@ time_natl_unstrat_nmr <- Sys.time() - time_tmp
 bb.fit.natl.unstrat.nmr <- bb.natl.unstrat.nmr[[1]]
 bb.res.natl.unstrat.nmr <- bb.natl.unstrat.nmr[[2]]
 
-save(bb.fit.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr.rda'))
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr.txt'))
+summary(bb.fit.natl.unstrat.nmr)
+sink(file=NULL)
+# save results
+#save(bb.fit.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr.rda'))
 save(bb.res.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_unstrat_nmr.rda'))
 
 
@@ -215,12 +348,17 @@ time_natl_strat_nmr <- Sys.time() - time_tmp
 bb.fit.natl.strat.nmr <- bb.natl.strat.nmr[[1]]
 bb.res.natl.strat.nmr <- bb.natl.strat.nmr[[2]]
 
-save(bb.fit.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_natl_strat_nmr.rda'))
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_strat_nmr.txt'))
+summary(bb.fit.natl.strat.nmr)
+sink(file=NULL)
+# save results
+#save(bb.fit.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_natl_strat_nmr.rda'))
 save(bb.res.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_strat_nmr.rda'))
 
 ### Admin1 NMR -----------------------------------------------
 
-#### Unstratified
+#### Unstratified (< 10 mins)
 time_tmp <- Sys.time()
 bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
@@ -234,29 +372,43 @@ time_adm1_unstrat_nmr <- Sys.time() - time_tmp
 bb.fit.adm1.unstrat.nmr <- bb.adm1.unstrat.nmr[[1]]
 bb.res.adm1.unstrat.nmr <- bb.adm1.unstrat.nmr[[2]]
 
-save(bb.fit.adm1.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm1_unstrat_nmr.rda'))
+bb.res.bench.adm1.unstrat.nmr <- Benchmark_mod(bb.res.adm1.unstrat.nmr,igme.ests.nmr,weight.region = weight.region.adm1.nmr,estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year')
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm1_unstrat_nmr.txt'))
+summary(bb.fit.adm1.unstrat.nmr)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm1.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm1_unstrat_nmr.rda'))
 save(bb.res.adm1.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm1_unstrat_nmr.rda'))
 
-#### Stratified
+#### Stratified (< 5 min)
 time_tmp <- Sys.time()
-bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+bb.adm1.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=T, weight.strata=weight.strata.adm1.u1,
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,doHIVAdj=doHIVAdj,nsim = 1000000)
 time_adm1_strat_nmr <- Sys.time() - time_tmp
 
 bb.fit.adm1.strat.nmr <- bb.adm1.strat.nmr[[1]]
 bb.res.adm1.strat.nmr <- bb.adm1.strat.nmr[[2]]
 
-save(bb.fit.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr.rda'))
+bb.res.bench.adm1.strat.nmr <- Benchmark_mod(bb.res.adm1.strat.nmr,igme.ests.nmr,weight.region = weight.region.adm1.nmr,estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year')
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr.txt'))
+summary(bb.fit.adm1.strat.nmr)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr.rda'))
 save(bb.res.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm1_strat_nmr.rda'))
 
 ### Admin2 NMR -----------------------------------------------
 
-#### Unstratified
+#### Unstratified (< 2 min)
 time_tmp <- Sys.time()
 bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
@@ -267,8 +419,21 @@ bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm2_unstrat_nmr <- Sys.time() - time_tmp
 
-#### Stratified
-bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+bb.fit.adm2.unstrat.nmr <- bb.adm2.unstrat.nmr[[1]]
+bb.res.adm2.unstrat.nmr <- bb.adm2.unstrat.nmr[[2]]
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm2_unstrat_nmr.txt'))
+summary(bb.fit.adm2.unstrat.nmr)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm2.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm2_unstrat_nmr.rda'))
+save(bb.res.adm2.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm2_unstrat_nmr.rda'))
+
+
+#### Stratified (< 5 min)
+time_tmp <- Sys.time()
+bb.adm2.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=T, weight.strata=weight.strata.adm2.u1,
                              outcome='nmr',
@@ -276,6 +441,18 @@ bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,doHIVAdj=doHIVAdj)
 time_adm2_strat_nmr <- Sys.time() - time_tmp
+
+bb.fit.adm2.strat.nmr <- bb.adm2.strat.nmr[[1]]
+bb.res.adm2.strat.nmr <- bb.adm2.strat.nmr[[2]]
+
+# save summary of fit to a txt file
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm2_strat_nmr.txt'))
+summary(bb.fit.adm2.strat.nmr)
+sink(file=NULL)
+# save results
+#save(bb.fit.adm2.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fit_adm2_strat_nmr.rda'))
+save(bb.res.adm2.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm2_strat_nmr.rda'))
+
 
 ## Polygon Plots -----------------------------------------------
 ### Admin-1 U5MR est for 2010 on -----------------------------------------------

@@ -13,7 +13,22 @@ filenames <- c('Angola/ang_urbhh_2015-16.xlsx', # add 2011 MIS
                'Bangladesh/bgd_urbhh_2011.xlsx','Bangladesh/bgd_urbhh_2014.xlsx','Bangladesh/bgd_urbhh_2017-18.xlsx', #add 2019 MICS
                'Benin/ben_urbhh_2011-12.xlsx', 'Benin/ben_urbhh_2017-18.xlsx', 
                'Burkina_Faso/bfa_urbhh_2010.xlsx',
-               'Ethiopia/eth_urbhh_2011.xlsx','Ethiopia/eth_urbhh_2016.xlsx','Ethiopia/eth_urbhh_2019.xlsx')
+               'Burundi/bdi_urbhh_2010.xlsx', 'Burundi/bdi_urbhh_2016-17.xlsx',
+               'Cameroon/cmr_urbhh_2011.xlsx',  'Cameroon/cmr_urbhh_2018.xlsx',
+               'Chad/tcd_urbhh_2014-15.xlsx',
+               'Cote_dIvoire/civ_urbhh_2011-12.xlsx',
+               'DR_Congo/cod_urbhh_2013-14.xlsx',
+               'Ethiopia/eth_urbhh_2011.xlsx','Ethiopia/eth_urbhh_2016.xlsx','Ethiopia/eth_urbhh_2019.xlsx',
+               'Ghana/gha_urbhh_2014.xlsx',
+               'Guinea/gin_urbhh_2012.xlsx','Guinea/gin_urbhh_2018.xlsx',
+               'Haiti/hti_urbhh_2012.xlsx','Haiti/hti_urbhh_2016-17.xlsx',
+               'India/ind_urbhh_2015-16.xlsx', # can't find frame/sample info for 2019-2021 survey
+               'Kenya/ken_urbhh_2014.xlsx',
+               'Lesotho/lso_urbhh_2014.xlsx', #add 2018 MICS  
+               'Liberia/lbr_urbhh_2013.xlsx', 'Liberia/lbr_urbhh_2019-20.xlsx',
+               # add MICS Madagascar
+               'Malawi/mwi_urbhh_2015-16.xlsx', # can't find frame households for 2010, add 2013-14 and 2019-20 MICS
+               'Mali/mli_urbhh_2012-13.xlsx','Mali/mli_urbhh_2018.xlsx') 
 
 get_URdiff <- function(file){
   tab <- read.xlsx(paste0(file))
@@ -40,5 +55,4 @@ colnames(comparisons) <- c('NumberofAreas','Chi-Square','p','MedianDiff','MaxDif
 
 comparisons
 
-par(mfrow=c(3,3))
 plot_list

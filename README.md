@@ -1,8 +1,10 @@
 # UN Pipeline Overview
 
-**TO DO: determine which countires need UR stratification, create info files
+**TO DO: determine which countires need UR stratification, create info files, benchmarking
 
-**Waiting on: CSDE info (data pulls + cluster use), MICS implementation, benchmarking in BB8 model
+Benchmarking issues: (1) region weights for forecast years, (2) keep getting a 0 acceptance ratio, (4) how does this work w HIV adjustment?
+
+**Waiting on: CSDE info (data pulls + cluster use), MICS implementation
 
 ## Summary
 

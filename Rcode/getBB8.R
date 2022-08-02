@@ -8,16 +8,16 @@
 ## adj.frame and adj.varnames are calculated in HIV adjustment step -- might change when benchmarking is implemented
 ## doBenchmark is not yet functional
 ## doHIVAdj may not be necessary, waiting to see how benchmark is implemented
-
-# end.year=end.proj.year
-#        Amat=admin1.mat
-#        admin.level='Admin1'
-#        stratified=F
-#        weight.strata=NULL
-#        outcome='nmr'
-#        time.model='ar1' 
-#        st.time.model='ar1'
-#        doBenchmark=F
+# 
+#   end.year=end.proj.year
+#          Amat=admin1.mat
+#          admin.level='Admin1'
+#          stratified=T
+#          weight.strata=weight.strata.adm1.u1
+#          outcome='nmr'
+#          time.model='ar1' 
+#          st.time.model='ar1'
+# #         doBenchmark=F
 
 ##################################################################
 ###### Define BB8 function
@@ -26,7 +26,7 @@
 getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                     time.model, st.time.model, stratified, weight.strata,
                     admin.level, outcome,
-                    doBenchmark, doHIVAdj, adj.frame,adj.varnames){
+                    doBenchmark, doHIVAdj, adj.frame,adj.varnames,nsim){
   
   ## Check inputs -----------------------------------------------
   if(!(admin.level %in% c('National','Admin1','Admin2'))){
@@ -108,10 +108,15 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   ## Get smooth estimates -----------------------------------------------
   bb.res <- getSmoothed(inla_mod = bb.fit, 
                                   year_range = beg.year:end.year, 
-                                  year_label = beg.year:end.year, nsim = 1000, 
+                                  year_label = beg.year:end.year, nsim = nsim, 
                                   weight.strata = weight.strata, 
                                   weight.frame = NULL,
                                   draws = NULL, save.draws = TRUE)
+  
+  ## remove any duplicate rows (bug in getSmoothed to be resolved)
+  bb.res$overall <- bb.res$overall[!duplicated(bb.res$overall),]
+  bb.res$stratified <- bb.res$stratified[!duplicated(bb.res$stratified),]
+  
   
   ## Return fit and estimates -----------------------------------------------
   out <- list(bb.fit,bb.res)
