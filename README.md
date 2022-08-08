@@ -1,8 +1,6 @@
 # UN Pipeline Overview
 
-**TO DO: determine which countires need UR stratification, create info files, benchmarking
-
-Benchmarking issues: (1) region weights for forecast years, (2) keep getting a 0 acceptance ratio, (4) how does this work w HIV adjustment?
+**TO DO: determine which countires need UR stratification, create info files, benchmarking (deal w acceptance ratio/sampling time issue)
 
 **Waiting on: CSDE info (data pulls + cluster use), MICS implementation
 

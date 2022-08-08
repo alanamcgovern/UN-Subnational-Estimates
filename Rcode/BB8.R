@@ -175,7 +175,7 @@ bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim=10000)
 time_natl_unstrat_u5 <- Sys.time() - time_tmp
 
 bb.fit.natl.unstrat.u5 <- bb.natl.unstrat.u5[[1]]
@@ -198,7 +198,7 @@ bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim=10000)
 time_natl_strat_u5 <- Sys.time() - time_tmp
 
 bb.fit.natl.strat.u5 <- bb.natl.strat.u5[[1]]
@@ -222,7 +222,7 @@ bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_adm1_unstrat_u5 <- Sys.time() - time_tmp
 
 bb.fit.adm1.unstrat.u5 <- bb.adm1.unstrat.u5[[1]]
@@ -245,7 +245,7 @@ bb.adm1.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim=10000)
 time_adm1_strat_u5 <- Sys.time() - time_tmp
 
 bb.fit.adm1.strat.u5 <- bb.adm1.strat.u5[[1]]
@@ -271,7 +271,7 @@ bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_adm2_unstrat_u5 <- Sys.time() - time_tmp
 
 bb.fit.adm2.unstrat.u5 <- bb.adm2.unstrat.u5[[1]]
@@ -294,7 +294,7 @@ bb.adm2.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_adm2_strat_u5 <- Sys.time() - time_tmp
 
 bb.fit.adm2.strat.u5 <- bb.adm2.strat.u5[[1]]
@@ -319,7 +319,7 @@ bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_natl_unstrat_nmr <- Sys.time() - time_tmp
 
 bb.fit.natl.unstrat.nmr <- bb.natl.unstrat.nmr[[1]]
@@ -342,7 +342,7 @@ bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                            outcome='nmr',
                            time.model='ar1', st.time.model='ar1',
                            adj.frame=adj.frame, adj.varnames=adj.varnames,
-                           doBenchmark=F,doHIVAdj=doHIVAdj)
+                           doBenchmark=F,nsim = 10000)
 time_natl_strat_nmr <- Sys.time() - time_tmp
 
 bb.fit.natl.strat.nmr <- bb.natl.strat.nmr[[1]]
@@ -366,7 +366,7 @@ bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_adm1_unstrat_nmr <- Sys.time() - time_tmp
 
 bb.fit.adm1.unstrat.nmr <- bb.adm1.unstrat.nmr[[1]]
@@ -390,7 +390,7 @@ bb.adm1.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj,nsim = 1000000)
+                             doBenchmark=F,nsim = 100000)
 time_adm1_strat_nmr <- Sys.time() - time_tmp
 
 bb.fit.adm1.strat.nmr <- bb.adm1.strat.nmr[[1]]
@@ -416,7 +416,7 @@ bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_adm2_unstrat_nmr <- Sys.time() - time_tmp
 
 bb.fit.adm2.unstrat.nmr <- bb.adm2.unstrat.nmr[[1]]
@@ -439,7 +439,7 @@ bb.adm2.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,doHIVAdj=doHIVAdj)
+                             doBenchmark=F,nsim = 10000)
 time_adm2_strat_nmr <- Sys.time() - time_tmp
 
 bb.fit.adm2.strat.nmr <- bb.adm2.strat.nmr[[1]]

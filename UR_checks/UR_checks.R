@@ -28,7 +28,13 @@ filenames <- c('Angola/ang_urbhh_2015-16.xlsx', # add 2011 MIS
                'Liberia/lbr_urbhh_2013.xlsx', 'Liberia/lbr_urbhh_2019-20.xlsx',
                # add MICS Madagascar
                'Malawi/mwi_urbhh_2015-16.xlsx', # can't find frame households for 2010, add 2013-14 and 2019-20 MICS
-               'Mali/mli_urbhh_2012-13.xlsx','Mali/mli_urbhh_2018.xlsx') 
+               'Mali/mli_urbhh_2012-13.xlsx','Mali/mli_urbhh_2018.xlsx',
+               'Mauritania/mrt_urbhh_2019-21.xlsx',
+               'Mozambique/moz_urbhh_2015.xlsx', # no adequate sample info for 2011
+               'Myanmar/mmr_urbhh_2015-16.xlsx',
+               'Nepal/npl_urbhh_2011.xlsx','Nepal/npl_urbhh_2016.xlsx',
+               'Niger/ner_urbhh_2012.xlsx')
+               # couldn't find sample frame for Nigeria (2010, 2013, 2018)
 
 get_URdiff <- function(file){
   tab <- read.xlsx(paste0(file))

@@ -6,8 +6,7 @@
 ## Amat = NULL iff admin.level = 'National'
 ## options for outcome = 'u5mr', 'nmr'
 ## adj.frame and adj.varnames are calculated in HIV adjustment step -- might change when benchmarking is implemented
-## doBenchmark is not yet functional
-## doHIVAdj may not be necessary, waiting to see how benchmark is implemented
+## doBenchmark is not yet functionals
 # 
 #   end.year=end.proj.year
 #          Amat=admin1.mat
@@ -26,7 +25,7 @@
 getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                     time.model, st.time.model, stratified, weight.strata,
                     admin.level, outcome,
-                    doBenchmark, doHIVAdj, adj.frame,adj.varnames,nsim){
+                    doBenchmark, adj.frame,adj.varnames,nsim){
   
   ## Check inputs -----------------------------------------------
   if(!(admin.level %in% c('National','Admin1','Admin2'))){
