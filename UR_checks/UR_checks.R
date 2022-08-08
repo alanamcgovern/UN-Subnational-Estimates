@@ -44,7 +44,14 @@ get_URdiff <- function(file){
   }else{tab <- tab %>% mutate(chisq = NA)}
                         
   res <- c(nrow(tab),sum(tab$chisq),1-pchisq(sum(tab$chisq),nrow(tab)-1),median(tab$diff),tab$diff[which.max(abs(tab$diff))],median(tab$perc_diff),tab$perc_diff[which.max(abs(tab$perc_diff))])
-  plot <- tab %>% ggplot() + geom_histogram(aes(x=diff)) + ggtitle(paste0(file))
+  if(-min(tab$diff)>0.29){
+    plot.min <- min(tab$diff) - 0.01
+  }else{plot.min <- -0.3}
+  if(max(tab$diff)>0.29){
+    plot.max <- max(tab$diff) + 0.01
+  }else{plot.max <- 0.3
+  }
+  plot <- tab %>% ggplot() + geom_point(aes(x=as.numeric(row.names(tab)),y=diff)) + ylab('Sample - Frame') + xlab('') + geom_hline(yintercept = 0) + ggtitle(paste0(file)) + ylim(c(plot.min,plot.max))
   return(list(round(res,3),plot))
 }
 
@@ -61,4 +68,7 @@ colnames(comparisons) <- c('NumberofAreas','Chi-Square','p','MedianDiff','MaxDif
 
 comparisons
 
+pdf('UR Comparison Plots.pdf')
 plot_list
+dev.off()
+
