@@ -7,6 +7,7 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 setwd(paste(code.path.splitted[1: (length(code.path.splitted)-1)], collapse = "/"))
 library(openxlsx)
 library(tidyverse)
+options(digits=5)
 
 ## specify filepath
 filenames <- c('ang_urbhh.xlsx',
@@ -34,7 +35,7 @@ filenames <- c('ang_urbhh.xlsx',
                'mmr_urbhh.xlsx',
                'npl_urbhh.xlsx',
                'ner_urbhh.xlsx',
-               'nga_urbhh.xlsx',  # couldn't find sample frame for 2010
+               'nga_urbhh.xlsx', # couldn't find sample frame for 2010
                'pak_urbhh.xlsx',
                'rwa_urbhh.xlsx', # couldn't find sample household for 2010 -- oversampled anyway
                'sen_urbhh.xlsx',
@@ -47,7 +48,8 @@ filenames <- c('ang_urbhh.xlsx',
 
 get_URdiff <- function(file){
   tab <- read.xlsx(paste0(file))
-  tab <- tab %>% filter(is.na(frame_prop) + is.na(sample_prop)==0) %>% mutate(diff = sample_prop-frame_prop,perc_diff = (sample_prop-frame_prop)/frame_prop)
+  tab <- tab %>% filter(is.na(frame_prop) + is.na(sample_prop)==0) %>% mutate(diff = sample_prop-frame_prop,perc_diff = (sample_prop-frame_prop)/frame_prop,
+                                                                              weighted_absdiff = f_total/sum(f_total)*abs(diff))
   if(sum(is.na(tab$f_urban) + is.na(tab$f_total) + is.na(tab$s_urban) + is.na(tab$s_total))==0){
     tab <- tab %>% mutate(chisq = ifelse(frame_prop>0 & frame_prop<1, (s_urban-(s_total*f_urban/f_total))^2/(s_total*frame_prop*(1-frame_prop)),0),
                           chisq2 = ifelse(frame_prop>0 & frame_prop<1 & sample_prop>frame_prop, (s_urban-(s_total*f_urban/f_total))^2/(s_total*frame_prop*(1-frame_prop)),0))
@@ -61,7 +63,13 @@ get_URdiff <- function(file){
     plot.max <- max(tab$diff) + 0.01
   }else{plot.max <- 0.3
   }
-  plot <- tab %>% ggplot() + geom_point(aes(x=as.numeric(row.names(tab)),y=diff)) + ylab('Sample - Frame') + xlab('') + geom_hline(yintercept = 0) + ggtitle(paste0(file)) + ylim(c(plot.min,plot.max))
+  if(sum(is.na(tab$f_urban) + is.na(tab$f_total) + is.na(tab$s_urban) + is.na(tab$s_total))==0){
+  plot <- tab %>% ggplot() + geom_point(aes(x=as.numeric(row.names(tab)),y=diff,size=sqrt(f_total))) + 
+    geom_point(x=nrow(tab)+1, y=sum(tab$weighted_absdiff), col='red',pch=3,size = 3) +
+    ylab('Sample - Frame') + xlab('') + geom_hline(yintercept = 0) + ggtitle(paste0(file), paste0('Weighted Sum of Absolute Differences=',sum(tab$weighted_absdiff))) + 
+    ylim(c(plot.min,plot.max)) + xlim(c(0,nrow(tab)+2)) + theme(legend.position = 'none')
+  }else{plot <- tab %>% ggplot() + geom_point(aes(x=as.numeric(row.names(tab)),y=diff)) + 
+    ylab('Sample - Frame') + xlab('') + geom_hline(yintercept = 0) + ggtitle(paste0(file),paste0('Household/population count not available')) + ylim(c(plot.min,plot.max))}
   return(list(round(res,3),plot))
 }
 

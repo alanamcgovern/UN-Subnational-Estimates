@@ -390,7 +390,7 @@ bb.adm1.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                              outcome='nmr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,nsim = 100000)
+                             doBenchmark=F,nsim = 1000)
 time_adm1_strat_nmr <- Sys.time() - time_tmp
 
 bb.fit.adm1.strat.nmr <- bb.adm1.strat.nmr[[1]]
