@@ -1,5 +1,5 @@
 rm(list = ls())
-# ENTER COUNTRY OF INTEREST -----------------------------------------------
+# ENTER COUNTRY OF INTEREST AND SPECIFY STRATIFICATION -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Malawi'
 
@@ -25,6 +25,8 @@ info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 load(paste0(res.dir,'/UR/urb_prop.rda')) # load sampling frame urban proportion at admin1 
 
+# alter info to exclude surveys not in same frame -- to do stratified model all surveys must be from same frame
+survey_years <- survey_years[frame_years==max(frame_years)]
 
 # Load Polygons ----------------------------------------------------------
 
@@ -95,6 +97,11 @@ for(year in pop.year){
 
   setwd(paste0(data.dir))
   load(paste0(country,'_cluster_dat.rda'),
+       envir = .GlobalEnv)
+  
+  #exclude surveys not in same frame
+  mod.dat <- mod.dat[mod.dat$survey %in% survey_years,]
+  save(mod.dat, file=paste0(country,'_cluster_dat.rda'),
        envir = .GlobalEnv)
 
   cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',

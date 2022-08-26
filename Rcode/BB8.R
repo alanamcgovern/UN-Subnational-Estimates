@@ -44,8 +44,12 @@ mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat<-mod.dat[as.numeric(mod.dat$years)>=beg.year,]
 mod.dat$country <- as.character(country)
 
+# update survey years (may have been changed if using stratification)
+survey_years <- unique(mod.dat$survey)
+
+
 ## Load National IGME estimates ------------------------------------------------------
-setwd(paste0(data.dir,'/igme'))
+setwd(paste0(home.dir,'/Data/IGME'))
 
 ## U5MR
 igme.ests.u5 <- read.csv(paste0(country.abbrev,'_u5_igme_est.csv'), header = T)
@@ -84,23 +88,23 @@ for (i in 1:nrow(weight.region.adm1.u5)) {
   weight.region.adm1.nmr[i, "proportion"] <- numerator/denominator
   
   # Note: this makes the region weights for projected years the same as the last year of data (most recent sruvey year)
-  if(weight.region.adm1.u5[i,2]>max(end.years)){
-    numerator <- sum(mod.dat$total[mod.dat$admin1.char==weight.region.adm1.u5[i,1] & mod.dat$years==max(end.years)])
-    denominator <- sum(mod.dat$total[mod.dat$years==max(end.years)])
+  if(weight.region.adm1.u5[i,2]>max(survey_years)){
+    numerator <- sum(mod.dat$total[mod.dat$admin1.char==weight.region.adm1.u5[i,1] & mod.dat$years==max(survey_years)])
+    denominator <- sum(mod.dat$total[mod.dat$years==max(survey_years)])
     weight.region.adm1.u5[i, "proportion"] <- numerator/denominator
     
-    numerator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$admin1.char==weight.region.adm1.nmr[i,1] & mod.dat$years==max(end.years)])
-    denominator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$years==max(end.years)])
+    numerator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$admin1.char==weight.region.adm1.nmr[i,1] & mod.dat$years==max(survey_years)])
+    denominator <- sum(mod.dat$total[mod.dat$age==0 & mod.dat$years==max(survey_years)])
     weight.region.adm1.nmr[i, "proportion"] <- numerator/denominator
     
   }
 }
 
 ## Admin 2
-weight.region.adm2.u5 <- expand.grid(region = admin2.names$Internal, years = beg.year:max(end.years))
+weight.region.adm2.u5 <- expand.grid(region = admin2.names$Internal, years = beg.year:max(survey_years))
 weight.region.adm2.u5$proportion <- NA
 
-weight.region.adm2.nmr <- expand.grid(region = admin2.names$Internal, years = beg.year:max(end.years))
+weight.region.adm2.nmr <- expand.grid(region = admin2.names$Internal, years = beg.year:max(survey_years))
 weight.region.adm2.nmr$proportion <- NA
 
 for (i in 1:nrow(weight.region.adm2.u5)) {
@@ -167,7 +171,7 @@ setwd(paste0(res.dir))
 
 ### National U5MR -----------------------------------------------
 
-#### Unstratified (< 1 min)
+#### Unstratified (< 5 min)
 time_tmp <- Sys.time()
 bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
@@ -175,7 +179,7 @@ bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,nsim=10000)
+                             doBenchmark=F,nsim=1000)
 time_natl_unstrat_u5 <- Sys.time() - time_tmp
 
 bb.fit.natl.unstrat.u5 <- bb.natl.unstrat.u5[[1]]
@@ -198,7 +202,7 @@ bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                              outcome='u5mr',
                              time.model='ar1', st.time.model='ar1',
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             doBenchmark=F,nsim=10000)
+                             doBenchmark=F,nsim=1000)
 time_natl_strat_u5 <- Sys.time() - time_tmp
 
 bb.fit.natl.strat.u5 <- bb.natl.strat.u5[[1]]

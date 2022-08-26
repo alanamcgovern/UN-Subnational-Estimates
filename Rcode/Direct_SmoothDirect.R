@@ -1005,10 +1005,10 @@ dev.off()
 # Spaghetti plots ------------------------------------------------------
 
 ## Load IGME estimates ------------------------------------------------------
-setwd(paste0(data.dir,'/igme'))
+setwd(paste0(home.dir))
 
 ## U5MR
-igme.ests.u5 <- read.csv(paste0(country.abbrev,'_u5_igme_est.csv'),
+igme.ests.u5 <- read.csv(paste0('Data/IGME/',country.abbrev,'_u5_igme_est.csv'),
                       header = T)
 names(igme.ests.u5) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
 igme.ests.u5$year <- igme.ests.u5$year-0.5
@@ -1016,7 +1016,7 @@ igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.years,]
 igme.ests.u5 <- igme.ests.u5[order(igme.ests.u5$year),]
 
 ## NMR
-igme.ests.nmr <- read.csv(paste0(country.abbrev,'_nmr_igme_est.csv'),
+igme.ests.nmr <- read.csv(paste0('Data/IGME/',country.abbrev,'_nmr_igme_est.csv'),
                          header = T)
 names(igme.ests.nmr) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
 igme.ests.nmr$year <- igme.ests.nmr$year-0.5

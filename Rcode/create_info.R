@@ -24,7 +24,7 @@ dhsFlat.files<-c('MWGE62FL','MWGE7AFL')
 
 ### please fill in the following information ####
 survey_years<-c(2010,2015) # years of the DHS surveys
-frame_year <- 2008
+frame_years <- c(2008, 2008)
 
 ### please fill in the path to country shape files (give more explanation on this later) ####
 poly.path <- paste0("shapeFiles_gadm")
@@ -49,7 +49,6 @@ poly.label.adm2 <- "poly.adm2@data$NAME_1"
 
 ## setting rest of parameters using info from above
 country.abbrev <- tolower(gadm.abbrev)           # lower the country gadm abbreviation 
-end.years <- survey_years   # the last years of interest. In the DHS report, we use the year of the recent DHS report.
 beg.year <- 2000 # the first year of the interest
 end.proj.year <- 2020 # last year we would like to project to 
 

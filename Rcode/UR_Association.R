@@ -59,8 +59,6 @@ names(select) <- mod1$misc$configs$contents$tag[2:(length(select)+1)]
 nsim <- 1000
 mod1.samples <- inla.posterior.sample(n=nsim, result=mod1,intern=T, selection=select)
 
-## old ----------------------------------------------------------
-
 # reformat samples to prepare for aggregation
 num.years <- length(unique(mod.dat$years))
 num.admin1 <- length(unique(mod.dat$admin1.name))
@@ -76,7 +74,9 @@ for(j in 1:num.admin1){
   }
 }
 mod1.draws <- expit(sample.restruct)
-mod1.res <- t(apply(sample.restruct,2,function(x){
+mod1.hazards <- 1-(1-mod1.draws)^60
+
+mod1.res <- t(apply(mod1.hazards,2,function(x){
     c(median(x),quantile(x,0.025),quantile(x,0.975))
   }))
 colnames(mod1.res)[1] <- 'median'
@@ -120,7 +120,10 @@ for(j in 1:num.admin1){
     }
   }
 }
-mod2.res <- t(apply(sample.restruct,2,function(x){
+mod2.draws <- expit(sample.restruct)
+mod2.hazards <- 1-(1-mod2.draws)^60
+
+mod2.res <- t(apply(mod2.hazards,2,function(x){
   c(median(x),quantile(x,0.025),quantile(x,0.975))
 }))
 colnames(mod2.res)[1] <- c('median')
@@ -162,8 +165,8 @@ lines(res.natl.yearly.u5$years.num, res.natl.yearly.u5$upper,
         col = 'black', lty = 2)
 lines(res.natl.yearly.u5$years.num,res.natl.yearly.u5$lower, 
         col = 'black', lty = 2)
-lines(mod1.agg$years, expit(mod1.agg$mod1_median), col='blue',lwd=2)
-lines(mod2.agg$years, expit(mod2.agg$mod2_median), col='red',lwd=2)
+lines(mod1.agg$years, mod1.agg$mod1_median, col='blue',lwd=2)
+lines(mod2.agg$years, mod2.agg$mod2_median, col='red',lwd=2)
 legend('topright', bty = 'n',
          col = c('black','blue','red'),
          lwd = 2, legend = c("Smoothed",'No urban intercept','Urban intercept'))
