@@ -1,13 +1,12 @@
 rm(list = ls())
-library(stringdist)
-
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-# enter country being analyzed
+# ENTER COUNTRY OF INTEREST AND SPECIFY STRATIFICATION -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Malawi'
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
+
+# Load libraries and Info -----------------------------------------------
+
+library(stringdist)
+library(openxlsx)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -19,35 +18,31 @@ res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/', info.name, sep='')) # load the country info
 
+# create subfolders for urban-rural fractions
+if(!dir.exists(paths = paste0(res.dir,'/UR/'))){
+  dir.create(path = paste0(res.dir,'/UR/'))}
+if(!dir.exists(paths = paste0(res.dir,'/UR/Threshold/'))){
+  dir.create(path = paste0(res.dir,'/UR/Threshold/'))}
+if(!dir.exists(paths = paste0(res.dir,'/UR/U1_fraction/'))){
+  dir.create(path = paste0(res.dir,'/UR/U1_fraction/'))}
+if(!dir.exists(paths = paste0(res.dir,'/UR/U5_fraction/'))){
+  dir.create(path = paste0(res.dir,'/UR/U5_fraction/'))}
+
 setwd(data.dir)
 
 load(paste0('shapeFiles_gadm/', country, '_Amat.rda'))  # load the adjacency matrix
 load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))  # load names of admin1 and admin2 regions
 
-###################################################################
-###################################################################
-#### format urban proportion table for sample frame
-###################################################################
-###################################################################
+# properly format urban proportion table for sample frame -----------------------------------------------
+## BEFORE RUNNING THIS SECTION: follow vignette to create a txt file with urban population fraction at admin1 level
 
-# read the txt file containing urban population fraction at admin1 level.
-frame <- read.table(paste0(country.abbrev,'_frame_urb_prop.txt'))
-# IF using number of household from DHS, multiply each column by average number of household in that area type (found in DHS)
-######### Ex. from Burundi 2008 frame
-######### frame$V2 <- frame$V2*5.2
-######### frame$V3 <- frame$V3*4.7
-######### frame$V4 <- frame$V4*4.8
+# read the excel file containing urban population fraction at admin1 level.
+frame <- read.xlsx(paste0(res.dir,'/UR/', country_abbrev, '_frame_urb_prop.xlsx'))
 
-# IF using info from a census or other DHS survey, check that that the admin1 names in your table and admin1.names (from the DHS data) 
-# are the same (differences in spacing of names is fine)
-sort(frame$V1)==sort(admin1.names$GADM)
-sort(frame$V1)[sort(frame$V1)!=sort(admin1.names$GADM)]
-sort(admin1.names$GADM)[sort(frame$V1)!=sort(admin1.names$GADM)]
-
-# identify column for fraction -- index urban and total columns, in that order (need additional processing in general)
-frame[,c(3,2)] <- lapply(frame[,c(3,2)],   ## function to remove comma in numbers
-                         function(x){as.numeric(gsub(",", "", x))})
-frame$frac <- frame[, 3]/frame[, 2]
+## check that that the admin1 names in your table and admin1.names (from the DHS data) are the same (differences in spacing of names is fine)
+sort(frame[,1])==sort(admin1.names$GADM)
+sort(frame[,1])[sort(frame[,1])!=sort(admin1.names$GADM)]
+sort(admin1.names$GADM)[sort(frame[,1])!=sort(admin1.names$GADM)]
 
 # greedy algorithm to match admin names 
 adm1.ref <- expand.grid(tolower(frame[, 1]),
@@ -76,15 +71,10 @@ match_order<-data.frame(greedyAssign(adm1.ref$frame_name,
 
 # create reference table 
 ref.tab <- admin1.names
-ref.tab$matched_name <- frame$V1[match_order$a] ### check!!!
-ref.tab$urb_frac <- frame$frac[match_order$a] 
+ref.tab$matched_name <- frame[match_order$a,1] ### check that names match!!!
+ref.tab$urb_frac <- frame[match_order$a,2] 
 
-#fix estimates which are greater then 1 (only necessary when using household measures)
-ref.tab$urb_frac[ref.tab$urb_frac>1] <- 1
-
-###########################################################################
-#### save reference table
-###########################################################################
+## save reference table -----------------------------------------------
 setwd(res.dir)
 save(ref.tab,file='UR/urb_prop.rda')
 
