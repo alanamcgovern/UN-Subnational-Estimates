@@ -3,26 +3,16 @@ title: "Obtaining Urban Sampling Proportion"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
+To generate urban sampling weights, we need information of urban fraction at Admin-1 level. Such information could usually be obtained with credibility from the country-specific DHS survey reports or national census reports. We need to organize this information in a cleaned table to run our scripts.
 
-## R Markdown
+## 1. Search for the information about Admin-1 level urban population
+It is rare that all the DHS survey reports and national census reports are formatted in the same way, which means that this information might be found at different places in different reports. We provide some general ways to find them and the options are ordered by their priority. We illustrate this process for Zambia.
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+Because these sampling weights refer to a specific sampling frame, using a stratified model requires us to only use surveys which use the same sampling frame. Thus, going forward, we will only use the surveys that have the same sampling frame as our most recent survey. (The removal of data that comes from surveys with a different frame is already automated in subsequent scripts). To determine which surveys this includes, you can compare frame_years with survey_years from the info file.
 
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+We recommend the reader to first check out each of the DHS reports for the surveys that will be used (those that use the same sampling frame) until you find one where the admin-1 level urban population fraction is available. You can find these reports at https://dhsprogram.com/pubs. Ideally, this information will appear in Appendix A in at least 1 of the DHS reports.  For Zambia, we found the information in Table A.1 of the 2013-2014 DHS survey.
 
-```{r cars}
-summary(cars)
-```
+![]{'ZMB_DHS_urbfrac.png'}
 
-## Including Plots
+However, sometimes, the admin-1 level urban population fraction is not available, and we only have household urban fraction.
 
-You can also embed plots, for example:
-
-```{r pressure, echo=FALSE}
-plot(pressure)
-```
-
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
