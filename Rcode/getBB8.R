@@ -85,8 +85,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
       if(!stratified){
         int.adj = list(
           mean=list(`(Intercept):1`=logit(mean(igme.ests.nmr$OBS_VALUE))), 
-          #precision=5, acr=0.002 ;precision=1, acr=0.006;
-          prec=list(`(Intercept):1`=.5))
+          prec=list(`(Intercept):1`=10))
       }else if(stratified){
         int.adj = list(
           mean=list(`age.intercept0:rural:1`= logit(mean(igme.ests.nmr$OBS_VALUE)),
@@ -103,7 +102,9 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     }
   }
   
-  ## Fit model -----------------------------------------------
+  ## Unbenchmarked model
+  if(!doBenchmark){
+    ## Fit model 
    bb.fit <- smoothCluster(data = mod.dat, family = "betabinomial",
                             Amat = Amat, 
                             year_label = c(beg.year:end.year),
@@ -127,9 +128,10 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                   weight.frame = NULL,
                                   draws = NULL, save.draws = TRUE)
   
-  ## Benchmark  -----------------------------------------------
+  }
+  
+  ## Benchmarked model  -----------------------------------------------
   if(doBenchmark){
-    message('Starting benchmarking...')
     
     ## fit model with adjusted intercepts
     bb.fit.adj <- smoothCluster(data = mod.dat, family = "betabinomial",
@@ -149,9 +151,9 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                 control.fixed = int.adj)
     
     ## Get posterior draws from adjusted model
-    bb.res.adj.tmp <- getSmoothed(inla_mod = bb.fit.adj, 
+    bb.res.tmp <- getSmoothed(inla_mod = bb.fit.adj, 
                           year_range = beg.year:end.year, 
-                          year_label = beg.year:end.year, nsim = 50000, 
+                          year_label = beg.year:end.year, nsim = nsim, 
                           weight.strata = weight.strata, 
                           weight.frame = NULL,
                           CI=0.95, draws = NULL, save.draws = TRUE)
@@ -160,13 +162,16 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     bench.acr <- 0
     suppressMessages({
     for(i in 1:5){
-    bench.tmp <- Benchmark(bb.res.adj.tmp,igme.ests,weight.region = weight.region,
+    bench.tmp <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
                                     estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
     bench.acr <- bench.acr + bench.tmp$accept.ratio/5
     }})
     
     ## Now we know how many draws we need to get a certain number (nsim) accepted
-    message('Acceptance rate is ', bench.acr, '. Taking ', round(nsim/bench.acr), ' posterior draws to acheive approximately ', nsim, ' accepted draws.')
+    if(bench.acr<0.01){
+      stop(paste0('Acceptance ratio is approximately ', bench.acr, ', which is too small. Check specification of priors on intercepts (int.adj).'))
+    }
+    message('Acceptance rate is ', bench.acr, '. Taking ', round(nsim/bench.acr), ' posterior draws to achieve approximately ', nsim, ' accepted draws.')
     bb.res.adj <- getSmoothed(inla_mod = bb.fit.adj, 
                                  year_range = beg.year:end.year, 
                                  year_label = beg.year:end.year, nsim = round(nsim/bench.acr), 
@@ -182,7 +187,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     year <- bb.res.bench$draws.est.overall[[35]]$years
     region <- bb.res.bench$draws.est.overall[[35]]$region
     
-    data.frame(iteration = 1:length(bb.res.bench$draws.est.overall[[35]]$draws[c(1:10000)%%50 ==0]),
+    data.frame(iteration = 1:length(bb.res.bench$draws.est.overall[[35]]$draws[c(1:round(nsim/bench.acr))%%25 ==0]),
                fitted_val = bb.res.bench$draws.est.overall[[35]]$draws[c(1:10000)%%50 ==0]) %>%
       ggplot(aes(iteration, fitted_val)) +
       geom_line() +
@@ -190,8 +195,14 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   }
    
   ## Return fit and estimates -----------------------------------------------
-  out <- list(bb.fit,bb.res,bb.res.bench)
-  names(out) <- c('fit','results','results_bench')
+  if(!doBenchmark){
+  out <- list(bb.fit,bb.res)
+  names(out) <- c('fit','results')
+  }
+  if(doBenchmark){
+    out <- list(bb.fit.adj,bb.res.bench)
+    names(out) <- c('fit_bench','results_bench')
+  }
   return(out)
   
 }

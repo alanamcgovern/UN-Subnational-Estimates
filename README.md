@@ -26,8 +26,8 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
 
 #### Step 2: Downloading Data
 
-- Put the HIV data in the newly created 'Data' folder (info on where to find HIV data)
-- Download data folder for country of interest (should contain IGME estimates, DHS data, and GADM files)
+- Put the HIV, IGME, and UR_sampling folders in the newly created 'Data' folder (info on where to find these)
+- Download data folder for country of interest (should contain DHS data and GADM files)
 
 
 #### Step 3: Data Processing
@@ -40,12 +40,11 @@ Run Direct_SmoothDirect.R. This script will calculate direct and smoothed direct
 
 #### Step 5: Addressing Stratification
 
-This is a series of analyses to determine whether a urban/rural stratificatied model is necessary for this particular country.
-
-(more info later)
-
-UR_Association.R, ur_prop.R, UR_thresholding
-
+- Run UR_Assocation.Rmd. *Make sure to specify the country of interest where it is requested at the top of the script!* This will produce a report to be discussed with the group to determine whether urban/rural stratification is necessary or not for this country.
+- **If it is determined stratification is not necessary**, proceed to Step 6.
+- **If it is determined stratification if necessary**:
+  - ur_prop.R (See 'Obtaining Urban Sampling Proportion' document)
+  - Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model.
 
 #### Step 6: Beta-Binomial Estimates
 

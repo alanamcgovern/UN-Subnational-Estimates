@@ -1,13 +1,15 @@
-################################################################
-#########   load libraries
-################################################################
 rm(list = ls())
+## ENTER COUNTRY OF INTEREST -----------------------------------------------
+# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+country <- 'Malawi'
+
+## Libraries -----------------------------------------------
+
 options(gsubfn.engine = "R")
 library(rgdal)
 library(SUMMER)
 library(ggplot2)
 
-#### Libraries ####
 library(classInt)
 library(RColorBrewer)
 library(dplyr)
@@ -30,14 +32,7 @@ library(sp)
 library(gstat)
 library(ggridges)
 
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-# enter country being analyzed
-# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
-#### ----------------------------------------------------------
-#### ----------------------------------------------------------
-
+## Retrieve directories and country info -----------------------------------------------
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
@@ -46,11 +41,7 @@ data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the d
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 load(file = paste0(home.dir,'/Info/', country, "_general_info.Rdata", sep=''))
 
-
-################################################################
-#########   load shapefiles
-################################################################
-
+## Load polygon files -----------------------------------------------
 setwd(data.dir)
 
 poly.adm0 <- readOGR(dsn = poly.path,
@@ -65,30 +56,32 @@ load(paste0('shapeFiles_gadm/', country, '_Amat.rda'))
 load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))
 
 
-################################################################
-#########   load fitted BB8 models and results
-################################################################
-
+## Load BB8 results -----------------------------------------------
 setwd(res.dir)
 
-# generalize later for different space time models
-load( paste0('Betabinomial/', country,'_res_natl_strat.rda'))
-load( paste0('Betabinomial/',country,'_res_natl_unstrat.rda'))
-load( paste0('Betabinomial/',country,'_res_admin1_ar1_strat.rda'))
-load( paste0('Betabinomial/',country,'_res_admin1_ar1_unstrat.rda'))
-load( paste0('Betabinomial/',country,'_res_admin2_ar1_strat.rda'))
-load( paste0('Betabinomial/',country,'_res_admin2_ar1_unstrat.rda'))
-  
+# include benchmarked estimates later
+load( paste0('Betabinomial/U5MR/', country,'_res_natl_strat_u5.rda'))
+load( paste0('Betabinomial/U5MR/', country,'_res_natl_unstrat_u5.rda'))
+load( paste0('Betabinomial/U5MR/', country,'_res_adm1_strat_u5.rda'))
+load( paste0('Betabinomial/U5MR/', country,'_res_adm1_unstrat_u5.rda'))
+load( paste0('Betabinomial/U5MR/', country,'_res_adm2_strat_u5.rda'))
+load( paste0('Betabinomial/U5MR/', country,'_res_adm2_unstrat_u5.rda'))
+
+load( paste0('Betabinomial/NMR/', country,'_res_natl_strat_nmr.rda'))
+load( paste0('Betabinomial/NMR/', country,'_res_natl_unstrat_nmr.rda'))
+load( paste0('Betabinomial/NMR/', country,'_res_adm1_strat_nmr.rda'))
+load( paste0('Betabinomial/NMR/', country,'_res_adm1_unstrat_nmr.rda'))
+load( paste0('Betabinomial/NMR/', country,'_res_adm2_strat_nmr.rda'))
+load( paste0('Betabinomial/NMR/', country,'_res_adm2_unstrat_nmr.rda'))
+
+
 if(!dir.exists(paths = paste0('Betabinomial/Postsamp'))){
   dir.create(path = paste0('Betabinomial/Postsamp'))}
   
-
 if(!dir.exists(paths = paste0('Figures/Betabinomial/'))){
   dir.create(path = paste0('Figures/Betabinomial/'))}
-################################################################
-#########   Figure 1a : admin-2 U5MR map for latest year
-################################################################
 
+## Figure 1a : admin-2 U5MR map for latest year -----------------------------------------------
 # We plot the U5MR estimates of the latest year fitted by beta-binomial model at admin2 level on the map of the given country.
 
 # prepare results
@@ -118,9 +111,7 @@ g1a <- g1a+
 #ggsave(g1a, device='tiff',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "_", max(end.years), "_admin2_map.tiff"))
 ggsave(g1a, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "_", max(end.years), "_admin2_map.pdf"))
 
-################################################################
-#########   Figure 1b : admin-2 U5MR CI width map for latest year
-################################################################
+## Figure 1b : admin-2 U5MR CI width map for latest year -----------------------------------------------
 
 # We plot the width of credible of our U5MR estimates of the latest year fitted by beta-binomial model at admin2 level on the map of the given country.
 
@@ -139,9 +130,7 @@ g1b <- g1b + scale_fill_viridis_c("Width of 95% CI",option="B",direction=-1)+
 #ggsave(g1b, device='tiff',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "_", max(end.years), "-wid-95CI-admin2-map.tiff"))
 ggsave(g1b, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "_", max(end.years), "-wid-95CI-admin2-map.pdf"))
 
-################################################################
-#########   Figure 1c : admin-2 U5MR map for each year
-################################################################
+## Figure 1c : admin-2 U5MR map for each year -----------------------------------------------
 
 # We plot the U5MR estimates of the each year fitted by beta-binomial model at admin2 level on the map of the given country.
 
@@ -160,9 +149,7 @@ g1c <- mapPlot(admin2_res_merged, geo = poly.adm2, by.data = "region", by.geo = 
 ggsave(g1c, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-all-years-admin2-map.pdf"))
 
 
-################################################################
-#########   Figure 1d : admin-2 U5MR CI width map for each year
-################################################################
+## Figure 1d : admin-2 U5MR CI width map for each year -----------------------------------------------
 
 # We plot the width of credible of our U5MR estimates for all years fitted by beta-binomial model at admin2 level on the map of the given country.
 
@@ -181,9 +168,7 @@ g1d <- mapPlot(admin2_res_merged, geo = poly.adm2, by.data = "region", by.geo = 
 #ggsave(g1d, device='tiff',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-all-years-wid-95CI-admin2-map.tiff"))
 ggsave(g1d, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-all-years-wid-95CI-admin2-map.pdf"))
 
-################################################################
-#########   Figure 1e : admin-1 U5MR for each year
-################################################################
+## Figure 1e : admin-1 U5MR map for each year -----------------------------------------------
 
 # We plot our U5MR estimates for all years fitted by beta-binomial model at admin1 level on the map of the given country.
 
@@ -211,9 +196,7 @@ g1e <- mapPlot(admin1_res_merged, geo = poly.adm1, by.data = "region", by.geo = 
 #ggsave(g1e, device='tiff',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-all-years-admin1-map.tiff"))
 ggsave(g1e, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-all-years-admin1-map.pdf"))
 
-################################################################
-#########   Figure 1f : admin-1 U5MR CI width for each year
-################################################################
+## Figure 1f : admin-1 U5MR CI width map for each year -----------------------------------------------
 
 # We plot the width of credible of our U5MR estimates for all years fitted by beta-binomial model at admin1 level on the map of the given country.
 
@@ -231,10 +214,7 @@ g1f <- mapPlot(admin1_res_merged, geo = poly.adm1, by.data = "region", by.geo = 
 ggsave(g1f, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-all-years-wid-95CI-admin1-map.pdf"))
 
 
-
-################################################################
-#########   Figure 2 : admin-1 U5MR trend plot
-################################################################
+## Figure 2 : admin-1 U5MR trend plot -----------------------------------------------
 
 # We plot our U5MR estimates versus years fitted by beta-binomial model at admin1 level.
 
@@ -258,9 +238,7 @@ g2 <- plot(admin1_res_merged, plot.CI = TRUE, dodge.width = 0.5, proj_year = max
 #ggsave(g2, device='tiff',width=8, height = 10, file = paste0("Figures/Betabinomial/", country,"-trends-admin1.tiff"))
 ggsave(g2, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "-trends-admin1.pdf"))
 
-################################################################
-#########   Figure 3 : admin-2 U5MR trend plot, no legends
-################################################################
+## Figure 3 : admin-2 U5MR trend plot, no legends -----------------------------------------------
 
 # We plot our U5MR estimates versus years fitted by beta-binomial model at admin2 level.
 
