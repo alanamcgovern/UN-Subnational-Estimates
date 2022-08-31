@@ -1,7 +1,4 @@
----
-title: "Obtaining Urban Sampling Proportion"
-output: html_document
----
+# Obtaining Urban Sampling Proportion
 
 To generate urban sampling weights, we need information of urban fraction at Admin-1 level. Such information could usually be obtained with credibility from the country-specific DHS survey reports or national census reports. We need to organize this information in a cleaned table to run our scripts.
 
