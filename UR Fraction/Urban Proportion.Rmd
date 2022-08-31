@@ -26,9 +26,9 @@ a. Open up ur_prop.R in from the Rcode folder and run the code up to line 35, ma
 
 b. Copy the information obtained in Step 1 into an excel file called `(country abbreviation)_frame_urb_prop.xlsx' and save in the newly created 'UR' subfolder within the Results folder. The first column of the excel file should be the name of the Admin-1 area and the second column should be the urban fraction (urban population/total population). Recall that if you are using number of households, you must multiply average household size. The excel file should look like the following:
 
-![](ZMB_excel_urbfrac.png)
+![](ZMB_excel_urbfrac.png){width=50%}
 
 
 c. Run the rest of ur_prop.R and make sure that the Admin-1 names in the final object, ref.tab, match up. In the end, the ref.tab object should look like the following:
 
-![](BGD_ref.tab.png)
+![](BGD_ref.tab.png){width=50%}
