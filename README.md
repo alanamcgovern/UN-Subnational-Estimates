@@ -43,7 +43,7 @@ Run Direct_SmoothDirect.R. This script will calculate direct and smoothed direct
 - Run UR_Assocation.Rmd. *Make sure to specify the country of interest where it is requested at the top of the script!* This will produce a report to be discussed with the group to determine whether urban/rural stratification is necessary or not for this country.
 - **If it is determined stratification is not necessary**, proceed to Step 6.
 - **If it is determined stratification if necessary**:
-  - ur_prop.R (See 'UR fraction')
+  - Obtain Admin-1 level urban fraction (See 'UR fraction' folder)
   - Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model.
 
 #### Step 6: Beta-Binomial Estimates

@@ -1,0 +1,72 @@
+smoothCluster(data = mod.dat, family = "betabinomial",
+                            Amat = Amat, 
+                            year_label = c(beg.year:end.year),
+                            time.model = 'ar1',
+                            pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
+                            type.st = 4,
+                            bias.adj = adj.frame, bias.adj.by = adj.varnames,
+                            survey.effect = TRUE,
+                            strata.time.effect = T,
+                            age.groups <- levels(mod.dat$age),
+    			    age.n <- c(1, 11, 12, 12, 12, 12),
+                            age.rw.group <- c(1, 2, 3, 3, 3, 3),
+                            age.strata.fixed.group <- c(1, 2, 3, 4, 5, 6),
+                            overdisp.mean = -7.5, overdisp.prec = 0.39)
+
+----------------------------------
+Cluster-level model
+  Main temporal model:        ar1
+  Additional linear trends:   stratum-age-specific
+  Interaction random slopes:  yes
+  Number of age groups: 6
+  Stratification: yes
+  Number of age group fixed effect intercept per stratum: 6
+  Number of age-specific trends per stratum: 3
+  Strata-specific temporal trends: yes
+  Survey effect: yes
+----------------------------------
+Fixed Effects
+                           mean    sd 0.025quant 0.5quant 0.975quant mode kld
+time.slope.group1        -0.471 0.181     -0.823   -0.473     -0.108   NA   0
+time.slope.group2        -1.751 0.187     -2.121   -1.750     -1.384   NA   0
+time.slope.group3        -1.979 0.181     -2.346   -1.976     -1.629   NA   0
+time.slope.group4         0.450 0.308     -0.156    0.450      1.054   NA   0
+time.slope.group5        -1.605 0.327     -2.254   -1.602     -0.971   NA   0
+time.slope.group6        -2.247 0.340     -2.923   -2.244     -1.587   NA   0
+age.intercept0:rural     -3.494 0.042     -3.577   -3.494     -3.412   NA   0
+age.intercept1-11:rural  -6.108 0.045     -6.197   -6.108     -6.020   NA   0
+age.intercept12-23:rural -6.808 0.048     -6.903   -6.808     -6.715   NA   0
+age.intercept24-35:rural -7.074 0.051     -7.175   -7.073     -6.975   NA   0
+age.intercept36-47:rural -7.467 0.057     -7.579   -7.467     -7.357   NA   0
+age.intercept48-59:rural -8.035 0.069     -8.171   -8.034     -7.902   NA   0
+age.intercept0:urban     -3.557 0.073     -3.701   -3.556     -3.416   NA   0
+age.intercept1-11:urban  -6.228 0.087     -6.402   -6.226     -6.061   NA   0
+age.intercept12-23:urban -7.239 0.115     -7.469   -7.237     -7.020   NA   0
+age.intercept24-35:urban -7.676 0.134     -7.946   -7.673     -7.420   NA   0
+age.intercept36-47:urban -8.171 0.164     -8.504   -8.167     -7.860   NA   0
+age.intercept48-59:urban -8.357 0.182     -8.729   -8.352     -8.015   NA   0
+
+Slope fixed effect index:
+time.slope.group1: 0:rural
+time.slope.group2: 1-11:rural
+time.slope.group3: 12-23:rural, 24-35:rural, 36-47:rural, 48-59:rural
+time.slope.group4: 0:urban
+time.slope.group5: 1-11:urban
+time.slope.group6: 12-23:urban, 24-35:urban, 36-47:urban, 48-59:urban
+----------------------------------
+Random Effects
+           Name       Model
+1   time.struct AR(p) model
+2 time.unstruct   IID model
+3     survey.id   IID model
+----------------------------------
+Model hyperparameters
+                                                    mean     sd 0.025quant 0.5quant 0.975quant mode
+overdispersion for the betabinomial observations   0.001  0.000      0.000    0.001      0.001   NA
+Precision for time.struct                        166.800 91.686     58.826  144.403    404.489   NA
+PACF1 for time.struct                              0.005  0.240     -0.435   -0.005      0.486   NA
+Precision for time.unstruct                      144.864 83.027     44.325  125.596    358.883   NA
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -30531.11
+log marginal-likelihood (Gaussian)    -30529.69
