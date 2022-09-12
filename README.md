@@ -36,7 +36,8 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
 
 Before proceeding, make sure your Data/<country> folder looks similar to the following:
 
-![](Ref_figs/Data_Structure1.png){width="75%"}
+<img src="ref_figs/Data_Structure1.png" width="500">
+
 
 ![](Ref_figs/Data_Structure2.png){width="75%"}
 
