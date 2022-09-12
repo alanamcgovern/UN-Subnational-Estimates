@@ -60,20 +60,24 @@ load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))
 setwd(res.dir)
 
 # include benchmarked estimates later
-load( paste0('Betabinomial/U5MR/', country,'_res_natl_strat_u5.rda'))
 load( paste0('Betabinomial/U5MR/', country,'_res_natl_unstrat_u5.rda'))
-load( paste0('Betabinomial/U5MR/', country,'_res_adm1_strat_u5.rda'))
 load( paste0('Betabinomial/U5MR/', country,'_res_adm1_unstrat_u5.rda'))
-load( paste0('Betabinomial/U5MR/', country,'_res_adm2_strat_u5.rda'))
 load( paste0('Betabinomial/U5MR/', country,'_res_adm2_unstrat_u5.rda'))
 
-load( paste0('Betabinomial/NMR/', country,'_res_natl_strat_nmr.rda'))
 load( paste0('Betabinomial/NMR/', country,'_res_natl_unstrat_nmr.rda'))
-load( paste0('Betabinomial/NMR/', country,'_res_adm1_strat_nmr.rda'))
 load( paste0('Betabinomial/NMR/', country,'_res_adm1_unstrat_nmr.rda'))
-load( paste0('Betabinomial/NMR/', country,'_res_adm2_strat_nmr.rda'))
 load( paste0('Betabinomial/NMR/', country,'_res_adm2_unstrat_nmr.rda'))
 
+if(!dir.exists(paths = paste0(res.dir,'/UR/'))){
+  load( paste0('Betabinomial/U5MR/', country,'_res_natl_strat_u5.rda'))
+  load( paste0('Betabinomial/U5MR/', country,'_res_adm1_strat_u5.rda'))
+  load( paste0('Betabinomial/U5MR/', country,'_res_adm2_strat_u5.rda'))
+  
+  load( paste0('Betabinomial/NMR/', country,'_res_natl_strat_nmr.rda'))
+  load( paste0('Betabinomial/NMR/', country,'_res_adm1_strat_nmr.rda'))
+  load( paste0('Betabinomial/NMR/', country,'_res_adm2_strat_nmr.rda'))
+  
+}
 
 if(!dir.exists(paths = paste0('Betabinomial/Postsamp'))){
   dir.create(path = paste0('Betabinomial/Postsamp'))}
@@ -85,17 +89,22 @@ if(!dir.exists(paths = paste0('Figures/Betabinomial/'))){
 # We plot the U5MR estimates of the latest year fitted by beta-binomial model at admin2 level on the map of the given country.
 
 # prepare results
-res.admin2_overall<-res.admin2.strat$overall
+if(exists('bb.res.adm2.strat.u5')){
+  res.admin2_overall<-bb.res.adm2.strat.u5$overall
+}else{
+  res.admin2_overall<-bb.res.adm2.unstrat.u5$overall
+}
+
 admin2_res_merged<-merge(res.admin2_overall, admin2.names, 
                          by.x=c("region"),
                          by.y=c("Internal"))
 admin2_res_merged$region<-admin2_res_merged$GADM
 admin2_res_merged$width <- admin2_res_merged$upper- admin2_res_merged$lower
-class(admin2_res_merged) <- class(res.admin2.strat$overall)
+class(admin2_res_merged) <- class(bb.res.adm2.unstrat.u5$overall)
 
 
 # admin2 level maps, last year
-last_year <- subset(admin2_res_merged, years == max(end.years))
+last_year <- subset(admin2_res_merged, years == max(survey_years))
 g1a <- mapPlot(last_year, geo = poly.adm2, by.data = "region", by.geo = sub(".*data[$]","",poly.label.adm2), variable = "median", 
                is.long=FALSE, per1000=TRUE, removetab=TRUE, legend.label = "U5MR", direction = -1, 
                size= 0.1)
@@ -130,7 +139,7 @@ g1b <- g1b + scale_fill_viridis_c("Width of 95% CI",option="B",direction=-1)+
 #ggsave(g1b, device='tiff',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "_", max(end.years), "-wid-95CI-admin2-map.tiff"))
 ggsave(g1b, device='pdf',width=8, height = 10, file = paste0("Figures/Betabinomial/", country, "_", max(end.years), "-wid-95CI-admin2-map.pdf"))
 
-## Figure 1c : admin-2 U5MR map for each year -----------------------------------------------
+## Figure 1c : admin-2 U5MR map for  -----------------------------------------------
 
 # We plot the U5MR estimates of the each year fitted by beta-binomial model at admin2 level on the map of the given country.
 

@@ -1,9 +1,5 @@
 # UN Pipeline Overview
 
-**TO DO: determine which countries need UR stratification, create info files, benchmarking (deal w acceptance ratio/sampling time issue)
-
-**Waiting on: CSDE info (data pulls + cluster use), MICS implementation
-
 ## Summary
 
 This document provides detailed instructions for obtaining direct, smoothed direct, and urban/rural stratified Beta-binomial estimates for U5MR and NMR, as well as maps and figures of these results.
@@ -40,15 +36,12 @@ Run Direct_SmoothDirect.R. This script will calculate direct and smoothed direct
 
 #### Step 5: Addressing Stratification
 
-- Run UR_Assocation.Rmd. *Make sure to specify the country of interest where it is requested at the top of the script!* This will produce a report to be discussed with the group to determine whether urban/rural stratification is necessary or not for this country.
-- **If it is determined stratification is not necessary**, proceed to Step 6.
-- **If it is determined stratification if necessary**:
-  - Obtain Admin-1 level urban fraction (See 'UR fraction' folder)
-  - Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model.
+- Obtain Admin-1 level urban fraction (See 'UR fraction' folder)
+- Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model.
 
 #### Step 6: Beta-Binomial Estimates
 
-Run BB8.R (add a lot more info after model is figured out)
+- Run BB8.R and *Make sure to specify the country of interest at the top of the script!!*. This will fit U5MR and NMR models at the National, Admin-1, Admin-2 levels and draw benchmarked and un-benchmarked posterior estimates.
 
 
 

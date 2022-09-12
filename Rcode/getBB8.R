@@ -8,18 +8,18 @@
 ## adj.frame and adj.varnames are calculated in HIV adjustment step -- might change when benchmarking is implemented
 ## doBenchmark is not yet functional
 # 
-   end.year=end.proj.year
-          Amat=admin1.mat
-          admin.level='Admin1'
-          stratified=T
-          weight.strata=weight.strata.adm1.u1
-          weight.region = weight.region.adm1.nmr
-          outcome='nmr'
-          time.model='ar1' 
-          st.time.model='ar1'
-          doBenchmark=T
-          igme.ests <- igme.ests.nmr
-          nsim = 1000
+     # end.year=end.proj.year
+     #        Amat=admin1.mat
+     #        admin.level='Admin1'
+     #        stratified=F
+     #        weight.strata=NULL
+     #        weight.region = weight.region.adm1.nmr
+     #        outcome='nmr'
+     #        time.model='ar1' 
+     #        st.time.model='ar1'
+     #        doBenchmark=T
+     #        igme.ests = igme.ests.nmr
+     #        nsim = 1000
 
 ##################################################################
 ###### Define BB8 function
@@ -95,7 +95,19 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
       }
     }else if(outcome=='u5mr'){
       if(!stratified){
-        
+        int.adj = list(
+          mean=list(`age.intercept0:1`=logit((sum(mod.dat[mod.dat$age=='0',]$Y))/(sum(mod.dat$Y))*mean(igme.ests.u5$OBS_VALUE)),
+                    `age.intercept1-11:1`=logit((sum(mod.dat[mod.dat$age=='1-11',]$Y))/(sum(mod.dat$Y))*mean(igme.ests.u5$OBS_VALUE)), 
+                    `age.intercept12-23:1`=logit((sum(mod.dat[mod.dat$age=='12-23',]$Y))/(sum(mod.dat$Y))*mean(igme.ests.u5$OBS_VALUE)),
+                    `age.intercept24-35:1`=logit((sum(mod.dat[mod.dat$age=='24-35',]$Y))/(sum(mod.dat$Y))*mean(igme.ests.u5$OBS_VALUE)),
+                    `age.intercept36-47:1`=logit((sum(mod.dat[mod.dat$age=='36-47',]$Y))/(sum(mod.dat$Y))*mean(igme.ests.u5$OBS_VALUE)),
+                    `age.intercept48-59:1`=logit((sum(mod.dat[mod.dat$age=='48-59',]$Y))/(sum(mod.dat$Y))*mean(igme.ests.u5$OBS_VALUE))),
+          prec=list(`age.intercept0:1`=10,
+                    `age.intercept1-11:1`=10, 
+                    `age.intercept12-23:1`=10,
+                    `age.intercept24-35:1`=10,
+                    `age.intercept36-47:1`=10,
+                    `age.intercept48-59:1`=10))
       }else if(stratified){
         
       }
@@ -103,6 +115,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   }
   
   ## Unbenchmarked model
+  inla.setOption(mkl=TRUE)
   if(!doBenchmark){
     ## Fit model 
    bb.fit <- smoothCluster(data = mod.dat, family = "betabinomial",
@@ -110,7 +123,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                             year_label = c(beg.year:end.year),
                             time.model = time.model, st.time.model = st.time.model,
                             pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
-                            type.st = 4,
+                            type.st = 3,
                             bias.adj = adj.frame, bias.adj.by = adj.varnames,
                             survey.effect = TRUE,
                             strata.time.effect = strata.time.effect,
@@ -118,7 +131,8 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                             age.n = age.n,
                             age.rw.group = age.rw.group,
                             age.strata.fixed.group = age.strata.fixed.group,
-                            overdisp.mean = -7.5, overdisp.prec = 0.39)
+                            overdisp.mean = -7.5, overdisp.prec = 0.39,
+                            control.inla = list(strategy='adaptive',int.strategy='eb'))
   
   ## Get posterior draws -----------------------------------------------
   bb.res <- getSmoothed(inla_mod = bb.fit, 
@@ -148,7 +162,8 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                 age.rw.group = age.rw.group,
                                 age.strata.fixed.group = age.strata.fixed.group,
                                 overdisp.mean = -7.5, overdisp.prec = 0.39,
-                                control.fixed = int.adj)
+                                control.fixed = int.adj,
+                                control.inla = list(strategy='adaptive',int.strategy='eb'))
     
     ## Get posterior draws from adjusted model
     bb.res.tmp <- getSmoothed(inla_mod = bb.fit.adj, 

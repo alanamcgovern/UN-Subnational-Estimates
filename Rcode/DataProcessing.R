@@ -10,6 +10,7 @@ library(spdep)
 library(SUMMER)
 library(geosphere)
 library(stringr)
+library(tidyverse)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -72,18 +73,18 @@ save(admin1.mat, admin2.mat, file = paste0(poly.path,'/', country, '_Amat.rda'))
 save(admin1.names, admin2.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
 
 
-# Process DHS data for each survey year ----------------------------------------------------------
+# Process data for each DHS survey year ----------------------------------------------------------
 
 # The codes below first loads the raw DHS data, then it assigns the GPS coordinates to each sampling cluster and admin regions where
 # the sampling is conducted and assigns the admin regions where the clusters are located.
 
-for(survey_year in survey_years){
+for(survey_year in dhs_survey_years){
   
-    svy.ind <- which(survey_years==survey_year)
-    message('Processing data for ', country,' ', survey_year,'\n')
+    dhs.svy.ind <- which(dhs_survey_years==survey_year)
+    message('Processing DHS data for ', country,' ', survey_year,'\n')
   
     # read DHS data
-    dat.tmp <- getBirths(filepath = paste0(survey_year,'/dhsStata/',dhsStata.files[svy.ind]),
+    dat.tmp <- getBirths(filepath = paste0(survey_year,'/dhsStata/',dhsStata.files[dhs.svy.ind]),
                      surveyyear = survey_year,
                      year.cut = seq(beg.year, survey_year + 1, 1),
                      strata = c("v022"), compact = T)
@@ -93,9 +94,9 @@ for(survey_year in survey_years){
                        "age", "v005", "v025", "strata", "died")]
 
     # specify the name of DHS GPS file, which contains the GPS coordinates of the sampling cluster where the data is sampled
-    points.path <- paste0(survey_year, "/dhsFlat/", dhsFlat.files[svy.ind])
+    points.path <- paste0(survey_year, "/dhsFlat/", dhsFlat.files[dhs.svy.ind])
     points <- readOGR(dsn = path.expand(points.path), # read the GPS file
-                  layer = as.character(dhsFlat.files[svy.ind]))
+                  layer = as.character(dhsFlat.files[dhs.svy.ind]))
 
     # detect points in the DHS GPS file with mis-specified coordinates and remove them if any
     wrong.points <- which(points@data$LATNUM == 0.0 & points@data$LONGNUM == 0.0)
@@ -191,19 +192,66 @@ for(survey_year in survey_years){
 
     # finish preparing data ###
     dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", 
-                      "strata", "v025", "LONGNUM", "LATNUM",
+                      "v025", "LONGNUM", "LATNUM","strata",
                       "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")]
     colnames(dat.tmp) <- c("cluster", "age", "years", "total",
-                       "Y", "v005", "strata", "urban", "LONGNUM", "LATNUM",
+                       "Y", "v005", "urban", "LONGNUM", "LATNUM","strata",
                        "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")
     dat.tmp$survey<-survey_year
-    dat.tmp$survey.id<-svy.ind
+    dat.tmp$survey.id<-which(survey_years==survey_year)
+    dat.tmp$survey.type <- 'DHS'
   
-    if(survey_year==survey_years[1]){
+    if(survey_year==dhs_survey_years[1]){
       mod.dat <- dat.tmp
     }else{mod.dat <- rbind(mod.dat,dat.tmp)}
   
   }
+
+# Process data for each MICS survey year ----------------------------------------------------------
+if(sum(!(survey_years %in% dhs_survey_years))>0){
+  mics_survey_years <- survey_years[!(survey_years %in% dhs_survey_years)]
+  
+  #make admin key
+  admin.key <- mod.dat %>% select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
+  
+  for(survey_year in mics_survey_years){
+    message('Processing MICS data for ', country,' ', survey_year,'\n')
+    load(file=paste0(survey_year,'/',country.abbrev,'.', survey_year, '.tmp.rda'))
+    
+    #check that all admin2 areas in MICS data are contained in DHS data -- if not, might need to make small fixes (spaces, captials, etc)
+    unique(dat.tmp$admin2.name) %in% unique(mod.dat$admin2.name)
+    
+    #match admin area codes
+    dat.tmp$admin1 <- dat.tmp$admin2 <-dat.tmp$strata <- NA
+    dat.tmp$admin1.char <- dat.tmp$admin2.char <- admin1.name <- ''
+    for(perm in 1:nrow(admin.key)){
+      perm.ind <- dat.tmp$admin2.name==admin.key$admin2.name[perm]
+      dat.tmp$admin1.name[perm.ind] <- admin.key$admin1.name[perm]
+      dat.tmp$admin1[perm.ind] <- admin.key$admin1[perm]
+      dat.tmp$admin1.char[perm.ind] <- admin.key$admin1.char[perm]
+      dat.tmp$admin2[perm.ind] <- admin.key$admin2[perm]
+      dat.tmp$admin2.char[perm.ind] <- admin.key$admin2.char[perm]
+      dat.tmp$strata[perm.ind] <- admin.key$strata[perm]
+    }
+    
+    #prepare to merge with DHS data
+    dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
+    dat.tmp$survey.id<-which(survey_years==survey_year)
+    dat.tmp$survey.type <- 'MICS'
+    dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1','admin2',
+                          'admin1.char','admin2.char','admin1.name','admin2.name','survey','survey.id','survey.type')]
+    
+    #add to prepared data
+    mod.dat <- rbind(mod.dat,dat.tmp)
+  }
+}
+
+# Change cluster numbers to get rid of duplicates ----------------------------------------------------------
+clusters <- mod.dat %>% select(cluster,survey) %>% distinct()
+clusters$cluster.new <- 1:nrow(clusters)
+mod.dat <- merge(mod.dat,clusters,by=c('cluster','survey'))
+mod.dat$cluster <- mod.dat$cluster.new
+mod.dat <- mod.dat %>% select(-cluster.new)
 
 # Save processed data  ----------------------------------------------------------
 

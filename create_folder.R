@@ -77,6 +77,16 @@ if(!dir.exists(paths = paste0(res.dir,'/Direct/U5MR'))){
 if(!dir.exists(paths = paste0(res.dir,'/Direct/NMR'))){
   dir.create(path = paste0(res.dir,'/Direct/NMR'))}
 
+# subfolders for urban-rural fractions
+if(!dir.exists(paths = paste0(res.dir,'/UR/'))){
+  dir.create(path = paste0(res.dir,'/UR/'))}
+if(!dir.exists(paths = paste0(res.dir,'/UR/Threshold/'))){
+  dir.create(path = paste0(res.dir,'/UR/Threshold/'))}
+if(!dir.exists(paths = paste0(res.dir,'/UR/U1_fraction/'))){
+  dir.create(path = paste0(res.dir,'/UR/U1_fraction/'))}
+if(!dir.exists(paths = paste0(res.dir,'/UR/U5_fraction/'))){
+  dir.create(path = paste0(res.dir,'/UR/U5_fraction/'))}
+
 # subfolders for figures
 if(!dir.exists(paths = paste0(res.dir,'/Figures/'))){
   dir.create(path = paste0(res.dir,'/Figures/'))}

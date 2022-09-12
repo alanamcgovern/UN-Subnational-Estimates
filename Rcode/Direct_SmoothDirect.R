@@ -522,7 +522,7 @@ if(length(births.list) != 1){
   
   
 
-# Smoothed direct estimates  ------------------------------------------------------
+     # Smoothed direct estimates  ------------------------------------------------------
 
 ## load in appropriate direct estimates  ------------------------------------------------------
 if(doHIVAdj){

@@ -1,5 +1,5 @@
 rm(list = ls())
-# ENTER COUNTRY OF INTEREST AND SPECIFY STRATIFICATION -----------------------------------------------
+# ENTER COUNTRY OF INTEREST  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Malawi'
 
@@ -17,16 +17,6 @@ data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the d
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/', info.name, sep='')) # load the country info
-
-# create subfolders for urban-rural fractions
-if(!dir.exists(paths = paste0(res.dir,'/UR/'))){
-  dir.create(path = paste0(res.dir,'/UR/'))}
-if(!dir.exists(paths = paste0(res.dir,'/UR/Threshold/'))){
-  dir.create(path = paste0(res.dir,'/UR/Threshold/'))}
-if(!dir.exists(paths = paste0(res.dir,'/UR/U1_fraction/'))){
-  dir.create(path = paste0(res.dir,'/UR/U1_fraction/'))}
-if(!dir.exists(paths = paste0(res.dir,'/UR/U5_fraction/'))){
-  dir.create(path = paste0(res.dir,'/UR/U5_fraction/'))}
 
 setwd(data.dir)
 
