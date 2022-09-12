@@ -36,9 +36,9 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
 
 Before proceeding, make sure your Data/<country> folder looks similar to the following:
 
-![](Ref_figs/Data_Structure2.png){width="75%"}
+![](Ref_figs/Data_Structure2.png)
 
-![](Ref_figs/Data_Structure3.png){width="50%"}
+![](Ref_figs/Data_Structure3.png)
 
 #### Step 3: Data Processing
 
