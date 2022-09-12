@@ -25,9 +25,6 @@ info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 load(paste0(res.dir,'/UR/urb_prop.rda')) # load sampling frame urban proportion at admin1 
 
-# alter info to exclude surveys not in same frame -- to do stratified model all surveys must be from same frame
-survey_years <- survey_years[frame_years==max(frame_years)]
-
 # Load Polygons ----------------------------------------------------------
 
 setwd(data.dir)
@@ -99,11 +96,6 @@ for(year in pop.year){
   load(paste0(country,'_cluster_dat.rda'),
        envir = .GlobalEnv)
   
-  #exclude surveys not in same frame
-  mod.dat <- mod.dat[mod.dat$survey %in% survey_years,]
-  save(mod.dat, file=paste0(country,'_cluster_dat.rda'),
-       envir = .GlobalEnv)
-
   cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
                                             'LONGNUM','LATNUM')]),]
 
