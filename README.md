@@ -6,7 +6,9 @@ This document provides detailed instructions for obtaining direct, smoothed dire
 
 ## The Data Source
 
-Explain how to get on to CSDE, how to download what you need
+Explain dropbox
+
+Country Info Spreadsheet: https://docs.google.com/spreadsheets/d/1farrC3nJ0K-m35zzhZb3E7sSTGJ0iOg4ezZyhQVXt1A/edit#gid=0
 
 ## The Pipeline
 
