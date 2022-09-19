@@ -10,39 +10,40 @@ rm(list = ls())
 ################################################################
 
 # Files info (For those lines with ### xxx ### above, please fill in as commented)
-country <- 'Malawi'
+country <- 'Guinea'
 
 ### please fill in the country abbreviation in all upper case of gadm files ### (e.g. fill in SEN for gadm36_SEN_3.shp)
-gadm.abbrev <- "MWI"
-doHIVAdj <- T
+gadm.abbrev <- "GIN"
+doHIVAdj <- F
 
 ### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<-c("MWBR61DT/MWBR61FL.dta",'MWBR7ADT/MWBR7AFL.dta')
+dhsStata.files<-"GNBR71DT/GNBR71FL.dta"
 
 ### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-c('MWGE62FL','MWGE7AFL')
+dhsFlat.files<-'GNGE71FL'
 
 ### please fill in the following information ####
-dhs_survey_years<-c(2010,2015) # years of the DHS surveys
-survey_years <- c(2010,2014,2015,2020)
-frame_years <- c(2008, 2008, 2008, 2008)
+dhs_survey_years<-2018 # years of the DHS surveys
+survey_years <- 2018
+frame_year <- 2017
 
-### please fill in the path to country shape files (give more explanation on this later) ####
-poly.path <- paste0("shapeFiles_gadm")
+### please fill in the path to country shape files ####
+poly.path <- paste0("shapeFiles/gadm41_GIN_shp")
 
 ## save url for frame year census
-census.urls <- c('http://www.nsomalawi.mw/index.php?option=com_content&view=article&id=107%3A2008-population-and-housing-census-results&catid=8%3Areports&Itemid=1')
+#census.urls <- c('http://www.nsomalawi.mw/index.php?option=com_content&view=article&id=107%3A2008-population-and-housing-census-results&catid=8%3Areports&Itemid=1')
 
 ##### explain how these may need to be changed
-poly.layer.adm0 <- paste('gadm36', gadm.abbrev,
+poly.layer.adm0 <- paste('gadm41', gadm.abbrev,
                          '0', sep = "_") # specify the name of the national shape file
-poly.layer.adm1 <- 'sdr_subnational_boundaries' # specify the name of the admin1 shape file
-poly.layer.adm2 <- paste('gadm36', gadm.abbrev,
+poly.layer.adm1 <- paste('gadm41', gadm.abbrev,
                          '1', sep = "_") # specify the name of the admin2 shape file
+poly.layer.adm2 <- paste('gadm41', gadm.abbrev,
+                         '2', sep = "_") # specify the name of the admin2 shape file
 
 
-poly.label.adm1 <- "poly.adm1@data$DHSREGEN"
-poly.label.adm2 <- "poly.adm2@data$NAME_1"
+poly.label.adm1 <- "poly.adm1@data$NAME_1"
+poly.label.adm2 <- "poly.adm2@data$NAME_2"
 
 ##################################################################
 ##################################################################

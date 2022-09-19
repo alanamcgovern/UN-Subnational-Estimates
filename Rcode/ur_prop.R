@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 # Load libraries and Info -----------------------------------------------
 
@@ -20,16 +20,16 @@ load(file = paste0(home.dir,'/Info/', info.name, sep='')) # load the country inf
 
 setwd(data.dir)
 
-load(paste0('shapeFiles_gadm/', country, '_Amat.rda'))  # load the adjacency matrix
-load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))  # load names of admin1 and admin2 regions
+load(paste0(poly.path,'/', country, '_Amat.rda'))  # load the adjacency matrix
+load(paste0(poly.path,'/',  country, '_Amat_Names.rda'))  # load names of admin1 and admin2 regions
 
 # properly format urban proportion table for sample frame -----------------------------------------------
 ## BEFORE RUNNING THIS SECTION: follow vignette to create a txt file with urban population fraction at admin1 level
 
 # read the excel file containing urban population fraction at admin1 level.
-frame <- read.xlsx(paste0(res.dir,'/UR/', country_abbrev, '_frame_urb_prop.xlsx'))
+frame <- read.xlsx(paste0(res.dir,'/UR/', country.abbrev, '_frame_urb_prop.xlsx'))
 
-## check that that the admin1 names in your table and admin1.names (from the DHS data) are the same (differences in spacing of names is fine)
+## check that that the admin1 names in your table and admin1.names (from the DHS data) are the same (differences in spacing or accents is fine)
 sort(frame[,1])==sort(admin1.names$GADM)
 sort(frame[,1])[sort(frame[,1])!=sort(admin1.names$GADM)]
 sort(admin1.names$GADM)[sort(frame[,1])!=sort(admin1.names$GADM)]

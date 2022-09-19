@@ -2,7 +2,7 @@ rm(list = ls()) # clear the R environment and prepare for the pipeline
 
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 # set directory -----------------------------------------------
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -47,6 +47,10 @@ if(!dir.exists(paths = paste0('Data/',country, '/worldpop'))){
 # Population: This folder contains the under-five population raster objects (i.e. population surface) of each year at the resolution of 100m and 1km.
 if(!dir.exists(paths = paste0('Data/',country, '/Population'))){
   dir.create(path = paste0('Data/',country, '/Population'))}
+# create a folder for shapefiles
+if(!dir.exists(paths = paste0('Data/',country, '/shapeFiles'))){
+  dir.create(path = paste0('Data/',country, '/shapeFiles'))}
+
 
   
 

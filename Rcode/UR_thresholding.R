@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -37,8 +37,8 @@ poly.adm2 <- readOGR(dsn = poly.path,
                      layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
 
 proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
-load(paste0('shapeFiles_gadm/', country, '_Amat.rda'))  # load the adjacency matrix
-load(paste0('shapeFiles_gadm/', country, '_Amat_Names.rda'))  # load names of admin1 and admin2 regions
+load(paste0(poly.path,'/', country, '_Amat.rda'))
+load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
 
 
@@ -437,7 +437,7 @@ for(year in pop.year){
   thresh_ref <- urb_class[!duplicated(urb_class[,c('admin1')]),]
   ref.tab$threshold <- thresh_ref$threshold # check whether the thresholds are sensible (shouldn't be NA or all 0)
   write.xlsx(ref.tab, file='prepared_dat/reference_table.xlsx',
-             row.names = FALSE)
+             rowNames = FALSE)
  
 # Check classification accuracy based on clusters ----------------------------------------------------------
 

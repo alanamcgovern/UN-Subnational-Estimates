@@ -149,5 +149,3 @@ dat.tmp <- dat.tmp %>% select(c(cluster,age,years,total,Y,v005,urban,admin1,admi
 dat.tmp$survey <- 2018
 
 save(dat.tmp,file='Data/Madagascar/2018/mdg.2018.tmp.rda')
-
-# Sierra Leone 2017 ----------------------------------

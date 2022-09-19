@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -72,6 +72,69 @@ if(exists("poly.adm2")){  # create the adjacency matrix for admin2 regions.
 save(admin1.mat, admin2.mat, file = paste0(poly.path,'/', country, '_Amat.rda')) # save the admin1 and admin2 adjacency matrix
 save(admin1.names, admin2.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
 
+# Polygon Plots ----------------------------------------------------------
+
+if(!dir.exists(paste0(res.dir,'/Figures/ShapeCheck'))){
+  dir.create(paste0(res.dir,'/Figures/ShapeCheck'))
+}
+
+cent <- getSpPPolygonsLabptSlots(poly.adm1)
+cols <- rainbow(min(10,
+                    dim(admin1.mat)[1]))
+
+### Admin1 neighbors ####
+pdf(paste0(res.dir,
+           '/Figures/ShapeCheck/',
+           country, '_adm1_neighb.pdf'),
+    height = 4, width = 4)
+{
+  plot(poly.adm1, col = cols, border = F, axes = F,)
+  for(i in 1:dim(cent)[1]){
+    neighbs <- which(admin1.mat[i,] != 0)
+    if(length(neighbs) != 0){
+      for(j in 1:length(neighbs)){
+        ends <- cent[neighbs,]
+        segments(x0 = cent[i, 1],
+                 y0 = cent[i, 2],
+                 x1 = cent[neighbs[j], 1],
+                 y1 = cent[neighbs[j], 2],
+                 col = 'black')
+      }
+    }
+  }
+}
+dev.off()
+
+### Admin2 neighbors ####
+if(exists("admin2.mat")){
+  
+  cent <- getSpPPolygonsLabptSlots(poly.adm2)
+  cols <- rainbow(min(10,
+                      dim(admin2.mat)[1]))
+  
+  pdf(paste0(res.dir,
+             '/Figures/ShapeCheck/',
+             country, '_adm2_neighb.pdf'),
+      height = 4, width = 4)
+  {
+    plot(poly.adm2, col = cols, border = F, axes = F,)
+    for(i in 1:dim(cent)[1]){
+      neighbs <- which(admin2.mat[i,] != 0)
+      if(length(neighbs) != 0){
+        for(j in 1:length(neighbs)){
+          ends <- cent[neighbs,]
+          segments(x0 = cent[i, 1],
+                   y0 = cent[i, 2],
+                   x1 = cent[neighbs[j], 1],
+                   y1 = cent[neighbs[j], 2], 
+                   col = 'black')
+        }
+      }
+    }
+  }
+  dev.off()
+}
+
 
 # Process data for each DHS survey year ----------------------------------------------------------
 
@@ -82,12 +145,16 @@ for(survey_year in dhs_survey_years){
   
     dhs.svy.ind <- which(dhs_survey_years==survey_year)
     message('Processing DHS data for ', country,' ', survey_year,'\n')
+    
+    raw.dat.tmp <- suppressWarnings(readstata13::read.dta13(paste0(survey_year,'/dhsStata/',dhsStata.files[dhs.svy.ind]), 
+                                                    generate.factors = TRUE))
   
     # read DHS data
-    dat.tmp <- getBirths(filepath = paste0(survey_year,'/dhsStata/',dhsStata.files[dhs.svy.ind]),
+    dat.tmp <- getBirths(data=raw.dat.tmp,
                      surveyyear = survey_year,
                      year.cut = seq(beg.year, survey_year + 1, 1),
                      strata = c("v022"), compact = T)
+    
 
     # retrieve the some columns of the full data
     dat.tmp <- dat.tmp[ ,c("v001", "v024", "time", "total",
@@ -203,7 +270,9 @@ for(survey_year in dhs_survey_years){
   
     if(survey_year==dhs_survey_years[1]){
       mod.dat <- dat.tmp
-    }else{mod.dat <- rbind(mod.dat,dat.tmp)}
+      raw.dat <- raw.dat.tmp
+    }else{mod.dat <- rbind(mod.dat,dat.tmp)
+          raw.dat <- rbind(raw.dat,raw.dat.tmp)}
   
   }
 
@@ -247,14 +316,25 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
 }
 
 # Change cluster numbers to get rid of duplicates ----------------------------------------------------------
-clusters <- mod.dat %>% select(cluster,survey) %>% distinct()
+clusters <- unique(mod.dat[,c("cluster","survey")])
 clusters$cluster.new <- 1:nrow(clusters)
 mod.dat <- merge(mod.dat,clusters,by=c('cluster','survey'))
 mod.dat$cluster <- mod.dat$cluster.new
-mod.dat <- mod.dat %>% select(-cluster.new)
+mod.dat <- mod.dat[,!(names(mod.dat)=='cluster.new')]
+
+# Use raw data to calculate age band intercept priors for benchmarking ----------------------------------------------------------
+raw.dat <- raw.dat[,c("caseid", "v001", "v022", "b5",'b7')]
+raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5=='no',])/nrow(raw.dat)
+int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5=='no',])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
+                      nrow(raw.dat[(raw.dat$b7 %in% 1:11) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5=='yes',])*(1/raw.u5mr), #1-11 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 12:23) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=12 | raw.dat$b5=='yes',])*(1/raw.u5mr), #12-23 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 24:35) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=24 | raw.dat$b5=='yes',])*(1/raw.u5mr), #24-35 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 36:47) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5=='yes',])*(1/raw.u5mr), #36-47 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 48:59) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5=='yes',])*(1/raw.u5mr)) #48-59 months
 
 # Save processed data  ----------------------------------------------------------
 
 save(mod.dat, file = paste0(country,'_cluster_dat.rda'))
+save(int.priors.bench, file = paste0(country,'_age_int_priors_bench.rda'))
 
 
