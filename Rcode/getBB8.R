@@ -254,7 +254,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     ## Get posterior draws from adjusted model
     bb.res.tmp <- getSmoothed(inla_mod = bb.fit.adj, 
                           year_range = beg.year:end.year, 
-                          year_label = beg.year:end.year, nsim = 10000, 
+                          year_label = beg.year:end.year, nsim = 1000, 
                           weight.strata = weight.strata, 
                           weight.frame = NULL,
                           CI=0.95, draws = NULL, save.draws = TRUE)
