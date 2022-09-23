@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Malawi'
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -119,12 +119,12 @@ for(year in pop.year){
     cluster_buffer<-buffer(sp_xy, width=jitter_r)
     
     # extract pixels within the buffer
-    temp_pop_cir<-mask(crop(pop_ras,cluster_buffer),
+    temp_pop_cir<-raster::mask(crop(pop_ras,cluster_buffer),
                        cluster_buffer)
     
     # put admin area restriction
     admin1_poly<-poly_admin[admin1_index,]
-    temp_pop_admin<-mask(crop(temp_pop_cir,admin1_poly),
+    temp_pop_admin<-raster::mask(crop(temp_pop_cir,admin1_poly),
                          admin1_poly)
     
     
@@ -208,14 +208,14 @@ for(year in pop.year){
     
     if(is.null(wp_adm))
       wp_adm <- lapply(1:nrow(poly_file), function(x) {
-        list(state_id = x, state_raster = mask(crop(wp,poly_file[x,]), poly_file[x,]))
+        list(state_id = x, state_raster = raster::mask(crop(wp,poly_file[x,]), poly_file[x,]))
       })
     
     pred_surf <- wp
     values(pred_surf)<-urb_vec
     
     urb_adm <- lapply(1:nrow(poly_file), function(x) {
-      list(state_id = x, state_raster = mask(crop(pred_surf,poly_file[x,]), poly_file[x,]))
+      list(state_id = x, state_raster = raster::mask(crop(pred_surf,poly_file[x,]), poly_file[x,]))
     })
     
     frac_vec<-vector()
@@ -240,11 +240,12 @@ for(year in pop.year){
   # The codes below fulfills the process defined in the constr_prior function by assigning the possibly misclassified urban clusters to the nearest most densely populated areas.
   # It's generally true that the urban areas tend to have a higher population density so this process can alleviate the side effect
   # of jittering.
-
+  
+  cluster_list$x_adj <- cluster_list$y_adj <- NA
   # only correct urban clusters 
   # check if the strata are named 'urban' and 'rural'
-  urban_clus<-cluster_list[cluster_list$urban=='urban',]
-  rural_clus<-cluster_list[cluster_list$urban=='rural',]
+  urban_clus<-cluster_list[cluster_list$urban=='urban' & !(is.na(cluster_list$LATNUM)),]
+  rural_clus<-cluster_list[cluster_list$urban=='rural' & !(is.na(cluster_list$LATNUM)),]
 
   urban_clus$x_adj<-NA
   urban_clus$y_adj<-NA
@@ -259,11 +260,9 @@ for(year in pop.year){
     p_mode = sqldf("SELECT * FROM temp_frame GROUP BY x,y ORDER BY SUM(unn_w) DESC LIMIT 1")
     urban_clus[i,]$x_adj<-p_mode$x
     urban_clus[i,]$y_adj<-p_mode$y
-  
   }
 
-
-  prep_dat<-rbind(urban_clus,rural_clus)
+  prep_dat<-rbind(urban_clus,rural_clus,cluster_list[is.na(cluster_list$LATNUM),])
   
   # create directory to store cluster data
   setwd(paste0(data.dir))

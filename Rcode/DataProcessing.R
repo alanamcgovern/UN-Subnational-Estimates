@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Malawi'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -270,9 +270,9 @@ for(survey_year in dhs_survey_years){
   
     if(survey_year==dhs_survey_years[1]){
       mod.dat <- dat.tmp
-      raw.dat <- raw.dat.tmp
+      raw.dat <- raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7')]
     }else{mod.dat <- rbind(mod.dat,dat.tmp)
-          raw.dat <- rbind(raw.dat,raw.dat.tmp)}
+          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7')])}
   
   }
 
@@ -281,7 +281,7 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
   mics_survey_years <- survey_years[!(survey_years %in% dhs_survey_years)]
   
   #make admin key
-  admin.key <- mod.dat %>% select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
+  admin.key <- mod.dat %>% dplyr::select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
   
   for(survey_year in mics_survey_years){
     message('Processing MICS data for ', country,' ', survey_year,'\n')
@@ -323,7 +323,6 @@ mod.dat$cluster <- mod.dat$cluster.new
 mod.dat <- mod.dat[,!(names(mod.dat)=='cluster.new')]
 
 # Use raw data to calculate age band intercept priors for benchmarking ----------------------------------------------------------
-raw.dat <- raw.dat[,c("caseid", "v001", "v022", "b5",'b7')]
 raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5=='no',])/nrow(raw.dat)
 int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5=='no',])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
                       nrow(raw.dat[(raw.dat$b7 %in% 1:11) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5=='yes',])*(1/raw.u5mr), #1-11 months  

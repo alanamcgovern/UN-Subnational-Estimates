@@ -79,7 +79,7 @@ save(dat.tmp,file='2020/mwi.2020.tmp.rda')
 bh <- read_sav('Data/Bangladesh/2019/bgd_2019_bh.sav')
 sapply(bh,attr,'label')
 
-bh <- bh %>% select(c(HH1,BH4C,BH5,BH9C,HH6,HH7A,WDOI,wmweight)) %>%
+bh <- bh %>% dplyr::select(c(HH1,BH4C,BH5,BH9C,HH6,HH7A,WDOI,wmweight)) %>%
   #put some variables in proper format for getBirths
   mutate(urban=ifelse(HH6==1,'urban',
                       ifelse(HH6==2,'rural',NA)),
@@ -98,7 +98,7 @@ bgd.2019.tmp <- dat.tmp[,c('HH1','age','time','total','died','wmweight','urban',
 colnames(bgd.2019.tmp)<-  c("cluster", "age", "years", "total",
                             "Y", "v005",'urban', "admin2.name")
 
-dat.tmp <- bgd.2019.tmp %>% select(c(cluster,age,years,total,Y,v005,urban,admin2.name))
+dat.tmp <- bgd.2019.tmp %>% dplyr::select(c(cluster,age,years,total,Y,v005,urban,admin2.name))
 dat.tmp$survey <- 2019
 
 save(dat.tmp,file='Data/Bangladesh/2019/bgd.2019.tmp.rda')
@@ -108,7 +108,7 @@ save(dat.tmp,file='Data/Bangladesh/2019/bgd.2019.tmp.rda')
 bh <- read_sav('Data/Madagascar/2018/mdg_2018_bh.sav')
 sapply(bh,attr,'label')
 
-bh <- bh %>% select(c(HH1,BH4C,BH5,BH9C,HH6,HH7,WDOI,wmweight)) %>%
+bh <- bh %>% dplyr::select(c(HH1,BH4C,BH5,BH9C,HH6,HH7,WDOI,wmweight)) %>%
   #put some variables in proper format for getBirths
   mutate(urban=ifelse(HH6==1,'urban',
                       ifelse(HH6==2,'rural',NA)),
@@ -129,23 +129,23 @@ mdg.2018.tmp <- dat.tmp[,c('HH1','age','time','total','died','wmweight','urban',
 colnames(mdg.2018.tmp)<-  c("cluster", "age", "years", "total",
                             "Y", "v005",'urban', "admin2.name")
 
-## add admin1 areas
-admin1.key <-data.frame(c('antananarivo','antsiranana','fianarantsoa','mahajanga','toamasina','toliara'))
-colnames(admin1.key) <- 'admin1.name'
-admin1.key$admin1 <- 1:nrow(admin1.key)
-admin1.key$admin1.char <- paste0('admin1_',admin1.key$admin1)
+# ## add admin1 areas
+# admin1.key <-data.frame(c('antananarivo','antsiranana','fianarantsoa','mahajanga','toamasina','toliara'))
+# colnames(admin1.key) <- 'admin1.name'
+# admin1.key$admin1 <- 1:nrow(admin1.key)
+# admin1.key$admin1.char <- paste0('admin1_',admin1.key$admin1)
+# 
+# admin.key <- data.frame(unique(dat.tmp$admin2.name))
+# colnames(admin.key) <- 'admin2.name'
+# admin.key$admin2 <- 1:nrow(admin.key)
+# admin.key$admin2.char <- paste0('admin2_',admin.key$admin2)
+# admin.key$admin1.name <- c('toamasina','fianarantsoa','antananarivo','toamasina','toliara','toliara','toliara','fianarantsoa','toamasina',
+#                            'mahajanga','mahajanga','antananarivo','antsiranana','fianarantsoa','fianarantsoa','antananarivo','mahajanga',
+#                            'toliara','antsiranana','mahajanga','antananarivo','fianarantsoa')
+# admin.key <- merge(admin.key,admin1.key,by='admin1.name')
+# dat.tmp <- merge(mdg.2018.tmp,admin.key,by='admin2.name')
 
-admin.key <- data.frame(unique(dat.tmp$admin2.name))
-colnames(admin.key) <- 'admin2.name'
-admin.key$admin2 <- 1:nrow(admin.key)
-admin.key$admin2.char <- paste0('admin2_',admin.key$admin2)
-admin.key$admin1.name <- c('toamasina','fianarantsoa','antananarivo','toamasina','toliara','toliara','toliara','fianarantsoa','toamasina',
-                           'mahajanga','mahajanga','antananarivo','antsiranana','fianarantsoa','fianarantsoa','antananarivo','mahajanga',
-                           'toliara','antsiranana','mahajanga','antananarivo','fianarantsoa')
-admin.key <- merge(admin.key,admin1.key,by='admin1.name')
-dat.tmp <- merge(mdg.2018.tmp,admin.key,by='admin2.name')
-
-dat.tmp <- dat.tmp %>% select(c(cluster,age,years,total,Y,v005,urban,admin1,admin1.name,admin1.char,admin2,admin2.name,admin2.char))
+dat.tmp <- mdg.2018.tmp %>% dplyr::select(c(cluster,age,years,total,Y,v005,urban,admin2.name))
 dat.tmp$survey <- 2018
 
 save(dat.tmp,file='Data/Madagascar/2018/mdg.2018.tmp.rda')

@@ -576,8 +576,8 @@ periods <- c(periods,proj.per)
 ## U5MR
 fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
                      year_label = c(periods),
-                     year_range = c(beg.year, max(end.proj.years)), 
-                     time.model='ar1', is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
+                     year_range = c(beg.year, max(end.proj.years)),
+                     control.inla = list(strategy = "adaptive", int.strategy = "eb"), is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
 ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
 
  res.natl.u5 <- getSmoothed(fit.natl.u5,year_range = c(beg.year, max(end.proj.years)),
@@ -591,7 +591,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
  fit.natl.nmr <- smoothDirect(data.natl.nmr, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
                              year_label = c(periods),
                              year_range = c(beg.year, max(end.proj.years)),
-                             time.model = 'ar1',
+                             control.inla = list(strategy = "adaptive", int.strategy = "eb"),
                              is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
  ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
  
@@ -609,7 +609,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
 fit.natl.yearly.u5 <- smoothDirect(data.natl.yearly.u5, geo = NULL, Amat = NULL,
                            year_label = as.character(beg.year:max(end.proj.years)),
                            year_range = c(beg.year, max(end.proj.years)), 
-                           time.model = 'ar1',  is.yearly = F)
+                           control.inla = list(strategy = "adaptive", int.strategy = "eb"),  is.yearly = F)
 res.natl.yearly.u5 <- getSmoothed(fit.natl.yearly.u5, year_range = c(beg.year, max(end.proj.years)),
                                year_label = as.character(beg.year:max(end.proj.years)))
 res.natl.yearly.u5$years.num <- beg.year:max(end.proj.years)
@@ -620,7 +620,7 @@ save(res.natl.yearly.u5, file = paste0('U5MR/',country, "_res_natl_yearly_u5_Smo
 fit.natl.yearly.nmr <- smoothDirect(data.natl.yearly.nmr, geo = NULL, Amat = NULL,
                                    year_label = as.character(beg.year:max(end.proj.years)),
                                    year_range = c(beg.year, max(end.proj.years)), 
-                                   time.model = 'ar1', is.yearly = F)
+                                   control.inla = list(strategy = "adaptive", int.strategy = "eb"), is.yearly = F)
 res.natl.yearly.nmr <- getSmoothed(fit.natl.yearly.nmr, year_range = c(beg.year, max(end.proj.years)),
                                   year_label = as.character(beg.year:max(end.proj.years)))
 res.natl.yearly.nmr$years.num <- beg.year:max(end.proj.years)
@@ -1006,23 +1006,29 @@ dev.off()
 # Spaghetti plots ------------------------------------------------------
 
 ## Load IGME estimates ------------------------------------------------------
-setwd(paste0(home.dir))
+setwd(paste0(home.dir,'/Data/IGME'))
 
 ## U5MR
-igme.ests.u5 <- read.csv(paste0('Data/IGME/',country.abbrev,'_u5_igme_est.csv'),
-                      header = T)
+igme.ests.u5 <- read.csv(paste0(country.abbrev,'_u5_igme_est.csv'), header = T)
 names(igme.ests.u5) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
 igme.ests.u5$year <- igme.ests.u5$year-0.5
-igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.years,]
+igme.ests.u5$OBS_VALUE <- igme.ests.u5$OBS_VALUE/1000
+igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.year,]
 igme.ests.u5 <- igme.ests.u5[order(igme.ests.u5$year),]
+igme.ests.u5$SD <- (igme.ests.u5$UPPER_BOUND - igme.ests.u5$LOWER_BOUND)/(2*1.645*1000)
+igme.ests.u5$LOWER_BOUND <- igme.ests.u5$OBS_VALUE - 1.96*igme.ests.u5$SD
+igme.ests.u5$UPPER_BOUND <- igme.ests.u5$OBS_VALUE + 1.96*igme.ests.u5$SD
 
 ## NMR
-igme.ests.nmr <- read.csv(paste0('Data/IGME/',country.abbrev,'_nmr_igme_est.csv'),
-                         header = T)
+igme.ests.nmr <- read.csv(paste0(country.abbrev,'_nmr_igme_est.csv'),  header = T)
 names(igme.ests.nmr) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
 igme.ests.nmr$year <- igme.ests.nmr$year-0.5
-igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:max(end.proj.years),]
+igme.ests.nmr$OBS_VALUE <- igme.ests.nmr$OBS_VALUE/1000
+igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:end.proj.year,]
 igme.ests.nmr <- igme.ests.nmr[order(igme.ests.nmr$year),]
+igme.ests.nmr$SD <- (igme.ests.nmr$UPPER_BOUND - igme.ests.nmr$LOWER_BOUND)/(2*1.645*1000)
+igme.ests.nmr$LOWER_BOUND <- igme.ests.nmr$OBS_VALUE - 1.96*igme.ests.nmr$SD
+igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
 
 
 ## National, 3-year period ------------------------------------------------------
@@ -1083,13 +1089,13 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
         #add IGME reference lines
         igme.years <- jitter(beg.year:max(igme.ests.u5$year))
         lines(igme.years,
-              igme.ests.u5$OBS_VALUE/1000,
+              igme.ests.u5$OBS_VALUE,
               lwd = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.u5$UPPER_BOUND/1000,
+              igme.ests.u5$UPPER_BOUND,
               lty = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.u5$LOWER_BOUND/1000, 
+              igme.ests.u5$LOWER_BOUND, 
               lty = 2, col  = 'grey37')
         
       }else{
@@ -1168,13 +1174,13 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
         #add IGME reference lines
         igme.years <- jitter(beg.year:max(igme.ests.nmr$year))
         lines(igme.years,
-              igme.ests.nmr$OBS_VALUE/1000,
+              igme.ests.nmr$OBS_VALUE,
               lwd = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.nmr$UPPER_BOUND/1000,
+              igme.ests.nmr$UPPER_BOUND,
               lty = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.nmr$LOWER_BOUND/1000, 
+              igme.ests.nmr$LOWER_BOUND, 
               lty = 2, col  = 'grey37')
         
       }else{
@@ -1251,13 +1257,13 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
         #add IGME reference lines
         igme.years <- jitter(beg.year:max(igme.ests.u5$year))
         lines(igme.years,
-              igme.ests.u5$OBS_VALUE/1000,
+              igme.ests.u5$OBS_VALUE,
               lwd = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.u5$UPPER_BOUND/1000,
+              igme.ests.u5$UPPER_BOUND,
               lty = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.u5$LOWER_BOUND/1000, 
+              igme.ests.u5$LOWER_BOUND, 
               lty = 2, col  = 'grey37')
         
       }else{
@@ -1328,13 +1334,13 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
         #add IGME reference lines
         igme.years <- jitter(beg.year:max(igme.ests.nmr$year))
         lines(igme.years,
-              igme.ests.nmr$OBS_VALUE/1000,
+              igme.ests.nmr$OBS_VALUE,
               lwd = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.nmr$UPPER_BOUND/1000,
+              igme.ests.nmr$UPPER_BOUND,
               lty = 2, col  = 'grey37')
         lines(igme.years,
-              igme.ests.nmr$LOWER_BOUND/1000, 
+              igme.ests.nmr$LOWER_BOUND, 
               lty = 2, col  = 'grey37')
         
       }else{

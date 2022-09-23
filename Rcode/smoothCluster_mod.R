@@ -651,13 +651,13 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
           if (!is.ar) {
             formula <- update(formula, ~. + f(region.int, 
                                               model = "iid", group = time.int, control.group = list(model = paste0("rw", 
-                                                                                                                   st.rw), scale.model = TRUE), hyper = hyperpc1.interact, 
+                                                                                                                   st.rw)), hyper = hyperpc1.interact, 
                                               adjust.for.con.comp = TRUE))
           } else {
             formula <- update(formula, ~. + f(region.int, 
                                               model = "iid", hyper = hyperpc1.interact, 
                                               group = time.int, control.group = list(model = "ar", 
-                                                                                     order = st.ar, hyper = hyperar2), scale.model = TRUE, 
+                                                                                     order = st.ar, hyper = hyperar2), 
                                               adjust.for.con.comp = TRUE))
           }
         } else if (type.st == 3) {

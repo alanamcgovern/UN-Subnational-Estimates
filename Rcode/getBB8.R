@@ -8,20 +8,20 @@
 ## adj.frame and adj.varnames are calculated in HIV adjustment step
 # 
 # 
-data = mod.dat
-end.year=end.proj.year
-       Amat=admin1.mat
-       admin.level='Admin1'
-       stratified=T
-       weight.strata=weight.strata.adm1.u5
-       outcome='u5mr'
-       time.model='ar1'
-       st.time.model='ar1'
-       weight.region = weight.adm1.u5
-       igme.ests = igme.ests.u5
-       int.priors.bench = int.priors.bench
-       doBenchmark=T
-       nsim=1000
+ #  data = mod.dat
+ #  end.year=end.proj.year
+ #         Amat=admin1.mat
+ #         admin.level='Admin1'
+ #         stratified=F
+ # #        weight.strata=weight.strata.adm1.u5
+ #         outcome='u5mr'
+ #         time.model='ar1'
+ # #        st.time.model='ar1'
+ # #        weight.region = weight.adm1.u5
+ # #        igme.ests = igme.ests.u5
+ # #        int.priors.bench = int.priors.bench
+ # #        doBenchmark=T
+ #         nsim=1000
 
 ##################################################################
 ###### Define BB8 function
@@ -161,36 +161,40 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   ## Unbenchmarked model -----------------------------------------------
   if(!doBenchmark){
     ## Fit model 
-   # bb.fit <- smoothCluster_mod(data = mod.dat, family = "betabinomial", ## change back function call!!
-   #                          Amat = Amat, 
-   #                          year_label = c(beg.year:end.year),
-   #                          time.model = time.model, st.time.model = 'rw2',
-   #                          pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
-   #                          ## change back!!
-   #                          type.st = 1, spat.fixed=T,
-   #                          bias.adj = adj.frame, bias.adj.by = adj.varnames,
-   #                          survey.effect = TRUE,
-   #                          strata.time.effect = strata.time.effect,
-   #                          age.groups = age.groups,
-   #                          age.n = age.n,
-   #                          age.rw.group = age.rw.group,
-   #                          age.strata.fixed.group = age.strata.fixed.group,
-   #                          overdisp.mean = -7.5, overdisp.prec = 0.39)
-    
-    bb.fit <- smoothCluster(data = mod.dat, family = "betabinomial", ## change back function call!!
-                                Amat = Amat, 
-                                year_label = c(beg.year:end.year),
-                                time.model = time.model, st.time.model = st.time.model,
-                                pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
-                                type.st = 4,
-                                bias.adj = adj.frame, bias.adj.by = adj.varnames,
-                                survey.effect = TRUE,
-                                strata.time.effect = strata.time.effect,
-                                age.groups = age.groups,
-                                age.n = age.n,
-                                age.rw.group = age.rw.group,
-                                age.strata.fixed.group = age.strata.fixed.group,
-                                overdisp.mean = -7.5, overdisp.prec = 0.39)
+    if(length(unique(mod.dat$region))<5){
+      message('Due to small number of areas (<5), the model will include a fixed spatial effect (rather than BYM2) and a Type 1 space-time interaction term.')
+      suppressMessages({
+        bb.fit <- smoothCluster_mod(data = mod.dat, family = "betabinomial",
+                                    Amat = Amat, 
+                                    year_label = c(beg.year:end.year),
+                                    time.model = time.model, st.time.model = 'ar1',
+                                    pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
+                                    type.st = 2, spat.fixed=T,
+                                    bias.adj = adj.frame, bias.adj.by = adj.varnames,
+                                    survey.effect = TRUE, strata.time.effect = strata.time.effect, 
+                                    age.groups = age.groups, age.n = age.n,
+                                    age.rw.group = age.rw.group, 
+                                    age.strata.fixed.group = age.strata.fixed.group,
+                                    overdisp.mean = -7.5, overdisp.prec = 0.39)
+      })
+      
+    }else{
+      bb.fit <- smoothCluster(data = mod.dat, family = "betabinomial", ## change back function call!!
+                              Amat = Amat, 
+                              year_label = c(beg.year:end.year),
+                              time.model = time.model, st.time.model = st.time.model,
+                              pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
+                              type.st = 4,
+                              bias.adj = adj.frame, bias.adj.by = adj.varnames,
+                              survey.effect = TRUE,
+                              strata.time.effect = strata.time.effect,
+                              age.groups = age.groups,
+                              age.n = age.n,
+                              age.rw.group = age.rw.group,
+                              age.strata.fixed.group = age.strata.fixed.group,
+                              overdisp.mean = -7.5, overdisp.prec = 0.39)
+    }
+
   
   ## Get posterior draws -----------------------------------------------
   bb.res <- getSmoothed(inla_mod = bb.fit, 
@@ -205,6 +209,28 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   if(doBenchmark){
     
     ## fit model with adjusted intercepts
+    if(length(unique(mod.dat$region))<5){
+      message('Due to small number of areas (<5), the model will include a fixed spatial effect (rather than BYM2) and a Type 1 space-time interaction term.')
+      suppressMessages({
+        bb.fit.adj <- smoothCluster_mod(data = mod.dat, family = "betabinomial",
+                                    Amat = Amat, 
+                                    year_label = c(beg.year:end.year),
+                                    time.model = time.model, st.time.model = st.time.model,
+                                    pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
+                                    type.st = 1, spat.fixed = T,
+                                    bias.adj = adj.frame, bias.adj.by = adj.varnames,
+                                    survey.effect = TRUE,
+                                    strata.time.effect = strata.time.effect,
+                                    age.groups = age.groups,
+                                    age.n = age.n,
+                                    age.rw.group = age.rw.group,
+                                    age.strata.fixed.group = age.strata.fixed.group,
+                                    overdisp.mean = -7.5, overdisp.prec = 0.39,
+                                    control.fixed = int.adj,
+                                    control.inla = list(strategy='adaptive',int.strategy='eb'))
+      })
+      
+    }else{
     bb.fit.adj <- smoothCluster(data = mod.dat, family = "betabinomial",
                                 Amat = Amat, 
                                 year_label = c(beg.year:end.year),
@@ -221,6 +247,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                 overdisp.mean = -7.5, overdisp.prec = 0.39,
                                 control.fixed = int.adj,
                                 control.inla = list(strategy='adaptive',int.strategy='eb'))
+    }
     
     ## Get posterior draws from adjusted model
     bb.res.tmp <- getSmoothed(inla_mod = bb.fit.adj, 
