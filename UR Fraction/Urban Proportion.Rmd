@@ -23,7 +23,7 @@ c. It is possible that the exact numbers or fractions of Admin-1 level urban pop
 
 a. Open up ur_prop.R in from the Rcode folder and run the code up to line 35, making sure to enter in the country of interest.
 
-b. Copy the information obtained in Step 1 into an excel file called `(country abbreviation)_frame_urb_prop.xlsx' and save in the newly created 'UR' subfolder within the Results folder. The first column of the excel file should be the name of the Admin-1 area and the second column should be the urban fraction (urban population/total population). Recall that if you are using number of households, you must multiply average household size. The excel file should look like the following:
+b. Copy the information obtained in Step 1 into an excel file called `(country abbreviation)_(frame year)_frame_urb_prop.xlsx' and save in the newly created 'UR' subfolder within the Results folder. The first column of the excel file should be the name of the Admin-1 area and the second column should be the urban fraction (urban population/total population). Recall that if you are using number of households, you must multiply average household size. The excel file should look like the following:
 
 ![](ZMB_excel_urbfrac.png){width=50%}
 
