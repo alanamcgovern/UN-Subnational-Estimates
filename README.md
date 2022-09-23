@@ -30,11 +30,11 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
     -   If country of interest does NOT need alternative files, download the shapefile from <https://gadm.org/download_country.html> and put in Data/*country of interest* and rename the folder 'shapeFiles'.
     -   If country of interest does require alternative files, you can find those in 'Data/shapeFiles_alt/*country of interest*'. Move that shapeFiles folder into Data/*country of interest*.
 
-![](Ref_figs/Data_Structure1.png){width=50%}
+![](Ref_figs/Data_Structure1.png)
 
-![](Ref_figs/Data_Structure2.png){width=50%}
+![](Ref_figs/Data_Structure2.png)
 
-![](Ref_figs/Data_Structure3.png){width=50%}
+![](Ref_figs/Data_Structure3.png)
 
 #### Step 3: Data Processing
 
@@ -50,7 +50,7 @@ Run Direct_SmoothDirect.R. This script will calculate direct and smoothed direct
 
 -   Run the rest of ur_prop.R and make sure that the Admin-1 names in the final object, ref.tab, match up. In the end, the ref.tab object should look like the following:
 
-![](Ref_figs/BGD_ref.tab.png){width=50%}
+![](Ref_figs/BGD_ref.tab.png)
 
 -   Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model. *Make sure to specify the country of interest at the top of the script!!*
 
