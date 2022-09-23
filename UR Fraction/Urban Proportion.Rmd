@@ -5,8 +5,7 @@ output: pdf_document
 
 To generate urban sampling weights, we need information of urban fraction at Admin-1 level. Such information could usually be obtained with credibility from the country-specific DHS survey reports or national census reports. We need to organize this information in a cleaned table to run our scripts. 
 
-Because these sampling weights refer to a specific sampling frame, using a stratified model requires us to only use surveys which use the same sampling frame. Thus, going forward, *we will only use the surveys that have the same sampling frame as our most recent survey*. (The removal of data that comes from surveys with a different frame is already automated in subsequent scripts). To determine which surveys this includes, you can compare frame_years with survey_years from the info file.
-
+Because these sampling weights refer to a specific sampling frame, using a stratified model requires us to only use surveys which use the same sampling frame.
 
 ## 1. Search for the information about Admin-1 level urban population
 It is rare that all the DHS survey reports and national census reports are formatted in the same way, which means that this information might be found at different places in different reports. We provide some general ways to find them and the options are ordered by their priority. We illustrate this process for Zambia.

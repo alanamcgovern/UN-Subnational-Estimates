@@ -175,7 +175,8 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                     age.groups = age.groups, age.n = age.n,
                                     age.rw.group = age.rw.group, 
                                     age.strata.fixed.group = age.strata.fixed.group,
-                                    overdisp.mean = -7.5, overdisp.prec = 0.39)
+                                    overdisp.mean = -7.5, overdisp.prec = 0.39,
+                                    control.inla = list(strategy = "adaptive", int.strategy = "eb"))
       })
       
     }else{
@@ -192,7 +193,8 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                               age.n = age.n,
                               age.rw.group = age.rw.group,
                               age.strata.fixed.group = age.strata.fixed.group,
-                              overdisp.mean = -7.5, overdisp.prec = 0.39)
+                              overdisp.mean = -7.5, overdisp.prec = 0.39,
+                              control.inla = list(strategy = "adaptive", int.strategy = "eb"))
     }
 
   

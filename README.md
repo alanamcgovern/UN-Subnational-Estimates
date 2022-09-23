@@ -4,11 +4,7 @@
 
 This document provides detailed instructions for obtaining direct, smoothed direct, and urban/rural stratified Beta-binomial estimates for U5MR and NMR, as well as maps and figures of these results.
 
-## The Data Source
-
-Explain dropbox
-
-Country Info Spreadsheet: https://docs.google.com/spreadsheets/d/1farrC3nJ0K-m35zzhZb3E7sSTGJ0iOg4ezZyhQVXt1A/edit#gid=0
+At some points in the pipeline, you will need to reference this sheet with specific information about each country:  https://docs.google.com/spreadsheets/d/1farrC3nJ0K-m35zzhZb3E7sSTGJ0iOg4ezZyhQVXt1A/edit#gid=0.  This will be referred to as the 'Country Info Sheet'.
 
 ## The Pipeline
 
@@ -18,8 +14,8 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
 
 #### Step 1: Setting up file structure
 
--   Clone this repository on your local computer.
--   Open the 'UN-Subnational-Estimates' R project in RStudio and run create_folder.R. This will create the necessary file structure. *Make sure to specify the country of interest*
+-   Clone this repository on your local computer and open the 'UN-Subnational-Estimates' R project in RStudio.
+-   Run create_folder.R. This will create the necessary file structure. *Make sure to specify the country of interest*
 
 #### Step 2: Downloading Data
 
@@ -29,9 +25,9 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
 
 -   If the country of interest also has MICS surveys (applicable only for Bangladesh, Madagascar, and Malawi), find the pre-processed data for that survey in the 'Data/MICS' folder of your cloned repository and move it into Data/*country of interest*/*survey year*
 
--   Finally, download the shapefiles. Note that we only need one set of files for the country of interest, not one for each survey. Check the "GADM notes" column on the country info spreadsheet (linked on github) to see if the country of interest is marked as needing 'alternative files'.
+-   Finally, download the shapefiles. Note that we only need one set of files for the country of interest, not one for each survey. Check the "GADM notes" column on the Country Info Sheet to see if the country of interest is marked as needing 'alternative files'.
 
-    -   If country of interest does NOT need alternative files, download the shapefile from <https://gadm.org/download_country.html> and put in Data/*country of interest*/shapeFiles.
+    -   If country of interest does NOT need alternative files, download the shapefile from <https://gadm.org/download_country.html> and put in Data/*country of interest* and rename the folder 'shapeFiles'.
     -   If country of interest does require alternative files, you can find those in 'Data/shapeFiles_alt/*country of interest*'. Move that shapeFiles folder into Data/*country of interest*.
 
 
