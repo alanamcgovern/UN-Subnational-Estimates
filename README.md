@@ -30,11 +30,11 @@ Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or mor
     -   If country of interest does NOT need alternative files, download the shapefile from <https://gadm.org/download_country.html> and put in Data/*country of interest* and rename the folder 'shapeFiles'.
     -   If country of interest does require alternative files, you can find those in 'Data/shapeFiles_alt/*country of interest*'. Move that shapeFiles folder into Data/*country of interest*.
 
-![](Ref_figs/Data_Structure1.png)
+![](Ref_figs/Data_structure1.png)
 
-![](Ref_figs/Data_Structure2.png)
+![](Ref_figs/Data_structure2.png)
 
-![](Ref_figs/Data_Structure3.png)
+![](Ref_figs/Data_structure3.png)
 
 #### Step 3: Data Processing
 
