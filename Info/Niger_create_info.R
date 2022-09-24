@@ -25,7 +25,7 @@ dhsFlat.files<- "NIGE61FL"
 ### please fill in the following information ####
 dhs_survey_years<- 2012 # years of the DHS surveys
 survey_years <-2012
-frame_year <- 2001
+frame_years <- 2001
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")

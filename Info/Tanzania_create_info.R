@@ -17,15 +17,15 @@ gadm.abbrev <- "TZA"
 doHIVAdj <- T
 
 ### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "TZBR7BDT/TZBR7BFL.dta"
+dhsStata.files<- c("TZBR63DT/TZBR63FL.dta", "TZBR6ADT/TZBR6AFL.dta","TZBR7BDT/TZBR7BFL.dta")
 
 ### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "TZGE7AFL"
+dhsFlat.files<- c("TZGE61FL", "TZGE6AFL","TZGE7AFL")
 
 ### please fill in the following information ####
-dhs_survey_years<- 2016 # years of the DHS surveys
-survey_years <- 2016
-frame_year <- 2012
+dhs_survey_years<- c(2010, 2012, 2016) # years of the DHS surveys
+survey_years <- c(2010, 2012, 2016)
+frame_years <- c(2002,2002,2012)
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")

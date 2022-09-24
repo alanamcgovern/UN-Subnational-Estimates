@@ -24,8 +24,8 @@ dhsFlat.files<-c("MWGE62FL", "MWGE7AFL")
 
 ### please fill in the following information ####
 dhs_survey_years<-c(2010,2015) # years of the DHS surveys
-survey_years <- c(2010,2014,2015)
-frame_year <- 2008
+survey_years <- c(2010,2014,2015,2020)
+frame_years <- c(2008,2008,2008,2018)
 
 ### please fill in the path to country shape files ####
 poly.path <- "shapeFiles_gadm"

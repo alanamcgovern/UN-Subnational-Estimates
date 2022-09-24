@@ -17,15 +17,15 @@ gadm.abbrev <- "GIN"
 doHIVAdj <- F
 
 ### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<-"GNBR71DT/GNBR71FL.dta"
+dhsStata.files<-c("GNBR62DT/GNBR62FL.dta","GNBR71DT/GNBR71FL.dta")
 
 ### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-'GNGE71FL'
+dhsFlat.files<-c('GNGE61FL','GNGE71FL')
 
 ### please fill in the following information ####
-dhs_survey_years<-2018 # years of the DHS surveys
-survey_years <- 2018
-frame_year <- 2017
+dhs_survey_years<-c(2012,2018) # years of the DHS surveys
+survey_years <- c(2012,2018)
+frame_years <- c(2014,2017)
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_GIN_shp")

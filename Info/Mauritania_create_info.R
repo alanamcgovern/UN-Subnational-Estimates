@@ -25,7 +25,7 @@ dhsFlat.files<-c("MRGE71FL")
 ### please fill in the following information ####
 dhs_survey_years<- 2021 # years of the DHS surveys
 survey_years <- 2021
-frame_year <- 2013
+frame_years <- 2013
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_MRT_shp")

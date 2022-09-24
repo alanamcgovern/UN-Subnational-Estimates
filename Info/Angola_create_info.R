@@ -17,15 +17,15 @@ gadm.abbrev <- "AGO"
 doHIVAdj <- F
 
 ### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<-"AOBR71DT/AOBR71FL.dta"
+dhsStata.files<- c("AOBR62DT/AOBR62FL.dta", "AOBR71DT/AOBR71FL.dta")
 
 ### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-'AOGE71FL'
+dhsFlat.files<-c('AOGE61FL','AOGE71FL')
 
 ### please fill in the following information ####
-dhs_survey_years<-2016 # years of the DHS surveys
-survey_years <- 2016
-frame_year <- 2014
+dhs_survey_years<-c(2011,2016) # years of the DHS surveys
+survey_years <- c(2011,2016)
+frame_years <- c(NA,2014)
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_AGO_shp")

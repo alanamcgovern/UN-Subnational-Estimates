@@ -25,7 +25,7 @@ dhsFlat.files<- c("BUGE61FL", "BUGE71FL")
 ### please fill in the following information ####
 dhs_survey_years<- c(2010,2017) # years of the DHS surveys
 survey_years <- c(2010,2017)
-frame_year <- 2008
+frame_years <- c(2008, 2008)
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles")

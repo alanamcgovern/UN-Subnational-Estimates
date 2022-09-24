@@ -25,7 +25,7 @@ dhsFlat.files<- "TGGE62FL"
 ### please fill in the following information ####
 dhs_survey_years<- 2014 # years of the DHS surveys
 survey_years <- 2014
-frame_year <- 2010
+frame_years <- 2010
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles")

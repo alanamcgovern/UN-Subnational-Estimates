@@ -25,7 +25,7 @@ dhsFlat.files<-c('BDGE61FL','BDGE71FL','BDGE7SFL')
 ### please fill in the following information ####
 dhs_survey_years<-c(2011,2014,2018) # years of the DHS surveys
 survey_years <- c(2011,2014,2018,2019)
-frame_year <- 2011
+frame_years <- c(2011, 2011, 2011, 2011)
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_BGD_shp")

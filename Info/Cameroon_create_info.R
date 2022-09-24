@@ -17,15 +17,15 @@ gadm.abbrev <- "CMR"
 doHIVAdj <- T
 
 ### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "CMBR71DT/CMBR71FL.dta"
+dhsStata.files<- c("CMBR61DT/CMBR61FL.dta","CMBR71DT/CMBR71FL.dta")
 
 ### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "CMGE71FL"
+dhsFlat.files<- c("CMGE61FL","CMGE71FL")
 
 ### please fill in the following information ####
-dhs_survey_years<- 2018 # years of the DHS surveys
-survey_years <- 2018
-frame_year <- 2014
+dhs_survey_years<- c(2011, 2018) # years of the DHS surveys
+survey_years <- c(2011, 2018) 
+frame_years <- c(2005, 2014)
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_CMR_shp")

@@ -25,7 +25,7 @@ dhsFlat.files<- "BFGE61FL"
 ### please fill in the following information ####
 dhs_survey_years<- 2010 # years of the DHS surveys
 survey_years <- 2010
-frame_year <- 2006
+frame_years <- 2006
 
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_BFA_shp")

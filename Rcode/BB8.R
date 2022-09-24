@@ -1,7 +1,7 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
@@ -38,7 +38,7 @@ load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
 ## Load data -----------------------------------------------
-load(paste0(country,'_cluster_dat.rda'),
+load(paste0(country,'_cluster_dat_1frame.rda'),
      envir = .GlobalEnv)
 
 mod.dat$years <- as.numeric(as.character(mod.dat$years))

@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -267,6 +267,7 @@ for(survey_year in dhs_survey_years){
     dat.tmp$survey<-survey_year
     dat.tmp$survey.id<-which(survey_years==survey_year)
     dat.tmp$survey.type <- 'DHS'
+    dat.tmp$frame.year <- frame_years[which(survey_year==survey_years)]
   
     if(survey_year==dhs_survey_years[1]){
       mod.dat <- dat.tmp
@@ -307,8 +308,9 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
     dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
     dat.tmp$survey.id<-which(survey_years==survey_year)
     dat.tmp$survey.type <- 'MICS'
+    dat.tmp$frame.year <- frame_years[which(survey_year==survey_years)]
     dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1','admin2',
-                          'admin1.char','admin2.char','admin1.name','admin2.name','survey','survey.id','survey.type')]
+                          'admin1.char','admin2.char','admin1.name','admin2.name','survey','survey.id','survey.type','frame.year')]
     
     #add to prepared data
     mod.dat <- rbind(mod.dat,dat.tmp)
