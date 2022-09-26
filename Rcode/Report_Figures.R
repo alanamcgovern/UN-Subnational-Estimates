@@ -8,6 +8,10 @@ country <- 'Guinea'
 #### Load libraries and info ----------------------------------------------------------
 
 # Libraries
+options(gsubfn.engine = "R")
+library(rgdal)
+library(Rfast)
+
 library(data.table)
 library(survey)
 library(classInt)
@@ -27,11 +31,8 @@ library(scales)
 library(rasterVis)
 library(plotrix)
 library(ggridges)
-options(gsubfn.engine = "R")
-library(rgdal)
 library(ggplot2)
 library(SUMMER)
-library(Rfast)
 library(parallel)
 library(cartography)
 library(rgeos)
@@ -49,30 +50,18 @@ res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Betabinomial'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Betabinomial'))}
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Betabinomial/U5MR'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Betabinomial/U5MR'))}
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Betabinomial/NMR'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Betabinomial/NMR'))}
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Summary'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Summary'))}
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Summary/U5MR'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Summary/U5MR'))}
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Summary/NMR'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Summary/NMR'))}
+if(!dir.exists(paste0(res.dir, '/Figures/Betabinomial'))){
+  dir.create(paste0(res.dir, '/Figures/Betabinomial'))}
+if(!dir.exists(paste0(res.dir,  '/Figures/Betabinomial/U5MR'))){
+  dir.create(paste0(res.dir, '/Figures/Betabinomial/U5MR'))}
+if(!dir.exists(paste0(res.dir, '/Figures/Betabinomial/NMR'))){
+  dir.create(paste0(res.dir, '/Figures/Betabinomial/NMR'))}
+if(!dir.exists(paste0(res.dir,  '/Figures/Summary'))){
+  dir.create(paste0(res.dir, '/Figures/Summary'))}
+if(!dir.exists(paste0(res.dir,  '/Figures/Summary/U5MR'))){
+  dir.create(paste0(res.dir,  '/Figures/Summary/U5MR'))}
+if(!dir.exists(paste0(res.dir,'/Figures/Summary/NMR'))){
+  dir.create(paste0(res.dir, '/Figures/Summary/NMR'))}
 
 #### Load model data ----------------------------------------------------------
 
@@ -837,14 +826,6 @@ for(outcome in outcome_vt){
 }  
 
 ## national comparison plot (need to check) ####
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Betabinomial/U5MR/comparison'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Betabinomial/U5MR/comparison'))}
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Betabinomial/NMR/comparison'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Betabinomial/NMR/comparison'))}
 setwd(res.dir)
 
 ##### function to get posterior draws from BB8 #####
@@ -939,10 +920,10 @@ load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_strat_u5.rda'))
 #### prepare admin1 level models ####
 ### smooth direct admin1 3-year window
 load(file = paste0('Direct/NMR/', country, '_res_admin1_nmr_SmoothedDirect.rda'))
-admin1.sd.nmr <- res.admin1.nmr$results
+admin1.sd.nmr <- res.admin1.nmr
 admin1.sd.nmr.draws <- res.admin1.nmr$draws
 load(file = paste0('Direct/U5MR/', country, '_res_admin1_u5_SmoothedDirect.rda'))  
-admin1.sd.u5 <- res.admin1.u5$results
+admin1.sd.u5 <- res.admin1.u5
 admin1.sd.u5.draws <- res.admin1.u5$draws
 
 beg.period.years <- unique(admin1.sd.nmr[admin1.sd.nmr$years.num<=end.proj.year,]$years.num)

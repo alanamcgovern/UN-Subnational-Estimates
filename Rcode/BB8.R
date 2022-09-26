@@ -43,6 +43,8 @@ load(paste0(country,'_cluster_dat_1frame.rda'),
 
 mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat$country <- as.character(country)
+frame_year <- unique(mod.dat$frame.year)
+survey_years <- survey_years[frame_year==frame_years]
 
 ## Load National IGME estimates ------------------------------------------------------
 setwd(paste0(home.dir,'/Data/IGME'))
