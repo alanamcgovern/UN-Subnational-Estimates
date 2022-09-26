@@ -27,13 +27,17 @@ source(file=paste0(home.dir, '/Rcode/smoothCluster_mod.R'))
 setwd(data.dir)
 
 poly.adm0 <- readOGR(dsn = poly.path,
-                     layer = as.character(poly.layer.adm0))
+                     layer = as.character(poly.layer.adm0)) # load the national shape file
 poly.adm1 <- readOGR(dsn = poly.path,
-                     layer = as.character(poly.layer.adm1))
-poly.adm2 <- readOGR(dsn = poly.path,
-                     layer = as.character(poly.layer.adm2))
+                     layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
+if(exists('poly.layer.adm2')){
+  poly.adm2 <- readOGR(dsn = poly.path,
+                       layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+  proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
+}else{
+  proj4string(poly.adm0) <- proj4string(poly.adm1)
+}
 
-proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
@@ -76,8 +80,10 @@ igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
 # IF you have already run this chunk of code before
 load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
+if(exists('poly.adm2')){
 load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
+}
 
 # function that calculates population in each admin2 area
 pop_adm2<-function(adm2.shp, wp,admin_pop_dat){

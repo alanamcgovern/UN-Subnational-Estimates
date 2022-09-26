@@ -2,7 +2,7 @@ rm(list = ls()) # clear the R environment and prepare for the pipeline
 
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Lesotho'
 
 # set directory -----------------------------------------------
 code.path <- rstudioapi::getActiveDocumentContext()$path

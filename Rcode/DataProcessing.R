@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Lesotho'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -33,7 +33,7 @@ poly.adm0 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
 poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
                      layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
 
-if(sum(grepl(poly.layer.adm2, list.files(poly.path))) != 0){
+if(exists('poly.layer.adm2')){
   poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
                        layer = as.character(poly.layer.adm2))} # load the shape file of admin-2 regions
 
@@ -69,8 +69,13 @@ if(exists("poly.adm2")){  # create the adjacency matrix for admin2 regions.
   message("There is no Admin2 polygon file.")
 }
 
-save(admin1.mat, admin2.mat, file = paste0(poly.path,'/', country, '_Amat.rda')) # save the admin1 and admin2 adjacency matrix
-save(admin1.names, admin2.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
+if(exists("poly.adm2")){
+  save(admin1.mat, admin2.mat, file = paste0(poly.path,'/', country, '_Amat.rda')) # save the admin1 and admin2 adjacency matrix
+  save(admin1.names, admin2.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
+}else{
+  save(admin1.mat, file = paste0(poly.path,'/', country, '_Amat.rda'))
+  save(admin1.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda'))
+}
 
 # Polygon Plots ----------------------------------------------------------
 
@@ -244,7 +249,7 @@ for(survey_year in dhs_survey_years){
       dat.tmp$admin1.char <- paste0("admin1_", admin1.key)
       dat.tmp$admin1.name <- as.character(eval(str2lang(poly.label.adm1)))[admin1.key]
     }else{
-      dat.tmp$admin2 <- dat.tmp$admin2.name <- NA
+      dat.tmp$admin1 <- dat.tmp$admin1.name <- NA
       message("There is no Admin1 polygon to assign points to.")
     }  
 
@@ -258,12 +263,20 @@ for(survey_year in dhs_survey_years){
     }
 
     # finish preparing data ###
-    dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", 
-                      "v025", "LONGNUM", "LATNUM","strata",
-                      "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")]
-    colnames(dat.tmp) <- c("cluster", "age", "years", "total",
-                       "Y", "v005", "urban", "LONGNUM", "LATNUM","strata",
-                       "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")
+    if(adm2.ind){
+      dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", 
+                            "v025", "LONGNUM", "LATNUM","strata",
+                            "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")]
+      colnames(dat.tmp) <- c("cluster", "age", "years", "total",
+                             "Y", "v005", "urban", "LONGNUM", "LATNUM","strata",
+                             "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")
+    }else{
+      dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", "v025", "LONGNUM", "LATNUM","strata",
+                            "admin1", "admin1.char", "admin1.name")]
+      colnames(dat.tmp) <- c("cluster", "age", "years", "total", "Y", "v005", "urban", "LONGNUM", "LATNUM","strata",
+                             "admin1", "admin1.char", "admin1.name")
+    }
+    
     dat.tmp$survey<-survey_year
     dat.tmp$survey.id<-which(survey_years==survey_year)
     dat.tmp$survey.type <- 'DHS'
@@ -282,7 +295,8 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
   mics_survey_years <- survey_years[!(survey_years %in% dhs_survey_years)]
   
   #make admin key
-  admin.key <- mod.dat %>% dplyr::select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
+  if(adm2.ind){
+    admin.key <- mod.dat %>% dplyr::select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
   
   for(survey_year in mics_survey_years){
     message('Processing MICS data for ', country,' ', survey_year,'\n')
@@ -314,6 +328,38 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
     
     #add to prepared data
     mod.dat <- rbind(mod.dat,dat.tmp)
+    }
+  }else{
+    admin.key <- mod.dat %>% dplyr::select(admin1,admin1.char,admin1.name,strata) %>% distinct()
+    
+    for(survey_year in mics_survey_years){
+      message('Processing MICS data for ', country,' ', survey_year,'\n')
+      load(file=paste0(survey_year,'/',country.abbrev,'.', survey_year, '.tmp.rda'))
+      
+      #check that all admin1 areas in MICS data are contained in DHS data -- if not, might need to make small fixes (spaces, captials, etc)
+      unique(dat.tmp$admin1.name) %in% unique(mod.dat$admin1.name)
+      
+      #match admin area codes
+      dat.tmp$admin1 <- dat.tmp$strata <- NA
+      dat.tmp$admin1.char <-  ''
+      for(perm in 1:nrow(admin.key)){
+        perm.ind <- dat.tmp$admin1.name==admin.key$admin1.name[perm]
+        dat.tmp$admin1[perm.ind] <- admin.key$admin1[perm]
+        dat.tmp$admin1.char[perm.ind] <- admin.key$admin1.char[perm]
+        dat.tmp$strata[perm.ind] <- admin.key$strata[perm]
+      }
+      
+      #prepare to merge with DHS data
+      dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
+      dat.tmp$survey.id<-which(survey_years==survey_year)
+      dat.tmp$survey.type <- 'MICS'
+      dat.tmp$frame.year <- frame_years[which(survey_year==survey_years)]
+      dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1',
+                            'admin1.char','admin1.name','survey','survey.id','survey.type','frame.year')]
+      
+      #add to prepared data
+      mod.dat <- rbind(mod.dat,dat.tmp)
+  }
   }
 }
 

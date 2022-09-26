@@ -1,8 +1,8 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR OF SAMPLING FRAME (must be in frame_years)  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
-frame_year <- 2017
+country <- 'Lesotho'
+frame_year <- 2006
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -34,10 +34,14 @@ poly.adm0 <- readOGR(dsn = poly.path,
                      layer = as.character(poly.layer.adm0)) # load the national shape file
 poly.adm1 <- readOGR(dsn = poly.path,
                      layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
-poly.adm2 <- readOGR(dsn = poly.path,
-                     layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+if(exists('poly.layer.adm2')){
+  poly.adm2 <- readOGR(dsn = poly.path,
+                       layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+  proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
+}else{
+  proj4string(poly.adm0) <- proj4string(poly.adm1)
+}
 
-proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
@@ -73,7 +77,7 @@ for(year in pop.year){
   ### automated downloading, if not working, try manually download
   setwd(paste0(data.dir,'/Population'))
  
-  file <- paste0( pop.abbrev,'_ppp_',frame_year,'_1km_Aggregated_UNadj.tif')
+  file <- paste0(pop.abbrev,'_ppp_',frame_year,'_1km_Aggregated_UNadj.tif')
   
   if(!file.exists(file)){
     
@@ -115,7 +119,11 @@ for(year in pop.year){
   constr_prior <- function(obs,jitter_r,prob_r,poly_admin,pop_ras){
     
     # for the cluster, find its coordinates and admin1 area
-    admin1_index<-obs$admin2
+    if(exists("poly.adm2")){
+      admin1_index<-obs$admin2
+    }else{
+      admin1_index<-obs$admin1
+    }
     sp_xy<-SpatialPoints(as.data.frame(obs)[,c('LONGNUM','LATNUM')],
                          proj4string = CRS(proj4string(poly_admin)))
     #pt<-as.data.frame(obs)[,c('LONGNUM','LATNUM')]
@@ -211,8 +219,6 @@ for(year in pop.year){
     
     poly_file <- spTransform(poly_file, wp@crs)
     
-    
-    
     if(is.null(wp_adm))
       wp_adm <- lapply(1:nrow(poly_file), function(x) {
         list(state_id = x, state_raster = raster::mask(crop(wp,poly_file[x,]), poly_file[x,]))
@@ -261,9 +267,15 @@ for(year in pop.year){
 
   # points have to stay within the same admin2 region 
   #for( i in 1:dim(urban_clus)[1]){
+  if(exists("poly.adm2")){
+    poly.adm <- poly.adm2
+  }else{
+    poly.adm <- poly.adm1
+  }
+  
   for( i in 1:dim(urban_clus)[1]){
     print(i)
-    temp_frame<-constr_prior(urban_clus[i,],2000,1,poly.adm2,worldpop)
+    temp_frame<-constr_prior(urban_clus[i,],2000,1,poly.adm,worldpop)
     p_mode = sqldf("SELECT * FROM temp_frame GROUP BY x,y ORDER BY SUM(unn_w) DESC LIMIT 1")
     urban_clus[i,]$x_adj<-p_mode$x
     urban_clus[i,]$y_adj<-p_mode$y
@@ -295,10 +307,16 @@ for(year in pop.year){
   crc_dat$pop_den<-raster::extract(worldpop,xy_crc)
 
   # only retain part of the columns to reduce redundancy
-  col_select<-c('cluster','urban','admin1','admin2',
-              'admin1.name','admin2.name',
-              'admin1.char','admin2.char',
-              'survey','pop_den','x','y')
+  if(exists("poly.adm2")){
+    col_select<-c('cluster','urban','admin1','admin2',
+                 'admin1.name','admin2.name',
+                 'admin1.char','admin2.char',
+                 'survey','pop_den','x','y')
+  }else{
+    col_select<-c('cluster','urban','admin1',
+                  'admin1.name',  'admin1.char',
+                  'survey','pop_den','x','y') 
+  }
 
   crc_dat_final<-crc_dat[,col_select]
   save(crc_dat_final,file='prepared_dat/crc_dat.rda')
@@ -318,10 +336,17 @@ for(year in pop.year){
 
 
   # keep columns
-  col_select<-c('cluster','urban','admin1','admin2',
-              'admin1.name','admin2.name',
-              'admin1.char','admin2.char',
+  if(exists("poly.adm2")){
+    col_select<-c('cluster','urban','admin1','admin2',
+                  'admin1.name','admin2.name',
+                  'admin1.char','admin2.char',
+                  'survey','pop_den','x','y')
+  }else{
+    col_select<-c('cluster','urban','admin1',
+              'admin1.name',
+              'admin1.char',
               'survey','pop_den','x','y')
+  }
 
   uncrc_dat_final<-uncrc_dat[,col_select]
   save(uncrc_dat_final,file='prepared_dat/uncrc_dat.rda')
@@ -558,6 +583,7 @@ for(year in pop.year){
     adm1.u1.weight.frame <- rbind(adm1.u1.weight.frame,u1_urb_admin1)
     adm1.u5.weight.frame <- rbind(adm1.u5.weight.frame,u5_urb_admin1)
     
+    if(exists('poly.adm2')){
     # admin2 urban fraction for U5 population at year t
     u1_urb_admin2<-get_subnatl_frac(adm.names = admin2.names$GADM,
                                     adm.idx = admin2.names$Internal,
@@ -576,18 +602,22 @@ for(year in pop.year){
     u1_urb_admin2$years <- u5_urb_admin2$years <- year
     adm2.u1.weight.frame <- rbind(adm2.u1.weight.frame,u1_urb_admin2)
     adm2.u5.weight.frame <- rbind(adm2.u5.weight.frame,u5_urb_admin2)
+  
+    }
     
     setwd(paste0(res.dir,'/UR'))
     
     # save calculated urban fractions
     saveRDS(u1_urb_admin1,file=paste0('U1_fraction/','admin1_u1_',
                                       year, '_urban_frac.rds'))
-    saveRDS(u1_urb_admin2,file=paste0('U1_fraction/','admin2_u1_',
-                                      year, '_urban_frac.rds'))
     saveRDS(u5_urb_admin1,file=paste0('U5_fraction/','admin1_u5_',
+                                      year, '_urban_frac.rds'))
+    if(exists('poly.adm2')){
+    saveRDS(u1_urb_admin2,file=paste0('U1_fraction/','admin2_u1_',
                                       year, '_urban_frac.rds'))
     saveRDS(u5_urb_admin2,file=paste0('U5_fraction/','admin2_u5_',
                                       year, '_urban_frac.rds'))
+    }
     
   }
   
@@ -603,6 +633,7 @@ for(year in pop.year){
   adm1.u5.weight.frame$rural <- 1 - adm1.u5.weight.frame$urban
   saveRDS(adm1.u5.weight.frame,paste0('U5_fraction/','admin1_u5_urban_weights.rds'))
   
+  if(exists('poly.adm2')){
   # process admin 2 urban rural weights data frame
   adm2.u1.weight.frame <- adm2.u1.weight.frame[,c('adm_idx','years','urb_frac')]
   colnames(adm2.u1.weight.frame) <- c('region','years','urban')
@@ -613,5 +644,5 @@ for(year in pop.year){
   colnames(adm2.u5.weight.frame) <- c('region','years','urban')
   adm2.u5.weight.frame$rural <- 1 - adm2.u5.weight.frame$urban
   saveRDS(adm2.u5.weight.frame,paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
-  
+  }
 

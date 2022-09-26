@@ -44,7 +44,7 @@ Run the 'DataProcessing.R' script from the 'Rcode' folder. *Make sure to specify
 
 Run Direct_SmoothDirect.R. This script will calculate direct and smoothed direct NMR and U5MR estimates and generate figures. *Make sure to specify the country of interest where it is requested at the top of the script*
 
-NOTE: If the yearly Admin2 smoothed direct models run without error, we are done! (More info on how to benchmark these estimates to come)
+NOTE: If the yearly smoothed direct models at the smallest admin level run without error, we are done! (More info on how to benchmark these estimates to come)
 
 #### Step 5: Addressing Stratification
 
