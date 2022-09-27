@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Malawi'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -744,7 +744,7 @@ save(res.admin1.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDire
 
 
 ## Admin 1, yearly  ------------------------------------------------------
-
+tryCatch({
 ##U5MR
 data.admin1.yearly.u5 <- data.admin1.yearly.u5[data.admin1.yearly.u5$region!='All',]
 fit.admin1.yearly.u5 <- smoothDirect(data.admin1.yearly.u5, Amat = admin1.mat,
@@ -771,6 +771,8 @@ sd.admin1.yearly.nmr$region.gadm <- admin1.names$GADM[match(sd.admin1.yearly.nmr
 
 save(sd.admin1.yearly.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
 
+}, silent=T, error = function(e) {message('Yearly smoothed direct model cannot be fit at the Admin1 level due to data sparsity.
+                                      This means a Betabinomial model will need to be fit.')})
 
 ## Admin 2, 3-year period ------------------------------------------------------
 
@@ -806,10 +808,12 @@ res.admin2.nmr$region.gadm <- admin2.names$GADM[match(res.admin2.nmr$region, adm
 
 save(res.admin2.nmr, file = paste0('NMR/',country, "_res_admin2_nmr_SmoothedDirect.rda"))
 
+}
 
 ## Admin 2, yearly  ------------------------------------------------------
-
+if(exists("poly.adm2")){
 ##U5MR
+tryCatch({
 data.admin2.yearly.u5 <- data.admin2.yearly.u5[data.admin2.yearly.u5$region!='All',]
 fit.admin2.yearly.u5 <- smoothDirect(data.admin2.yearly.u5, Amat = admin2.mat,
                                      year_label = as.character(beg.year:max(end.proj.years)),type.st = 4,
@@ -835,6 +839,8 @@ sd.admin2.yearly.nmr$region.gadm <- admin2.names$GADM[match(sd.admin2.yearly.nmr
 
 save(sd.admin2.yearly.nmr, file = paste0('NMR/',country, "_res_admin2_nmr_SmoothedDirect_yearly.rda")) # save the admin2 yearly smoothed direct U5MR
 
+}, silent=T, error = function(e) {message('Yearly smoothed direct model cannot be fit at the Admin2 level due to data sparsity. 
+                                          This means a Betabinomial model will need to be fit.')})
 }
 # Polygon plots ------------------------------------------------------
 setwd(res.dir)
@@ -952,6 +958,8 @@ pdf(paste0("Figures/Direct/U5MR/Admin1/",
 }
 dev.off()
 
+
+
 ## NMR
 plotagg.admin1.yearly.nmr <- aggregateSurvey(direct.admin1.yearly.nmr)
 plotagg.admin1.yearly.nmr$regionPlot <- admin1.names$GADM[match(plotagg.admin1.yearly.nmr$region,
@@ -977,6 +985,7 @@ dev.off()
 
 ## Admin 1 Yearly Smoothed Direct  ------------------------------------------------------
 
+if(exists(sd.admin1.yearly.u5)){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
@@ -996,7 +1005,9 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
   
 }
 dev.off()
+}
 
+if(exists(sd.admin1.yearly.nmr)){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
@@ -1016,7 +1027,7 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
   
 }
 dev.off()
-
+}
 
 ## Admin 2 Direct, aggregated across surveys  ------------------------------------------------------
 if(exists("poly.adm2")){
@@ -1067,6 +1078,7 @@ dev.off()
 }
 ## Admin 2 Smoothed Direct  ------------------------------------------------------
 if(exists("poly.adm2")){
+  if(exists(res.admin2.u5)){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
@@ -1087,7 +1099,9 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
   
 }
 dev.off()
+}
 
+  if(exists(res.admin2.nmr)){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
@@ -1108,6 +1122,7 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
   
 }
 dev.off()
+}
 }
 
 ## Admin 2 Yearly Direct, aggregated across surveys  ------------------------------------------------------
@@ -1158,7 +1173,7 @@ dev.off()
 
 
 ## Admin 2 Yearly Smoothed Direct  ------------------------------------------------------
-
+if(exists(sd.admin2.yearly.u5)){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
@@ -1178,7 +1193,9 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
   
 }
 dev.off()
+}
 
+if(exists(sd.admin2.yearly.nmr)){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
@@ -1198,8 +1215,7 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
   
 }
 dev.off()
-
-
+}
 
 
 # Spaghetti plots ------------------------------------------------------
