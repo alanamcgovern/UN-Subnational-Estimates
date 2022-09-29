@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Bangladesh'
+country <- 'Lesotho'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -590,6 +590,7 @@ if(exists("poly.adm2")){
 
 # Smoothed direct estimates  ------------------------------------------------------
 
+  time.model <- c('rw2','ar1')[2]
 ## load in appropriate direct estimates  ------------------------------------------------------
 if(doHIVAdj){
   load(paste0('U5MR/',country, '_directHIV_natl_u5.rda'))
@@ -665,13 +666,13 @@ periods <- c(periods,proj.per)
 
 ## U5MR
 fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
-                     year_label = c(periods),
+                     year_label = c(periods), time.model = time.model,
                      year_range = c(beg.year, max(end.proj.years)),
                      control.inla = list(strategy = "adaptive", int.strategy = "eb"), is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
 ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
 
  res.natl.u5 <- getSmoothed(fit.natl.u5,year_range = c(beg.year, max(end.proj.years)),
-                         year_label = periods) # sample for smoothed direct estimates
+                         year_label = periods,save.draws = TRUE) # sample for smoothed direct estimates
  
  res.natl.u5$years.num <- seq(beg.year,max(end.proj.years),3)
  res.natl.u5$region.gadm <- country
@@ -680,7 +681,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
  ## NMR
  fit.natl.nmr <- smoothDirect(data.natl.nmr, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
                              year_label = c(periods),
-                             year_range = c(beg.year, max(end.proj.years)),
+                             year_range = c(beg.year, max(end.proj.years)),time.model = time.model,
                              control.inla = list(strategy = "adaptive", int.strategy = "eb"),
                              is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
  ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
@@ -698,7 +699,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
  #U5MR
 fit.natl.yearly.u5 <- smoothDirect(data.natl.yearly.u5, geo = NULL, Amat = NULL,
                            year_label = as.character(beg.year:max(end.proj.years)),
-                           year_range = c(beg.year, max(end.proj.years)), 
+                           year_range = c(beg.year, max(end.proj.years)), time.model = time.model,
                            control.inla = list(strategy = "adaptive", int.strategy = "eb"),  is.yearly = F)
 res.natl.yearly.u5 <- getSmoothed(fit.natl.yearly.u5, year_range = c(beg.year, max(end.proj.years)),
                                year_label = as.character(beg.year:max(end.proj.years)))
@@ -708,7 +709,7 @@ save(res.natl.yearly.u5, file = paste0('U5MR/',country, "_res_natl_yearly_u5_Smo
 
 #NMR
 fit.natl.yearly.nmr <- smoothDirect(data.natl.yearly.nmr, geo = NULL, Amat = NULL,
-                                   year_label = as.character(beg.year:max(end.proj.years)),
+                                   year_label = as.character(beg.year:max(end.proj.years)), time.model = time.model,
                                    year_range = c(beg.year, max(end.proj.years)), 
                                    control.inla = list(strategy = "adaptive", int.strategy = "eb"), is.yearly = F)
 res.natl.yearly.nmr <- getSmoothed(fit.natl.yearly.nmr, year_range = c(beg.year, max(end.proj.years)),
@@ -723,7 +724,7 @@ save(res.natl.yearly.nmr, file = paste0('NMR/',country, "_res_natl_yearly_nmr_Sm
 ## U5MR
 data.admin1.u5 <- data.admin1.u5[data.admin1.u5$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
 fit.admin1.u5 <- smoothDirect(data.admin1.u5, Amat = admin1.mat,
-                      year_label = periods, type.st = 4,
+                      year_label = periods, type.st = 4, time.model = time.model,
                       year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 res.admin1.u5 <- getSmoothed(fit.admin1.u5, Amat = admin1.mat,
                              year_label = periods,
@@ -738,7 +739,7 @@ save(res.admin1.u5, file = paste0('U5MR/',country, "_res_admin1_u5_SmoothedDirec
 ## NMR
 data.admin1.nmr <- data.admin1.nmr[data.admin1.nmr$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
 fit.admin1.nmr <- smoothDirect(data.admin1.nmr, Amat = admin1.mat,
-                              year_label = periods, type.st = 4,
+                              year_label = periods, type.st = 4, time.model = time.model,
                               year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 res.admin1.nmr <- getSmoothed(fit.admin1.nmr, Amat = admin1.mat,
                                 year_label = periods,
@@ -755,7 +756,7 @@ save(res.admin1.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDire
 tryCatch({
 ##U5MR
 data.admin1.yearly.u5 <- data.admin1.yearly.u5[data.admin1.yearly.u5$region!='All',]
-fit.admin1.yearly.u5 <- smoothDirect(data.admin1.yearly.u5, Amat = admin1.mat,
+fit.admin1.yearly.u5 <- smoothDirect(data.admin1.yearly.u5, Amat = admin1.mat, time.model = time.model,
                              year_label = as.character(beg.year:max(end.proj.years)),type.st = 4,
                              year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 sd.admin1.yearly.u5 <- getSmoothed(fit.admin1.yearly.u5, Amat = admin1.mat,
@@ -768,7 +769,7 @@ save(sd.admin1.yearly.u5, file = paste0('U5MR/',country, "_res_admin1_u5_Smoothe
 
 ##NMR
 data.admin1.yearly.nmr <- data.admin1.yearly.nmr[data.admin1.yearly.nmr$region!='All',]
-fit.admin1.yearly.nmr <- smoothDirect(data.admin1.yearly.nmr, Amat = admin1.mat,
+fit.admin1.yearly.nmr <- smoothDirect(data.admin1.yearly.nmr, Amat = admin1.mat, time.model = time.model,
                                      year_label = as.character(beg.year:max(end.proj.years)),type.st = 4,
                                      year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 sd.admin1.yearly.nmr <- getSmoothed(fit.admin1.yearly.nmr, Amat = admin1.mat,
@@ -789,7 +790,7 @@ if(exists("poly.adm2")){
 ## U5MR
 data.admin2.u5 <- data.admin2.u5[data.admin2.u5$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
 fit.admin2.u5 <- smoothDirect(data.admin2.u5, Amat = admin2.mat,
-                      year_label = periods,type.st = 4,
+                      year_label = periods,type.st = 4, time.model = time.model,
                       year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 res.admin2.u5 <- getSmoothed(fit.admin2.u5, Amat = admin2.mat,
                              year_label = periods,
@@ -804,7 +805,7 @@ save(res.admin2.u5, file = paste0('U5MR/',country, "_res_admin2_u5_SmoothedDirec
 ## NMR
 data.admin2.nmr <- data.admin2.nmr[data.admin2.nmr$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
 fit.admin2.nmr <- smoothDirect(data.admin2.nmr, Amat = admin2.mat,
-                              year_label = periods,type.st = 4,
+                              year_label = periods,type.st = 4, time.model = time.model,
                               year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 res.admin2.nmr <- getSmoothed(fit.admin2.nmr, Amat = admin2.mat,
                                 year_label = periods,
@@ -823,7 +824,7 @@ if(exists("poly.adm2")){
 ##U5MR
 tryCatch({
 data.admin2.yearly.u5 <- data.admin2.yearly.u5[data.admin2.yearly.u5$region!='All',]
-fit.admin2.yearly.u5 <- smoothDirect(data.admin2.yearly.u5, Amat = admin2.mat,
+fit.admin2.yearly.u5 <- smoothDirect(data.admin2.yearly.u5, Amat = admin2.mat, time.model = time.model,
                                      year_label = as.character(beg.year:max(end.proj.years)),type.st = 4,
                                      year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 sd.admin2.yearly.u5 <- getSmoothed(fit.admin2.yearly.u5, Amat = admin2.mat,
@@ -836,7 +837,7 @@ save(sd.admin2.yearly.u5, file = paste0('U5MR/',country, "_res_admin2_u5_Smoothe
 
 ##NMR
 data.admin2.yearly.nmr <- data.admin2.yearly.nmr[data.admin2.yearly.nmr$region!='All',]
-fit.admin2.yearly.nmr <- smoothDirect(data.admin2.yearly.nmr, Amat = admin2.mat,
+fit.admin2.yearly.nmr <- smoothDirect(data.admin2.yearly.nmr, Amat = admin2.mat, time.model = time.model,
                                       year_label = as.character(beg.year:max(end.proj.years)),type.st = 4,
                                       year_range = c(beg.year, max(end.proj.years)), is.yearly = F)
 sd.admin2.yearly.nmr <- getSmoothed(fit.admin2.yearly.nmr, Amat = admin2.mat,
@@ -960,7 +961,7 @@ pdf(paste0("Figures/Direct/U5MR/Admin1/",
                         values = "mean",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "U5MR",
                         per1000 = TRUE,
                         by.data = "regionPlot",
@@ -984,7 +985,7 @@ pdf(paste0("Figures/Direct/NMR/Admin1/",
                         values = "mean",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "NMR",
                         per1000 = TRUE,
                         by.data = "regionPlot",
@@ -1007,7 +1008,7 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
                         values = "median",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "U5MR",
                         per1000 = TRUE,
                         by.data = "region.gadm",
@@ -1029,7 +1030,7 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
                         values = "median",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "NMR",
                         per1000 = TRUE,
                         by.data = "region.gadm",
@@ -1137,6 +1138,7 @@ dev.off()
 
 ## Admin 2 Yearly Direct, aggregated across surveys  ------------------------------------------------------
 
+if(exists("poly.adm2")){
 ## U5MR
 plotagg.admin2.yearly.u5 <- aggregateSurvey(direct.admin2.yearly.u5)
 plotagg.admin2.yearly.u5$regionPlot <- admin2.names$GADM[match(plotagg.admin2.yearly.u5$region,
@@ -1151,7 +1153,7 @@ pdf(paste0("Figures/Direct/U5MR/Admin2/",
                         values = "mean",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "U5MR",
                         per1000 = TRUE,
                         by.data = "regionPlot",
@@ -1173,14 +1175,14 @@ pdf(paste0("Figures/Direct/NMR/Admin2/",
                         values = "mean",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "NMR",
                         per1000 = TRUE,
                         by.data = "regionPlot",
                         by.geo = sub(".*data[$]","",poly.label.adm1)))
 }
 dev.off()
-
+}
 
 ## Admin 2 Yearly Smoothed Direct  ------------------------------------------------------
 if(exists('sd.admin2.yearly.u5')){
@@ -1195,7 +1197,7 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
                         values = "median",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "U5MR",
                         per1000 = TRUE,
                         by.data = "region.gadm",
@@ -1217,7 +1219,7 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
                         values = "median",
                         direction = -1,
                         geo = poly.adm1,
-                        ncol = 3,
+                        ncol = 5,
                         legend.label = "NMR",
                         per1000 = TRUE,
                         by.data = "region.gadm",
