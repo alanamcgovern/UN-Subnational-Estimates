@@ -40,14 +40,16 @@ NOTE: If the yearly smoothed direct models at the smallest admin level run witho
 
 #### Step 5: Addressing Stratification
 
+-   In the Country Info Sheet, check the 'census frame' column to determine the frame year that will be used for stratification.
+
 -   Check the 'Data/urban_frames' folder for the relevant country and frame year. If the file you need is already there, you can proceed to the next step. Otherwise, see the 'UR fraction' folder for further instructions.
 
 -   Run the rest of ur_prop.R and make sure that the Admin-1 names in the final object, ref.tab, match up. In the end, the ref.tab object should look like the following:
 
 ![](Ref_figs/BGD_ref.tab.png)
 
--   Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model. *Make sure to specify the country of interest at the top of the script!!*
+-   Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model. At the top of the script, make sure to specify (1) the country, (2) the frame year being used, and (3) the survey years that used this census frame (also available in the Country Info Sheet)
 
 #### Step 6: Beta-Binomial Estimates
 
-Run BB8.R and *Make sure to specify the country of interest at the top of the script!!*. This will fit U5MR and NMR models at the National, Admin-1, Admin-2 levels and draw benchmarked and un-benchmarked posterior estimates.
+Run BB8.R and, again,make sure to specify (1) the country, (2) the frame year being used, and (3) the survey years that used this census frame. This will fit U5MR and NMR models at the National, Admin-1, Admin-2 levels and draw benchmarked and un-benchmarked posterior estimates.
