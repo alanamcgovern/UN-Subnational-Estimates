@@ -46,7 +46,28 @@ if(exists('poly.layer.adm2')){
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
+# Load cluster data  ----------------------------------------------------------
 
+setwd(paste0(data.dir))
+load(paste0(country,'_cluster_dat.rda'),
+     envir = .GlobalEnv)
+
+#take out surveys from different sampling frame
+mod.dat <- mod.dat[mod.dat$survey %in% survey_years,]
+
+save(mod.dat, file=paste0(country,'_cluster_dat_1frame.rda'),
+     envir = .GlobalEnv)
+
+cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
+                                            'LONGNUM','LATNUM')]),]
+
+survey_years <- unique(mod.dat$survey)
+
+if(max(survey_years)>2018){
+  end.proj.year <- 2022
+}else{
+  end.proj.year <- 2020
+}
 
 # Download U5 population  ----------------------------------------------------------
 #### if not working, try manually download
@@ -95,21 +116,6 @@ for(year in pop.year){
                             '_ppp_',frame_year,
                             '_1km_Aggregated_UNadj.tif',sep=''))
 
-
-# Load cluster data  ----------------------------------------------------------
-
-  setwd(paste0(data.dir))
-  load(paste0(country,'_cluster_dat.rda'),
-       envir = .GlobalEnv)
-  
-  #take out surveys from different sampling frame
-  mod.dat <- mod.dat[mod.dat$survey %in% survey_years,]
-  
-  save(mod.dat, file=paste0(country,'_cluster_dat_1frame.rda'),
-       envir = .GlobalEnv)
-  
-  cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
-                                            'LONGNUM','LATNUM')]),]
 
 # Define function to correct urban clusters ----------------------------------------------------------
   

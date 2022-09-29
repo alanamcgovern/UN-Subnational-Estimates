@@ -78,6 +78,12 @@ mod.dat$strata <- mod.dat$urban
 mod.dat$country <- as.character(country)
 survey_years <- unique(mod.dat$survey)
 
+if(max(survey_years)>2018){
+  end.proj.year <- 2022
+}else{
+  end.proj.year <- 2020
+}
+
 #### Load polygon files  ------------------------------------------------------
 setwd(data.dir)
 

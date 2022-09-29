@@ -647,6 +647,12 @@ if(exists("poly.adm2")){
 
 
 ## extend periods to include projected years  ------------------------------------------------------
+if(max(survey_years)>2018){
+  end.proj.year <- 2022
+}else{
+  end.proj.year <- 2020
+}
+
 beg.proj.years <- seq(end.year+1,end.proj.year,3)
 end.proj.years <- beg.proj.years+2
 proj.per <- paste(beg.proj.years, end.proj.years, sep = "-") # add the 3-year period to be projected

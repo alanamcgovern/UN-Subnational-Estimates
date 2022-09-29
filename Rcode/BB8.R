@@ -48,6 +48,11 @@ load(paste0(country,'_cluster_dat_1frame.rda'),
 mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat$country <- as.character(country)
 survey_years <- unique(mod.dat$survey)
+if(max(survey_years)>2018){
+  end.proj.year <- 2022
+}else{
+  end.proj.year <- 2020
+}
 
 ## Load National IGME estimates ------------------------------------------------------
 setwd(paste0(home.dir,'/Data/IGME'))
