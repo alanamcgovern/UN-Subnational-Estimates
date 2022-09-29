@@ -16,17 +16,6 @@ country <- 'Togo'
 gadm.abbrev <- "TGO"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "TGBR61DT/TGBR61FL.dta"
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "TGGE62FL"
-
-### please fill in the following information ####
-dhs_survey_years<- 2014 # years of the DHS surveys
-survey_years <- 2014
-frame_years <- 2010
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles")
 

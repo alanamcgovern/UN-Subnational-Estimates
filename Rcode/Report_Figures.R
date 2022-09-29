@@ -1,8 +1,12 @@
 rm(list=ls())
 
-# ENTER COUNTRY OF INTEREST -----------------------------------------------
+# ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Guinea'
+# The smallest admin level estimated to (for most countries this will be admin2)
+res_admin_level <- c('admin1','admin2')[2]
+# The type of model used for final estimates
+res_method <- c('SmoothedDirect','BB8.unstrat','BB8.strat')[1]
 
 ## Setup -----------------------------------------------
 #### Load libraries and info ----------------------------------------------------------
@@ -72,6 +76,7 @@ dat.years <- sort(unique(mod.dat$years))
 mod.dat$strata.orig <- mod.dat$strata
 mod.dat$strata <- mod.dat$urban
 mod.dat$country <- as.character(country)
+survey_years <- unique(mod.dat$survey)
 
 #### Load polygon files  ------------------------------------------------------
 setwd(data.dir)
@@ -82,8 +87,10 @@ poly.adm0 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
 poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
                      layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
 
-poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
-                     layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+if(exists('poly.layer.adm2')){
+  poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                       layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+}
 
 # set coordinate reference system to be equal
 if(exists("poly.adm2")){
@@ -124,24 +131,31 @@ igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
 
 #### Parameters ####
 outcome_vt <- c('nmr','u5')
-strat_vt <- c("strat","unstrat") 
-admin_vt <- c("adm1","adm2") ## admin level
-level_vt <- c(1,2) ## polygon level
+
+if(res_method=='BB8.strat'){
+  strat_vt <- c("strat","unstrat") 
+}else{strat_vt <- "unstrat" }
+
+if(res_admin_level=='admin2'){
+  admin_vt <- c("adm1","adm2") ## admin level
+  level_vt <- c(1,2) ## polygon level
+}else if(res_admin_level=='admin1'){
+  admin_vt <- c("adm1") ## admin level
+  level_vt <- c(1) ## polygon level
+}
+
 admin_level_dt <- as.data.table(cbind(Admin = admin_vt, level = level_vt))
+
 year_vt <- 2000:end.proj.year
 n_years <- length(year_vt)
+plot.years <- year_vt
+est.idx <- which(seq(beg.year,   end.proj.year - 5, 5) < max(as.numeric(as.character(mod.dat$years))))
 
 ages <- levels(mod.dat$age)
 ages.strata <- c(paste0(ages,':urban'),paste0(ages,':rural'))
 age.strata.cols <- rainbow(length(ages.strata))
 age.cols[2] <- "orange"
 
-plot.years <- beg.year:end.proj.year
-obs.idx <- which(beg.year:end.proj.year %in% mod.dat$years)
-pred.idx <- which(!(beg.year:end.proj.year %in% mod.dat$years))
-
-pane.years <- seq(beg.year + 2,  end.proj.year - 2, 5)
-est.idx <- which(seq(beg.year,   end.proj.year - 5, 5) < max(as.numeric(as.character(mod.dat$years))))
 cols <- rainbow(8+1+1+1)
 cols <- cols[c(1,3,7,2,4,11,9,5,6,8,10)]
 
@@ -149,39 +163,76 @@ survey.legends <- unique(mod.dat[,c("survey","survey.type")])
 survey.legends <- survey.legends[order(survey.legends$survey),]
 survey_names <- paste0(survey.legends$survey.type, ' ', survey.legends$survey)
 
+end.year <- max(survey_years)
+if(((end.year-beg.year+1) %% 3)==0){
+  beg.period.years <- seq(beg.year,end.year,3) 
+  end.period.years <- beg.period.years + 2 
+}else if(((end.year-beg.year+1) %% 3)==1){
+  beg.period.years <- c(beg.year,beg.year+2,seq(beg.year+4,end.year,3))
+  end.period.years <- c(beg.year+1,beg.year+3,seq(beg.year+6,end.year,3))
+}else if(((end.year-beg.year+1) %% 3)==2){
+  beg.period.years <- c(beg.year,seq(beg.year+2,end.year,3))
+  end.period.years <- c(beg.year+1,seq(beg.year+4,end.year,3))
+}
+
+periods <- paste(beg.period.years, end.period.years, sep = "-") # convert the periods into string
+beg.proj.years <- seq(end.year+1,end.proj.year,3)
+end.proj.years <- beg.proj.years+2
+proj.per <- paste(beg.proj.years, end.proj.years, sep = "-") # add the 3-year period to be projected
+
+periods.survey <- periods
+## full time period (including projected years)
+periods <- c(periods,proj.per)
+pane.years <- c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2)
+
 ## National figures ####
 
-### Load results ####
+### Load results 
+{
 if(doHIVAdj){
   load(paste0(res.dir, '/Direct/U5MR/', country, '_directHIV_natl_yearly_u5.rda'), envir = .GlobalEnv)
 }else{
   load(paste0(res.dir, '/Direct/U5MR/', country,  '_direct_natl_yearly_u5.rda'),  envir = .GlobalEnv)
 }
 load(paste0(res.dir, '/Direct/U5MR/', country,  '_res_natl_yearly_u5_SmoothedDirect.rda'),  envir = .GlobalEnv)
-load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_res_natl_strat_u5.rda'), envir = .GlobalEnv)
-load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_temporals_natl_strat_u5.rda'), envir = .GlobalEnv)
-load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_fixed_natl_strat_u5.rda'), envir = .GlobalEnv)
-load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_hyperpar_natl_strat_u5.rda'), envir = .GlobalEnv)
+if(res_method=='BB8.unstrat'){
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_res_natl_unstrat_u5.rda'), envir = .GlobalEnv)
+  bb.res.natl.u5 <- bb.res.natl.unstrat.u5
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_temporals_natl_unstrat_u5.rda'), envir = .GlobalEnv)
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_fixed_natl_unstrat_u5.rda'), envir = .GlobalEnv)
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_hyperpar_natl_unstrat_u5.rda'), envir = .GlobalEnv)
+  bb.res.natl.u5$overall[,c("median", "lower", "upper")] <-
+    bb.res.natl.u5$overall[,c("median", "lower", "upper")]*1000
+}
+if(res_method=='BB8.strat'){
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_res_natl_strat_u5.rda'), envir = .GlobalEnv)
+  bb.res.natl.u5 <- bb.res.natl.strat.u5
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_temporals_natl_strat_u5.rda'), envir = .GlobalEnv)
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_fixed_natl_strat_u5.rda'), envir = .GlobalEnv)
+  load(paste0(res.dir, '/Betabinomial/U5MR/', country, '_hyperpar_natl_strat_u5.rda'), envir = .GlobalEnv)
+  bb.res.natl.u5$overall[,c("median", "lower", "upper")] <-
+    bb.res.natl.u5$overall[,c("median", "lower", "upper")]*1000
+}
 
 ## Convert to U5MR (# of children per 1000)
 res.natl.yearly.u5[,c("median", "lower", "upper")] <-
   res.natl.yearly.u5[,c("median", "lower", "upper")]*1000
 direct.natl.yearly.u5[,c("mean", "upper", "lower")] <-
   direct.natl.yearly.u5[,c("mean", "upper", "lower")]*1000
+}
+### Spaghetti Plots 
 
-### Spaghetti Plots ####
-pdf(paste0(res.dir,'/Figures/Summary/U5MR/', country, '_natl_strat_u5_spaghetti.pdf'), height = 8, width = 8)
+pdf(paste0(res.dir,'/Figures/Summary/U5MR/', country, '_natl_u5_spaghetti.pdf'), height = 8, width = 8)
 {
-  tmp.area <-bb.res.natl.strat.u5$overall
+  tmp.area <- res.natl.yearly.u5[res.natl.yearly.u5$years %in% plot.years,]
   tmp.area$width <- tmp.area$upper - tmp.area$lower
   tmp.area$cex2 <- median(tmp.area$width, na.rm = T)/tmp.area$width
   tmp.area$cex2[tmp.area$cex2 > 6] <- 6
   
-  tmp.area$median <- tmp.area$median*1000
-  tmp.area$upper <- tmp.area$upper*1000
-  tmp.area$lower <- tmp.area$lower*1000
+  if(res_method=='SmoothedDirect'){
+    par(mfrow = c(3,1), lend=1)
+  }else{par(mfrow = c(2,2), lend=1)}
   
-  par(mfrow = c(2,2), lend=1)
   
   ## Set plot dimensions y-axis
   if(dim(tmp.area)[1] != 0 & !(sum(is.na(tmp.area$mean)) == nrow(tmp.area))){
@@ -246,10 +297,12 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/', country, '_natl_strat_u5_spaghetti.
         lty = 1, lwd = 2, col = cols[10])
   
   ## Add Smooth Direct
-  lines(plot.years,  res.natl.yearly.u5[res.natl.yearly.u5$years %in% plot.years,]$median,  col = cols[11], lwd = 2)
+  lines(plot.years,  tmp.area$median,  col = cols[11], lwd = 2)
   
   ## Add Betabinomial
-  lines(plot.years, tmp.area$median,  col = 'black', lwd = 2)
+  if(!(res_method=='SmoothedDirect')){
+    lines(plot.years, bb.res.natl.u5$overall$median,  col = 'black', lwd = 2)
+  }
   
   ### Plot 2: Direct Uncertainty ####
   #### Direct Estimates
@@ -286,13 +339,19 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/', country, '_natl_strat_u5_spaghetti.
     }
   }  
   
+  if(res_method=='SmoothedDirect'){
+    polygon(x = c(plot.years, rev(plot.years)),
+            y = c(tmp.area$upper, rev(tmp.area$lower)),
+            col = alpha(cols[11], 0.25), border = FALSE)
+  }else{
   #### Add Betabinomial 
-  polygon(x = c(tmp.area$years.num, rev(tmp.area$years.num)),
-          y = c(tmp.area$upper, rev(tmp.area$lower)),
+  polygon(x = c(bb.res.natl.u5$overall$years.num, rev(bb.res.natl.u5$overall$years.num)),
+          y = c(bb.res.natl.u5$overall$upper, rev(bb.res.natl.u5$overall$lower)),
           col = alpha('black', 0.25), border = FALSE)
-  
+  }
   ### Plot 3: Smoothed Uncertainty ####  
   
+  if(!(res_method=='SmoothedDirect')){
   plot(NA,
        xlab = "Year",
        ylab = "U5MR",
@@ -314,9 +373,9 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/', country, '_natl_strat_u5_spaghetti.
   
   #### Add Betabinomial
   polygon(x = c(plot.years, rev(plot.years)),
-          y = c(tmp.area$upper, rev(tmp.area$lower)),
+          y = c(bb.res.natl.u5$overall$upper, rev(bb.res.natl.u5$overall$lower)),
           col = alpha('black', 0.25), border = FALSE)
-  lines(tmp.area$years.num,tmp.area$median, 
+  lines(bb.res.natl.u5$overall$years.num,bb.res.natl.u5$overall$median, 
         col = 'black', lwd = 2, lty = 1)
   
   ### Legend ####
@@ -328,31 +387,46 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/', country, '_natl_strat_u5_spaghetti.
          fill = c(rep(NA, length(survey_years)), alpha(c(cols[(10:11)], 'black'), .25)),
          border = c(rep(NA, length(survey_years)), cols[10:11], 'black'), cex = 1,
          legend = c(survey_names,  'IGME', 'Smoothed Direct', 'Betabinomial'))
+  }else{
+    plot(NA,  xlim = c(0,1), ylim = c(0,1), axes = F, xlab = "", ylab = "")
+    legend('center', bty = 'n',
+           pch = c(rep(19, length(survey_years)), rep(NA, 4)),
+           lty = c(rep(1, length(survey_years)),  rep(NA, 4)),
+           col = c(alpha(cols[1:length(survey_years)], .25), rep(NA, 4)),
+           fill = c(rep(NA, length(survey_years)), alpha(c(cols[(10:11)]), .25)),
+           border = c(rep(NA, length(survey_years)), cols[10:11]), cex = 1,
+           legend = c(survey_names,  'IGME', 'Smoothed Direct'))
+  }
 }
 dev.off() 
 
-### Hazards over time ####
+### Hazards over time
 
-temporals <- bb.temporals.natl.strat.u5
-
-pdf(paste0(res.dir, '/Figures/Betabinomial/U5MR/trend/', country, '_natl_strat_u5_temporal.pdf'), 
+pdf(paste0(res.dir, '/Figures/Summary/U5MR/trend/', country, '_natl_u5_temporal.pdf'), 
     height = 5, width = 7.5)
 {
-  
+  if(!(res_method=='SmoothedDirect')){
+    if(res_method=='BB8.strat'){
+      temporals <- bb.temporals.natl.strat.u5
+      fixed <- bb.fixed.natl.strat.u5}
+    if(res_method=='BB8.unstrat'){
+      temporals <- bb.temporals.natl.unstrat.u5
+      fixed <- bb.fixed.natl.unstrat.u5}
+    
   for(age.strata in ages.strata){
       age <- ages[sapply(ages,grepl,age.strata)]
       age.idx <- which(age==ages)
-      temporal.idx <- grepl(paste0(age.strata), temporals$group) | is.na(temporals$group)
-      fixed.idx <- grepl(paste0(age.strata),  row.names(bb.fixed.natl.strat.u5))|grepl(paste0('group',age.idx),  row.names(bb.fixed.natl.strat.u5))
-      fixed.eff <- sum(bb.fixed.natl.strat.u5$`0.5quant`[fixed.idx])
+      temporal.idx <- grepl(paste0(age.strata), temporals$group)
+      fixed.idx <- grepl(paste0(age.strata),  row.names(fixed))|grepl(paste0('group',age.idx),  row.names(fixed))
+      fixed.eff <- sum(fixed$`0.5quant`[fixed.idx])
       tmp <- data.frame(temporals[temporal.idx,] %>% group_by(years.num) %>% summarise(sum(median)))
       colnames(tmp) <- c('years.num','median')
       
       if(match(age.strata, ages.strata) == 1){
-        plot.min <- min(outer(temporals$median, bb.fixed.natl.strat.u5$`0.5quant`,
+        plot.min <- min(outer(temporals$median, fixed$`0.5quant`,
                               FUN="+")) - 0.25
         plot.max <- max(outer(temporals$median, 
-                              bb.fixed.natl.strat.u5$`0.5quant`, 
+                              fixed$`0.5quant`, 
                               FUN="+")) + 0.25
         
         par(mfrow =c(1,1),
@@ -373,12 +447,15 @@ pdf(paste0(res.dir, '/Figures/Betabinomial/U5MR/trend/', country, '_natl_strat_u
   
   legend('topleft',  cex = 0.65, lwd = 2,
          col = c(age.strata.cols), legend = c(ages.strata), bty = 'n')
-}
+    }
+
 dev.off()
 
+}
 
 ## Admin1 figures ####
-### Load results ####
+### Load results 
+{
 if(doHIVAdj){
   load(paste0(res.dir, '/Direct/U5MR/', country, '_directHIV_admin1_u5.rda'), envir = .GlobalEnv)
 }else{
@@ -409,8 +486,8 @@ periods.strings <- lapply(str_split(res.admin1$results$years,'-'),as.numeric)
 res.admin1$results$years.num <- unlist(lapply(periods.strings,function(x){(x[2]/2 + x[1]/2)}))
 plot.period.years <- sort(unique(direct.admin1$years.num))
 plot.period.sd.years <- sort(unique(res.admin1$results$years.num))
-
-### Spaghetti Uncertainty Plots (9 per) ####
+}
+### Spaghetti Uncertainty Plots (9 per)
 
 pdf(paste0(res.dir,'/Figures/Summary/U5MR/',
            country, '_admin1_strat_u5_9per.pdf'), height = 9, width = 6)
@@ -484,14 +561,10 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/',
       }
       
       #### Add Smoothed ####
-      lines(tmp.area$years.num[obs.idx], 
-            tmp.area$median[obs.idx],
+      lines(tmp.area$years.num, 
+            tmp.area$median,
             col = cols[length(survey_years)+1],
             lwd = 2)
-      lines(tmp.area$years.num[pred.idx], 
-            tmp.area$median[pred.idx], 
-            col = cols[length(survey_years)+1], 
-            lwd = 2, lty = 2)
       
       #### Add Betanomial ####
       tmp.bb <- bb.admin1$overall[bb.admin1$overall$region==area,]
@@ -578,10 +651,9 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/',
 }
 dev.off()
 
-
-
 ## Admin2 figures ####
-### Load results ####
+### Load results 
+{
 if(doHIVAdj){
   load(paste0(res.dir, '/Direct/U5MR/', country, '_directHIV_admin2_u5.rda'), envir = .GlobalEnv)
 }else{
@@ -612,8 +684,8 @@ periods.strings <- lapply(str_split(res.admin2$results$years,'-'),as.numeric)
 res.admin2$results$years.num <- unlist(lapply(periods.strings,function(x){(x[2]/2 + x[1]/2)}))
 plot.period.years <- sort(unique(direct.admin2$years.num))
 plot.period.sd.years <- sort(unique(res.admin2$results$years.num))
-
-### Spaghetti Uncertainty Plots (9 per) ####
+}
+### Spaghetti Uncertainty Plots (9 per)
 
 pdf(paste0(res.dir,'/Figures/Summary/U5MR/',
            country, '_admin2_strat_u5_9per.pdf'), height = 9, width = 6)
@@ -687,14 +759,10 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/',
       }
       
       #### Add Smoothed ####
-      lines(tmp.area$years.num[obs.idx], 
-            tmp.area$median[obs.idx],
+      lines(tmp.area$years.num, 
+            tmp.area$median,
             col = cols[length(survey_years)+1],
             lwd = 2)
-      lines(tmp.area$years.num[pred.idx], 
-            tmp.area$median[pred.idx], 
-            col = cols[length(survey_years)+1], 
-            lwd = 2, lty = 2)
       
       #### Add Betanomial ####
       tmp.bb <- bb.admin2$overall[bb.admin2$overall$region==area,]
@@ -781,7 +849,7 @@ pdf(paste0(res.dir,'/Figures/Summary/U5MR/',
 }
 dev.off()
 
-## generate posterior samples ####
+## Organize posterior samples ####
 n_samp <- 1000
 
 setwd(paste0(res.dir,'/Betabinomial'))
@@ -825,10 +893,10 @@ for(outcome in outcome_vt){
     }
 }  
 
-## national comparison plot (need to check) ####
+## National comparison plot (need to check) ####
 setwd(res.dir)
 
-##### function to get posterior draws from BB8 #####
+##### function to get posterior draws from BB8
 draw_1y_adm<-function(admin_draws, year_num,admin_vec, nsim=1000){
   
   # year_num: year of comparison
@@ -869,13 +937,15 @@ draw_1y_adm<-function(admin_draws, year_num,admin_vec, nsim=1000){
   return(draw_frame)
 }
 
-#### load admin1 and admin2 weights #####
+#### load admin1 and admin2 weights 
+{
 load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
 load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
-
-#### prepare national level models ####
+}
+#### prepare national level models 
+{
 ### national yearly direct
 load(file = paste0('Direct/NMR/', country, '_direct_natl_yearly_nmr.rda'))  
 load(file = paste0('Direct/U5MR/', country, '_direct_natl_yearly_u5.rda')) 
@@ -916,8 +986,9 @@ load(file = paste0('Betabinomial/NMR/', country, '_res_natl_unstrat_nmr.rda'))
 load(file = paste0('Betabinomial/NMR/', country, '_res_natl_strat_nmr.rda')) 
 load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_unstrat_u5.rda'))  
 load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_strat_u5.rda')) 
-
-#### prepare admin1 level models ####
+}
+#### prepare admin1 level models 
+{
 ### smooth direct admin1 3-year window
 load(file = paste0('Direct/NMR/', country, '_res_admin1_nmr_SmoothedDirect.rda'))
 admin1.sd.nmr <- res.admin1.nmr
@@ -1025,8 +1096,9 @@ BB8.adm1.to.natl.frame<-as.data.frame(BB8.adm1.to.natl.frame)
 colnames(BB8.adm1.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
 BB8.adm1.to.natl.frame$method <- "aggre.adm1.strat.BB8"
 BB8.adm1.to.natl.frame$years = beg.year:end.proj.year
-
-#### prepare admin2 level models ####
+}
+#### prepare admin2 level models 
+{
 ### BB8 admin2 stratified -- change to benchmarked later
 load(file = paste0('Betabinomial/NMR/',country,'_res_adm2_strat_nmr.rda'))
 res.strat.admin2.nmr <- bb.res.adm2.strat.nmr
@@ -1059,8 +1131,9 @@ BB8.adm2.to.natl.frame<-as.data.frame(BB8.adm2.to.natl.frame)
 colnames(BB8.adm2.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
 BB8.adm2.to.natl.frame$method <- "aggre.adm2.strat.BB8"
 BB8.adm2.to.natl.frame$years = beg.year:end.proj.year
-
-#### prepare IGME estimates ####
+}
+#### prepare IGME estimates 
+{
 igme.frame <- as.data.frame(cbind(igme.ests.nmr$LOWER_BOUND,igme.ests.nmr$OBS_VALUE,igme.ests.nmr$UPPER_BOUND,
       igme.ests.u5$LOWER_BOUND,igme.ests.u5$OBS_VALUE,igme.ests.u5$UPPER_BOUND))
 colnames(igme.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
@@ -1076,8 +1149,9 @@ natl.all<-rbind(natl.direct.yearly.frame, sd.adm1.yl.to.natl.frame,
 natl.all$years.num <- as.numeric(natl.all$years)
 natl.all$is.yearly <- FALSE
 class(natl.all)<-class(res.strat.admin1.nmr$overall)
-
-#### final plot ####
+}
+#### final plot 
+{
 natl.to.plot <- natl.all %>% filter(!(method %in% c('natl.direct','aggre.sd.yearly.adm1')))
 
 g1 <- natl.to.plot %>% ggplot(aes(x=years,y=median_nmr,group=method,color=method)) + geom_line()
@@ -1089,8 +1163,8 @@ g1 <- plot(natl.all$median_nmr, plot.CI = TRUE, dodge.width = 0.25, proj_year = 
   ylab('Deaths per 1000 live births')+
   labs(color='Method')+
   scale_colour_discrete(labels = c( "Aggregated BB8 admin-2", "National direct yearly"))
-
-## trend plots ------------------------------------------------------
+}
+## Trend plots ------------------------------------------------------
 if(!dir.exists(paste0(res.dir,
                       '/Figures/Betabinomial/U5MR/trend'))){
   dir.create(paste0(res.dir,
@@ -1181,7 +1255,7 @@ for(outcome in outcome_vt){
 
 
 
-## map plots ####
+## Map plots ####
 if(!dir.exists(paste0(res.dir,
                         '/Figures/Betabinomial/U5MR/map'))){
     dir.create(paste0(res.dir,
@@ -1190,16 +1264,16 @@ if(!dir.exists(paste0(res.dir,
                       '/Figures/Betabinomial/NMR/map'))){
   dir.create(paste0(res.dir,
                     '/Figures/Betabinomial/NMR/map'))}
-for(admin in admin_vt){
+admin <- res_admin_level
     
-    map_shp <- c(poly.adm1,poly.adm2)[admin==admin_vt]
-    admin_name_dt <- as.data.table(get(paste0(c('admin1','admin2')[admin==admin_vt], ".names")))
+    map_shp <- c(poly.adm1,poly.adm2)[res_admin_level==c('admin1','admin2')]
+    admin_name_dt <- as.data.table(get(paste0(res_admin_level, ".names")))
     
     for(outcome in outcome_vt){    
       for(strat in strat_vt){
         
         load(paste0(res.dir, "/Betabinomial/", c('NMR','U5MR')[outcome==outcome_vt], "/",
-                    country,'_', admin, "_",
+                    country,'_', res_admin_level, "_",
                     strat,'_', outcome, "_postsamp.RData"))
         
         data_plot_dt <- NULL
@@ -1209,9 +1283,9 @@ for(admin in admin_vt){
           postsamp_mt <- postsamp_mt_list[[which(year==year_vt)]]$postsamp_mt
           
           # create plotting area names (just admin 1 name if admin = 1, or 'admin2,\n admin1' if admin = 2)
-          if (admin == "adm1") {
+          if (res_admin_level == "admin1") {
             admin_name_dt$nameToPlot <- eval(str2lang(poly.label.adm1))
-          } else if (admin == "adm2") {
+          } else if (res_admin_level == "admin2") {
             admin_name_dt$nameToPlot <- paste0(eval(str2lang(poly.label.adm2)),
                                                #need to change if using alternative GADM files
                                                ",\n", poly.adm2@data$NAME_1)
@@ -1245,26 +1319,10 @@ for(admin in admin_vt){
         }
         rowcount <- ceiling(length(year_vt)/5)
         
-        #### plot ####
-        pdf(paste0(res.dir, "/Figures/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],"/map/",
-                   country, "_", admin, 
-                   "_", strat,"_",outcome, "_mean.pdf"),
-            width = 10, height = 3.5*rowcount)
-        data_plot_dt_df <- as.data.frame(data_plot_dt)
-        
-        print(SUMMER::mapPlot(data = data_plot_dt_df, 
-                              variables="Year", is.long = T,
-                              values = paste0(c('NMR','U5MR')[outcome==outcome_vt], "_mean"), direction = -1,
-                              geo = map_shp[[1]], ncol = 5,
-                              by.data = "GADM",
-                              legend.label = c("NMR","U5MR")[outcome==outcome_vt],
-                              per1000 = TRUE,
-                              by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[admin==admin_vt])))
-        
-        dev.off()
+        #### plot median for all years ####
         
         pdf(paste0(res.dir, "/Figures/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],"/map/",
-                   country, "_", admin, 
+                   country, "_", res_admin_level, 
                    "_", strat,"_",outcome, "_median.pdf"),
             width = 7.5, height = 10)
         
@@ -1275,11 +1333,12 @@ for(admin in admin_vt){
                               legend.label = c("NMR","U5MR")[outcome==outcome_vt],
                               per1000 = TRUE,
                               by.data = "GADM",
-                              by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[admin==admin_vt])))
+                              by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[res_admin_level==c('admin1','admin2')])))
         dev.off()
         
+        ### plot 95 CI width for all years
         pdf(paste0(res.dir, "/Figures/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],"/map/",
-                  country, "_", admin, 
+                  country, "_", res_admin_level, 
                   "_", strat,"_",outcome, "_wid95.pdf"),
             width = 10, height = 3.5*rowcount)
         {
@@ -1290,16 +1349,17 @@ for(admin in admin_vt){
                               by.data = "GADM",
                               legend.label = c("NMR","U5MR")[outcome==outcome_vt],
                               per1000 = TRUE,
-                              by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[admin==admin_vt])))
+                              by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[res_admin_level==c('admin1','admin2')])))
         }
         dev.off()
         
+        ### plot median for current year
         pdf(paste0(res.dir, "/Figures/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],"/map/",
-                   country, "_", admin, 
-                   "_", strat,"_",outcome, "_2020.pdf"),
+                   country, "_", res_admin_level, 
+                   "_", strat,"_",outcome, "_", end.proj.year, ".pdf"),
             width = 3.5, height = 3.5)
         {
-          print(SUMMER::mapPlot(data = data_plot_dt_df[data_plot_dt_df$Year == 2020,],
+          print(SUMMER::mapPlot(data = data_plot_dt_df[data_plot_dt_df$Year == end.proj.year,],
                                 is.long = T, 
                                 variables = "Year", 
                                 values = paste0(c('NMR','U5MR')[outcome==outcome_vt], "_median"),direction = -1,
@@ -1307,131 +1367,34 @@ for(admin in admin_vt){
                                 legend.label = c("NMR","U5MR")[outcome==outcome_vt],
                                 per1000 = TRUE,
                                 by.data = "GADM",
-                                by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[admin==admin_vt])))
+                                by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[res_admin_level==c('admin1','admin2')])))
         }
         dev.off()
         
+        ### plot 95 CI width for current year
         pdf(paste0(res.dir, "/Figures/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],"/map/",
-                   country, "_", admin, 
-                   "_", strat,"_",outcome, "_someyearsMedian.pdf"),
-            width = 7, height = 7)
+                   country, "_", res_admin_level, 
+                   "_", strat,"_",outcome, "_wid95_", end.proj.year, ".pdf"),
+            width = 3.5, height = 3.5)
         {
-          print(SUMMER::mapPlot(data = data_plot_dt_df[data_plot_dt_df$Year %in% 
-                                                         c(2005,2010,2015,2020),],
+          print(SUMMER::mapPlot(data = data_plot_dt_df[data_plot_dt_df$Year == end.proj.year,],
                                 is.long = T, 
                                 variables = "Year", 
                                 values = paste0(c('NMR','U5MR')[outcome==outcome_vt], "_median"),direction = -1,
-                                geo = map_shp[[1]], ncol = 2,
+                                geo = map_shp[[1]], ncol = 5,
                                 legend.label = c("NMR","U5MR")[outcome==outcome_vt],
                                 per1000 = TRUE,
                                 by.data = "GADM",
-                                by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[admin==admin_vt])))
+                                by.geo = sub(".*data[$]","",c(poly.label.adm1,poly.label.adm2)[res_admin_level==c('admin1','admin2')])))
         }
         dev.off()
         
         
-        
-        
-        
       }
     }
-}
-
-## rank plot ####
-  if(!dir.exists(paste0(res.dir,
-                        '/Figures/Betabinomial/NMR/rank'))){
-    dir.create(paste0(res.dir,
-                      '/Figures/Betabinomial/NMR/rank'))
-  }
-if(!dir.exists(paste0(res.dir,
-                      '/Figures/Betabinomial/U5MR/rank'))){
-  dir.create(paste0(res.dir,
-                    '/Figures/Betabinomial/U5MR/rank'))
-}
-  year <- 2020
-  for(admin in admin_vt){
-    
-    admin_name_dt <- as.data.table(get(paste0(c('admin1','admin2')[admin==admin_vt], ".names")))
-    
-    map_shp <- c(poly.adm1,poly.adm2)[admin==admin_vt][[1]]
-    
-    # create plotting area names (just admin 1 name if admin = 1, or 'admin2,\n admin1' if admin = 2)
-    if (admin == "adm1") {
-      admin_name_dt$nameToPlot <- eval(str2lang(poly.label.adm1))
-    } else if (admin == "adm2") {
-      admin_name_dt$nameToPlot <- paste0(eval(str2lang(poly.label.adm2)),
-                                         #need to change if using alternative GADM files
-                                         ",\n", poly.adm2@data$NAME_1)
-    }
-    
-    for(outcome in outcome_vt){
-      for(strat in strat_vt){
-        
-        load(paste0(res.dir, "/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],'/',
-                    country, "_",
-                    admin, "_",
-                    strat, "_",
-                    outcome, "_postsamp.RData"))
-        
-          cond <- lapply(postsamp_mt_list, function(x){x$years == year})
-          postsamp_mt <- postsamp_mt_list[which(year == year_vt)][[1]]$postsamp_mt
-          
-          #### rank postsamps ####
-          
-          rank_mt <- apply(postsamp_mt, 2, rank)
-          
-          pred_dt <- admin_name_dt
-          pred_dt[, "ID"] <- 1:nrow(pred_dt)
-          pred_dt[, "avg_rank"] <- apply(rank_mt, 1, mean)
-          pred_dt[, "low_rank"] <- apply(rank_mt, 1, min)
-          pred_dt[, "up_rank"] <- apply(rank_mt, 1, max)
-          
-          #### all states hist ####
-          rowcount <- ceiling(nrow(pred_dt_order)/3)
-          pdf(paste0(res.dir, "/Figures/Betabinomial/",c('NMR','U5MR')[outcome==outcome_vt],"/rank/",
-                     country, "_",
-                     admin, "_", strat, "_", outcome,
-                     "_Y", year, "_rankall.pdf"),
-              width = 15, height = rowcount*2)
-          
-        {  
-          par(mar = c(2.5, 1, 2, 1), mfcol = c(rowcount, 3))
-          
-          pred_dt_order <- pred_dt[order(avg_rank)]
-          
-          for (i in 1:nrow(pred_dt_order)){
-            # i <- 1
-            
-            id <- pred_dt_order[i, ID]
-            name <- pred_dt_order[i, nameToPlot]
-            
-            rank_vt <- rank_mt[id, ]
-            
-            avg_rank <- pred_dt_order[i, avg_rank]
-            
-            ranktable <- as.data.table(table(rank_vt))
-            ranktable <- merge(data.table(rank = as.character(1:nrow(pred_dt_order))), ranktable, 
-                               by.x = "rank", by.y = "rank_vt", all.x = T)
-            ranktable[, "rank" := as.integer(rank)]
-            ranktable <- ranktable[order(rank)]
-            ranktable[is.na(N), "N"] <- 0
-            
-            barplot(ranktable$N, width = 0.825, 
-                    xlim = c(nrow(pred_dt_order), 0), xlab = "", ylab = "",
-                    main = paste0(name, "\nER = ", format(round(avg_rank, 1), nsmall = 1)),
-                    xaxt = "n", yaxt = "n", col = "#08519c", border = F,
-                    cex.main = 0.75)
-            axis(1, at = nrow(pred_dt_order):1-0.5, labels = as.character(nrow(pred_dt_order):1), tick = F)
-          }
-        }
-          dev.off()
-        
-      }
-    }
-  }
 
 
-## heatmap plots ####
+## Heatmap plots ####
   if(!dir.exists(paste0(res.dir,
                         '/Figures/Betabinomial/NMR/heatmap'))){
     dir.create(paste0(res.dir,
@@ -1471,7 +1434,7 @@ for(outcome in outcome_vt){
                   dplyr::select(-temp)) %>%  mutate(heatmap = T)
     # get medians for plotting
     median_dat <- data.frame(Region1 = admin.est$GADM, Region2 = "Median", 
-                             est = paste0(sprintf("%0.2f", round(admin.est$median * 1000, digits = 2))))  %>% 
+                             est = paste0(sprintf("%0.2f", round(admin.est$median, digits = 2))))  %>% 
                               mutate(heatmap = F)
   
     extra_cols <- c("", "Median", "Interval")
@@ -1506,7 +1469,7 @@ for(outcome in outcome_vt){
 }
   
   
-## ridge plots ####
+## Ridge plots ####
 
 year_vt <- c(2005,2010,2015,2020)
 
@@ -1569,12 +1532,12 @@ year_vt <- c(2005,2010,2015,2020)
         if(outcome=='u5'){
           data_plot_dt_1[, "U5MR_med" := median(U5MR), by = c("Year", "Internal")]
           data_plot_dt_1_order <- data_plot_dt_1[order(U5MR_med, U5MR)]
-          data_plot_dt[, U5MRperc := as.numeric(U5MR*1000)]
+          data_plot_dt[, U5MRperc := as.numeric(U5MR)]
         }
         if(outcome=='nmr'){
           data_plot_dt_1[, "NMR_med" := median(NMR), by = c("Year", "Internal")]
           data_plot_dt_1_order <- data_plot_dt_1[order(NMR_med, NMR)]
-          data_plot_dt[, NMRperc := as.numeric(NMR*1000)]
+          data_plot_dt[, NMRperc := as.numeric(NMR)]
         }
         
         toPlot_order <- unique(data_plot_dt_1_order$toPlot)
@@ -1608,13 +1571,13 @@ year_vt <- c(2005,2010,2015,2020)
         if(outcome=='nmr'){
           data_plot_dt_1[, "NMR_med" := median(NMR), by = c("Year", "Internal")]
           data_plot_dt_1_order <- data_plot_dt_1[order(NMR_med, NMR)]
-          data_plot_dt[, NMRperc := as.numeric(NMR*1000)]
+          data_plot_dt[, NMRperc := as.numeric(NMR)]
         }
         
         if(outcome=='u5'){
         data_plot_dt_1[, "U5MR_med" := median(U5MR), by = c("Year", "Internal")]
         data_plot_dt_1_order <- data_plot_dt_1[order(U5MR_med, U5MR)]
-        data_plot_dt[, U5MRperc := as.numeric(U5MR*1000)]
+        data_plot_dt[, U5MRperc := as.numeric(U5MR)]
         }
         
         toPlot_order <- unique(data_plot_dt_1_order$toPlot)
@@ -1835,7 +1798,7 @@ year_vt <- c(2005,2010,2015,2020)
             
             labelat <- sort(unique(c(L_dt$grp_low, 
                                      L_dt$grp_up)))
-            labeltext <- format(round(labelat*1000, 2), nsmall = 2)
+            labeltext <- format(round(labelat, 2), nsmall = 2)
             
             #### measure map ####
             

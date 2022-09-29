@@ -16,17 +16,6 @@ country <- 'Bangladesh'
 gadm.abbrev <- "BGD"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<-c("BDBR61DT/BDBR61FL.dta","BDBR72DT/BDBR72FL.dta","BDBR7RDT/BDBR7RFL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-c('BDGE61FL','BDGE71FL','BDGE7SFL')
-
-### please fill in the following information ####
-dhs_survey_years<-c(2011,2014,2018) # years of the DHS surveys
-survey_years <- c(2011,2014,2018,2019)
-frame_years <- c(2011, 2011, 2011, 2011)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_BGD_shp")
 

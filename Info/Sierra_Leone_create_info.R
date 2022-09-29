@@ -16,17 +16,6 @@ country <- 'Sierra_Leone'
 gadm.abbrev <- "SLE"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("SLBR61DT/SLBR61FL.dta","SLBR7ADT/SLBR7AFL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("SLGE61FL","SLGE7AFL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2013,2019) # years of the DHS surveys
-survey_years <- c(2013,2019)
-frame_years <- c(2004,2015)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles")
 

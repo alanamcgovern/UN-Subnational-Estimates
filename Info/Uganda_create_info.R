@@ -16,17 +16,6 @@ country <- 'Uganda'
 gadm.abbrev <- "UGA"
 doHIVAdj <- T
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("UGHR6ADT/UGHR6AFL.dta", "UGBR7BDT/UGBR7BFL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("UGGE6AFL","UGGE7AFL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2011, 2016) # years of the DHS surveys
-survey_years <- c(2011, 2016)
-frame_years <- c(2002,2014)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles")
 

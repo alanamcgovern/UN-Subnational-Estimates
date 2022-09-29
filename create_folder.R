@@ -2,7 +2,7 @@ rm(list = ls()) # clear the R environment and prepare for the pipeline
 
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Nigeria'
 
 # set directory -----------------------------------------------
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -27,19 +27,6 @@ if(!dir.exists(paths = paste0('Data'))){
 if(!dir.exists(paths=paste0('Data/',country))){
   dir.create(path = paste0('Data/',country))}
 
-### MIGHT CHANGE LATER DEPENDING ON HOW DOWNLOADING FROM CSDE LOOKS
-for(i in 1:length(survey_years)){
-# create a data sub-folder for each survey year and add the following sub-folders within it
-  if(!dir.exists(paths=paste0('Data/',country,'/',survey_years[i]))){
-    dir.create(path = paste0('Data/',country,'/',survey_years[i]))}
-  # dhsFlat: This folder contains all the GPS locations where the DHS survey is carried out.
-  if(!dir.exists(paths = paste0('Data/',country,'/',survey_years[i], '/dhsFlat'))){
-    dir.create(path = paste0('Data/',country,'/',survey_years[i], '/dhsFlat'))}
-  # dhsStata: This folder contains all the survey data.
-  if(!dir.exists(paths = paste0('Data/',country,'/',survey_years[i], '/dhsStata'))){
-    dir.create(path = paste0('Data/',country,'/',survey_years[i], '/dhsStata'))}
-}
-
 ## create sub-folders within the country data folder for:
 # worldpop: This folder contains all the under-five population fraction of each admin2 region for each year as R objects.
 if(!dir.exists(paths = paste0('Data/',country, '/worldpop'))){
@@ -50,8 +37,6 @@ if(!dir.exists(paths = paste0('Data/',country, '/Population'))){
 # create a folder for shapefiles
 if(!dir.exists(paths = paste0('Data/',country, '/shapeFiles'))){
   dir.create(path = paste0('Data/',country, '/shapeFiles'))}
-
-
   
 
 # create a folder for Results to store all the results for each country -----------------------------------------------

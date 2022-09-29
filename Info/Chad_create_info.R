@@ -16,17 +16,6 @@ country <- 'Chad'
 gadm.abbrev <- "TCD"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "TDBR71DT/TDBR71FL.dta"
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "TDGE71FL"
-
-### please fill in the following information ####
-dhs_survey_years<- 2015 # years of the DHS surveys
-survey_years <- 2015
-frame_years <- 2009
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_TCD_shp")
 

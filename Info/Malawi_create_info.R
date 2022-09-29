@@ -16,17 +16,6 @@ country <- 'Malawi'
 gadm.abbrev <- "MWI"
 doHIVAdj <- T
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<-c("MWBR61DT/MWBR61FL.dta", "MWBR7ADT/MWBR7AFL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-c("MWGE62FL", "MWGE7AFL")
-
-### please fill in the following information ####
-dhs_survey_years<-c(2010,2015) # years of the DHS surveys
-survey_years <- c(2010,2014,2015,2020)
-frame_years <- c(2008,2008,2008,2018)
-
 ### please fill in the path to country shape files ####
 poly.path <- "shapeFiles_gadm"
 

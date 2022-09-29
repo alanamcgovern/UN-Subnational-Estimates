@@ -16,17 +16,6 @@ country <- 'Burundi'
 gadm.abbrev <- "BDI"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("BUBR61DT/BUBR61FL.dta", "BUBR71DT/BUBR71FL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("BUGE61FL", "BUGE71FL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2010,2017) # years of the DHS surveys
-survey_years <- c(2010,2017)
-frame_years <- c(2008, 2008)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles")
 

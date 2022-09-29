@@ -16,17 +16,6 @@ country <- 'Niger'
 gadm.abbrev <- "NER"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "NIBR61DT/NIBR61FL.dta"
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "NIGE61FL"
-
-### please fill in the following information ####
-dhs_survey_years<- 2012 # years of the DHS surveys
-survey_years <-2012
-frame_years <- 2001
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")
 

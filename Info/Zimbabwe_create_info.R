@@ -16,17 +16,6 @@ country <- 'Zimbabwe'
 gadm.abbrev <- "ZWE"
 doHIVAdj <- T
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<-  c("ZWBR62DT/ZWBR62FL.dta", "ZWBR72DT/ZWBR72FL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("ZWGE61FL", "ZWGE72FL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2011,2015) # years of the DHS surveys
-survey_years <- c(2011,2015)
-frame_years <- c(2002,2012)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_ZWE_shp")
 

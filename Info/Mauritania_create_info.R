@@ -16,17 +16,6 @@ country <- 'Mauritania'
 gadm.abbrev <- "MRT"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "MRBR71DT/MRBR71FL.dta"
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-c("MRGE71FL")
-
-### please fill in the following information ####
-dhs_survey_years<- 2021 # years of the DHS surveys
-survey_years <- 2021
-frame_years <- 2013
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_MRT_shp")
 

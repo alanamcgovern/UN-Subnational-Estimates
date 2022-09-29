@@ -1,8 +1,9 @@
 rm(list = ls())
-# ENTER COUNTRY OF INTEREST AND YEAR OF SAMPLING FRAME (must be in frame_years)  -----------------------------------------------
+# ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLINH FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
-frame_year <- 2006
+country <- 'Guinea'
+survey_years <- c(2018)
+frame_year <- 2017
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -102,7 +103,7 @@ for(year in pop.year){
        envir = .GlobalEnv)
   
   #take out surveys from different sampling frame
-  mod.dat <- mod.dat[mod.dat$frame.year==frame_year,]
+  mod.dat <- mod.dat[mod.dat$survey %in% survey_years,]
   
   save(mod.dat, file=paste0(country,'_cluster_dat_1frame.rda'),
        envir = .GlobalEnv)

@@ -16,17 +16,6 @@ country <- 'Madagascar'
 gadm.abbrev <- "MDG"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "MDBR80DT/MDBR80FL.dta"
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "MDGE81FL"
-
-### please fill in the following information ####
-dhs_survey_years<- 2021 # years of the DHS surveys
-survey_years <- c(2018, 2021)
-frame_years <- c(2018, 2018)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")
 

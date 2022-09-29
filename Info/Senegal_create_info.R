@@ -16,17 +16,6 @@ country <- 'Senegal'
 gadm.abbrev <- "SEN"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("SNBR7HDT/SNBR7HFL.dta", "SNBR7IDT/SNBR7IFL.dta", "SNBR7ZDT/SNBR7ZFL.dta", "SNBR81DT/SNBR81FL.dta", "SNBR8BDT/SNBR8BFL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("SNGE7AFL", "SNGE7IFL", "SNGE7RFL", "SNGE81FL", "SNGE8BFL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2015,2016,2017,2018,2019) # years of the DHS surveys
-survey_years <-c(2015,2016,2017,2018,2019)
-frame_years <- c(2013,2013,2013,2013,2013)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")
 

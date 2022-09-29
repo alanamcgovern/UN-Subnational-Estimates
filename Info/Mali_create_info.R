@@ -16,17 +16,6 @@ country <- 'Mali'
 gadm.abbrev <- "MLI"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("MLBR6ADT/MLBR6AFL.dta","MLBR7ADT/MLBR7AFL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<-c("MLGE6BFL","MLGE7AFL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2013,2018) # years of the DHS surveys
-survey_years <- c(2013,2018)
-frame_years <- c(2009, 2009)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_MLI_shp")
 

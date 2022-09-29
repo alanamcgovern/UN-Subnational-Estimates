@@ -1,16 +1,19 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Nigeria'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
 library(rgdal)
+options(warn=0)
 library(spdep)
 library(SUMMER)
 library(geosphere)
 library(stringr)
 library(tidyverse)
+#devtools::install_github("ropensci/rdhs")
+library(rdhs)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -22,6 +25,14 @@ data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the d
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
+
+# set API to get DHS data -- you will need to change this to your information!
+set_rdhs_config(email = "amcgov@uw.edu",
+                project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
+
+#update_rdhs_config(email = "amcgov@uw.edu", password = T,
+ #               project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
+
 
 # Load polygon files ----------------------------------------------------------
 
@@ -140,6 +151,24 @@ if(exists("admin2.mat")){
   dev.off()
 }
 
+# Find DHS surveys ----------------------------------------------------------
+
+#get country ID
+countryId <- dhs_countries()[dhs_countries()$ISO3_CountryCode==toupper(gadm.abbrev),]
+
+potential_surveys <- dhs_datasets(countryIds = countryId$DHS_CountryCode, surveyYearStart = 2000) %>% dplyr::filter((FileType == 'Births Recode' & FileFormat=='Stata dataset (.dta)') |(FileType == 'Geographic Data' & FileFormat =='Flat ASCII data (.dat)'))
+
+#only keep surveys with both a births recode and a geographic dataset
+dhs_survey_ids <- as.numeric(unique(potential_surveys$SurveyNum)[sapply(unique(potential_surveys$SurveyNum),
+                                                                           function(num){
+                                                                             if(sum(c("Births Recode","Geographic Data") %in% (potential_surveys %>% filter(SurveyNum==num))$FileType) ==2){return(T)
+                                                                             }else(return(F))})])
+
+surveys <- potential_surveys %>% filter(SurveyNum %in% dhs_survey_ids) %>% group_by(SurveyYear) %>% arrange(SurveyYear,DatasetType)
+dhs_survey_years <- as.numeric(unique(surveys$SurveyYear))
+
+# CHECK THAT SURVEYS FOR CORRECT COUNTRY HAVE BEEN CHOSEN
+unique(surveys$CountryName)
 
 # Process data for each DHS survey year ----------------------------------------------------------
 
@@ -151,14 +180,25 @@ for(survey_year in dhs_survey_years){
     dhs.svy.ind <- which(dhs_survey_years==survey_year)
     message('Processing DHS data for ', country,' ', survey_year,'\n')
     
-    raw.dat.tmp <- suppressWarnings(readstata13::read.dta13(paste0(survey_year,'/dhsStata/',dhsStata.files[dhs.svy.ind]), 
-                                                    generate.factors = TRUE))
+    data.paths.tmp <- get_datasets(surveys[surveys$SurveyYear==survey_year,]$FileName, clear_cache = T)
+    
+    raw.dat.tmp <- readRDS(paste0(data.paths.tmp[2]))
   
+    # convert some variables to factors
+    alive <- attr(raw.dat.tmp$b5, which = "labels")
+    names(alive) <- tolower(names(alive))
+    raw.dat.tmp$b5 <- ifelse(raw.dat.tmp$b5 == alive["yes"][[1]], "yes", "no")
+    raw.dat.tmp$b5 <- factor(raw.dat.tmp$b5, levels = c("yes", "no"))
+    
+    strat <- attr(raw.dat.tmp$v025,which='labels')
+    names(strat) <- tolower(names(strat))
+    raw.dat.tmp$v025 <- ifelse(raw.dat.tmp$v025 == strat["urban"][[1]],'urban','rural')
+    raw.dat.tmp$v025 <- factor(raw.dat.tmp$v025, levels = c('urban','rural'))
+    
     # read DHS data
     dat.tmp <- getBirths(data=raw.dat.tmp,
                      surveyyear = survey_year,
-                     year.cut = seq(beg.year, survey_year + 1, 1),
-                     strata = c("v022"), compact = T)
+                     year.cut = seq(beg.year, survey_year + 1, 1),compact = T)
     
 
     # retrieve the some columns of the full data
@@ -166,10 +206,8 @@ for(survey_year in dhs_survey_years){
                        "age", "v005", "v025", "strata", "died")]
 
     # specify the name of DHS GPS file, which contains the GPS coordinates of the sampling cluster where the data is sampled
-    points.path <- paste0(survey_year, "/dhsFlat/", dhsFlat.files[dhs.svy.ind])
-    points <- readOGR(dsn = path.expand(points.path), # read the GPS file
-                  layer = as.character(dhsFlat.files[dhs.svy.ind]))
-
+    points <- readRDS(paste0(data.paths.tmp[1]))
+    
     # detect points in the DHS GPS file with mis-specified coordinates and remove them if any
     wrong.points <- which(points@data$LATNUM == 0.0 & points@data$LONGNUM == 0.0)
     if(!is.null(dim(wrong.points))){message("There are wrong GPS points: (Longitude, Latitude) = (0, 0)")}
@@ -277,33 +315,29 @@ for(survey_year in dhs_survey_years){
                              "admin1", "admin1.char", "admin1.name")
     }
     
-    dat.tmp$survey<-survey_year
-    dat.tmp$survey.id<-which(survey_years==survey_year)
+    dat.tmp$survey <- raw.dat.tmp$survey_year <-survey_year
     dat.tmp$survey.type <- 'DHS'
-    dat.tmp$frame.year <- frame_years[which(survey_year==survey_years)]
   
     if(survey_year==dhs_survey_years[1]){
       mod.dat <- dat.tmp
-      raw.dat <- raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7')]
+      raw.dat <- raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7','survey_year')]
     }else{mod.dat <- rbind(mod.dat,dat.tmp)
-          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7')])}
+          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7','survey_year')])}
   
   }
 
 # Process data for each MICS survey year ----------------------------------------------------------
-if(sum(!(survey_years %in% dhs_survey_years))>0){
-  mics_survey_years <- survey_years[!(survey_years %in% dhs_survey_years)]
+if(dir.exists(paste0(home.dir,'/Data/MICS/',country))){
+  
+  mics_files <- list.files(paste0(home.dir,'/Data/MICS/',country))[(grepl('tmp.rda',list.files(paste0(home.dir,'/Data/MICS/',country))))]
   
   #make admin key
   if(adm2.ind){
     admin.key <- mod.dat %>% dplyr::select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
   
-  for(survey_year in mics_survey_years){
-    message('Processing MICS data for ', country,' ', survey_year,'\n')
-    load(file=paste0(survey_year,'/',country.abbrev,'.', survey_year, '.tmp.rda'))
+  for(k in 1:length(mics_files)){
     
-    #check that all admin2 areas in MICS data are contained in DHS data -- if not, might need to make small fixes (spaces, captials, etc)
-    unique(dat.tmp$admin2.name) %in% unique(mod.dat$admin2.name)
+    load(file=paste0(home.dir,'/Data/MICS/',country,'/',mics_files[k]))
     
     #match admin area codes
     dat.tmp$admin1 <- dat.tmp$admin2 <-dat.tmp$strata <- NA
@@ -320,11 +354,9 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
     
     #prepare to merge with DHS data
     dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
-    dat.tmp$survey.id<-which(survey_years==survey_year)
     dat.tmp$survey.type <- 'MICS'
-    dat.tmp$frame.year <- frame_years[which(survey_year==survey_years)]
     dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1','admin2',
-                          'admin1.char','admin2.char','admin1.name','admin2.name','survey','survey.id','survey.type','frame.year')]
+                          'admin1.char','admin2.char','admin1.name','admin2.name','survey','survey.type')]
     
     #add to prepared data
     mod.dat <- rbind(mod.dat,dat.tmp)
@@ -332,12 +364,9 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
   }else{
     admin.key <- mod.dat %>% dplyr::select(admin1,admin1.char,admin1.name,strata) %>% distinct()
     
-    for(survey_year in mics_survey_years){
-      message('Processing MICS data for ', country,' ', survey_year,'\n')
-      load(file=paste0(survey_year,'/',country.abbrev,'.', survey_year, '.tmp.rda'))
+    for(k in 1:length(mics_files)){
       
-      #check that all admin1 areas in MICS data are contained in DHS data -- if not, might need to make small fixes (spaces, captials, etc)
-      unique(dat.tmp$admin1.name) %in% unique(mod.dat$admin1.name)
+      load(file=paste0(home.dir,'/Data/MICS/',country,'/',mics_files[k]))
       
       #match admin area codes
       dat.tmp$admin1 <- dat.tmp$strata <- NA
@@ -351,15 +380,14 @@ if(sum(!(survey_years %in% dhs_survey_years))>0){
       
       #prepare to merge with DHS data
       dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
-      dat.tmp$survey.id<-which(survey_years==survey_year)
       dat.tmp$survey.type <- 'MICS'
-      dat.tmp$frame.year <- frame_years[which(survey_year==survey_years)]
       dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1',
-                            'admin1.char','admin1.name','survey','survey.id','survey.type','frame.year')]
+                            'admin1.char','admin1.name','survey','survey.type')]
       
       #add to prepared data
       mod.dat <- rbind(mod.dat,dat.tmp)
-  }
+    }
+    message('Processing MICS data for ', country,' ', unique(dat.tmp$survey),'\n')
   }
 }
 
@@ -370,14 +398,17 @@ mod.dat <- merge(mod.dat,clusters,by=c('cluster','survey'))
 mod.dat$cluster <- mod.dat$cluster.new
 mod.dat <- mod.dat[,!(names(mod.dat)=='cluster.new')]
 
+survey_years <- sort(unique(mod.dat$survey))
+mod.dat$survey.id<- unlist(sapply(1:nrow(mod.dat),function(x){which(mod.dat$survey[x] ==survey_years)}))
+
 # Use raw data to calculate age band intercept priors for benchmarking ----------------------------------------------------------
-raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5=='no',])/nrow(raw.dat)
-int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5=='no',])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
-                      nrow(raw.dat[(raw.dat$b7 %in% 1:11) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5=='yes',])*(1/raw.u5mr), #1-11 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 12:23) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=12 | raw.dat$b5=='yes',])*(1/raw.u5mr), #12-23 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 24:35) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=24 | raw.dat$b5=='yes',])*(1/raw.u5mr), #24-35 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 36:47) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5=='yes',])*(1/raw.u5mr), #36-47 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 48:59) & raw.dat$b5=='no',])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5=='yes',])*(1/raw.u5mr)) #48-59 months
+raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5==0,])/nrow(raw.dat)
+int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5==0,])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
+                      nrow(raw.dat[(raw.dat$b7 %in% 1:11) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5==1,])*(1/raw.u5mr), #1-11 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 12:23) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=12 | raw.dat$b5==1,])*(1/raw.u5mr), #12-23 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 24:35) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=24 | raw.dat$b5==1,])*(1/raw.u5mr), #24-35 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 36:47) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
+                      nrow(raw.dat[(raw.dat$b7 %in% 48:59) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
 
 # Save processed data  ----------------------------------------------------------
 

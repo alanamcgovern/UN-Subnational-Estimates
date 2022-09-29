@@ -16,17 +16,6 @@ country <- 'Ethiopia'
 gadm.abbrev <- "ETH"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("ETBR61DT/ETBR61FL.dta", "ETBR71DT/ETBR71FL.dta","ETBR81DT/ETBR81FL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("ETGE61FL", "ETGE71FL","ETGE81FL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2011,2016,2019) # years of the DHS surveys
-survey_years <- c(2011,2016,2019)
-frame_years <- c(2007,2007,2019)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")
 

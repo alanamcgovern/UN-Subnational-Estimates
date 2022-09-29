@@ -47,8 +47,7 @@ load(paste0(country,'_cluster_dat_1frame.rda'),
 
 mod.dat$years <- as.numeric(as.character(mod.dat$years))
 mod.dat$country <- as.character(country)
-frame_year <- unique(mod.dat$frame.year)
-survey_years <- survey_years[frame_year==frame_years]
+survey_years <- unique(mod.dat$survey)
 
 ## Load National IGME estimates ------------------------------------------------------
 setwd(paste0(home.dir,'/Data/IGME'))
@@ -751,5 +750,3 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   # save results
   save(bb.res.adm2.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_strat_u5_bench.rda'))
   
-  
-

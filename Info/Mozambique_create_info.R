@@ -16,17 +16,6 @@ country <- 'Mozambique'
 gadm.abbrev <- "MOZ"
 doHIVAdj <- T
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- c("MZBR62DT/MZBR62FL.dta", "MZBR71DT/MZBR71FL.dta")
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- c("MZGE61FL", "MZGE71FL")
-
-### please fill in the following information ####
-dhs_survey_years<- c(2011,2015) # years of the DHS surveys
-survey_years <-c(2011,2015)
-frame_years <- c(2007, 2007)
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")
 

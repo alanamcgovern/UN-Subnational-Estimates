@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Bangladesh'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -45,6 +45,10 @@ if(exists("poly.adm2")){
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
+load(paste0(country,'_cluster_dat.rda'),
+     envir = .GlobalEnv)
+survey_years <- unique(mod.dat$survey)
+
 # Define periods for 3-year estimates ------------------------------------------------------
 #### adjusted slightly when number of years is not divisible by 3
 
@@ -68,8 +72,6 @@ svy.idx <- 0
 births.list <- list()
 births.list.nmr <- list()
 
-load(paste0(country,'_cluster_dat.rda'),
-       envir = .GlobalEnv)
 mod.dat$years <- as.numeric(as.character(mod.dat$years)) # convert the years from string into numbers
 mod.dat$v005 <- mod.dat$v005/1e6
 # create subset of data for nmr estimates
@@ -374,7 +376,7 @@ if(exists("poly.adm2")){
                           colnames(tmp.adj))]
       
       adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
-      adj.frame.tmp$years <- periods
+      adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
       
       # adjustment for 3-year period u5mr
       tmp.adj <- SUMMER::getAdjusted(direct.natl.u5[direct.natl.u5$surveyYears == survey,],
@@ -399,7 +401,7 @@ if(exists("poly.adm2")){
                           colnames(tmp.adj))]
       
       adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
-      adj.frame.tmp$years <- periods
+      adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
       
       # adjustment for 3-year period nmr
       tmp.adj <- SUMMER::getAdjusted(direct.natl.nmr[direct.natl.nmr$surveyYears == survey,],
@@ -427,7 +429,7 @@ if(exists("poly.adm2")){
         if(natl.unaids){
           adj.frame.tmp <- adj.frame[adj.frame$years %in% 
                                        (beg.period.years+1), ]
-          adj.frame.tmp$years <- periods
+          adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
           
         }else{
           if(country == "Zambia" & area == "North-Western"){
@@ -436,7 +438,7 @@ if(exists("poly.adm2")){
           adj.frame.tmp <- adj.frame[adj.frame$area == area &
                                        adj.frame$years %in%
                                        beg.period.years+1, ]
-          adj.frame.tmp$years <- periods
+          adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
         }
         
         area.int <- admin1.names$Internal[match(area, admin1.names$GADM)]
@@ -842,6 +844,8 @@ save(sd.admin2.yearly.nmr, file = paste0('NMR/',country, "_res_admin2_nmr_Smooth
 }, silent=T, error = function(e) {message('Yearly smoothed direct model cannot be fit at the Admin2 level due to data sparsity. 
                                           This means a Betabinomial model will need to be fit.')})
 }
+
+
 # Polygon plots ------------------------------------------------------
 setwd(res.dir)
 ## Admin 1 Direct, aggregated across surveys  ------------------------------------------------------
@@ -898,7 +902,7 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
            '_admin1_u5_SmoothedDirect_poly.pdf'))
 {
-  print(SUMMER::mapPlot(data = res.admin1.u5$results,
+  print(SUMMER::mapPlot(data = res.admin1.u5,
                         is.long = T, 
                         variables = "years", 
                         values = "median",
@@ -918,7 +922,7 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
            '_admin1_nmr_SmoothedDirect_poly.pdf'))
 {
-  print(SUMMER::mapPlot(data = res.admin1.nmr$results,
+  print(SUMMER::mapPlot(data = res.admin1.nmr,
                         is.long = T, 
                         variables = "years", 
                         values = "median",
@@ -985,7 +989,7 @@ dev.off()
 
 ## Admin 1 Yearly Smoothed Direct  ------------------------------------------------------
 
-if(exists(sd.admin1.yearly.u5)){
+if(exists('sd.admin1.yearly.u5')){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
@@ -1007,7 +1011,7 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
 dev.off()
 }
 
-if(exists(sd.admin1.yearly.nmr)){
+if(exists('sd.admin1.yearly.nmr')){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
@@ -1078,14 +1082,14 @@ dev.off()
 }
 ## Admin 2 Smoothed Direct  ------------------------------------------------------
 if(exists("poly.adm2")){
-  if(exists(res.admin2.u5)){
+  if(exists('res.admin2.u5')){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
            '_admin2_u5_', 
            'SmoothedDirect_poly.pdf'))
 {
-  print(SUMMER::mapPlot(data = res.admin2.u5$results,
+  print(SUMMER::mapPlot(data = res.admin2.u5,
                         is.long = T, 
                         variables = "years", 
                         values = "median",
@@ -1101,14 +1105,14 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
 dev.off()
 }
 
-  if(exists(res.admin2.nmr)){
+  if(exists('res.admin2.nmr')){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
            '_admin2_nmr_', 
            'SmoothedDirect_poly.pdf'))
 {
-  print(SUMMER::mapPlot(data = res.admin2.nmr$results,
+  print(SUMMER::mapPlot(data = res.admin2.nmr,
                         is.long = T, 
                         variables = "years", 
                         values = "median",
@@ -1173,7 +1177,7 @@ dev.off()
 
 
 ## Admin 2 Yearly Smoothed Direct  ------------------------------------------------------
-if(exists(sd.admin2.yearly.u5)){
+if(exists('sd.admin2.yearly.u5')){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
@@ -1195,7 +1199,7 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
 dev.off()
 }
 
-if(exists(sd.admin2.yearly.nmr)){
+if(exists('sd.admin2.yearly.nmr')){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
@@ -1249,7 +1253,7 @@ igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
 ## National, 3-year period ------------------------------------------------------
 setwd(res.dir)
 cols <- rainbow(length(survey_years))
-pane.years <- jitter(end.period.years)
+pane.years <- (beg.period.years + end.period.years)/2
 
 ## U5MR
 direct.natl.u5$width <- direct.natl.u5$upper - direct.natl.u5$lower

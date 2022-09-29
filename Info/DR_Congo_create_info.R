@@ -16,17 +16,6 @@ country <- 'DR_Congo'
 gadm.abbrev <- "COD"
 doHIVAdj <- F
 
-### please fill in the name of the folder containing the DHS data and the name of the DHS data file inside, separated by "/" ###
-dhsStata.files<- "CDBR61DT/CDBR61FL.dta"
-
-### please fill in the file name containing the DHS GPS data ###
-dhsFlat.files<- "CDGE61FL"
-
-### please fill in the following information ####
-dhs_survey_years<- 2014 # years of the DHS surveys
-survey_years <- 2014
-frame_years <- 1984
-
 ### please fill in the path to country shape files ####
 poly.path <- paste0("shapeFiles/gadm41_",gadm.abbrev,"_shp")
 
