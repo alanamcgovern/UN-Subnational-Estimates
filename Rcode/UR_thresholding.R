@@ -1,5 +1,5 @@
 rm(list = ls())
-# ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLINH FRAME  -----------------------------------------------
+# ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Guinea'
 survey_years <- c(2018)
@@ -67,32 +67,6 @@ if(max(survey_years)>2018){
   end.proj.year <- 2022
 }else{
   end.proj.year <- 2020
-}
-
-# Download U5 population  ----------------------------------------------------------
-#### if not working, try manually download
-#### downloading might take a long time, especially for big countries
-
-pop.year <- beg.year:end.proj.year
-pop.abbrev <- tolower(gadm.abbrev)
-
-setwd(paste0(data.dir,'/worldpop'))
-
-options(timeout = 1000) # adjust this time, should be longer than each download
-for(year in pop.year){
-  print(year)
-  # includes ages 0-1 years and 1-5 years
-  for(age in c(0, 1)){
-    for(sex in c("f", "m")){
-      file <- paste0(pop.abbrev,'_', sex, '_', age, '_', year,'.tif')
-      if(!file.exists(file)){
-        url <- paste0("https://data.worldpop.org/GIS/AgeSex_structures/Global_2000_2020/", 
-                      year, "/", toupper(pop.abbrev), "/", pop.abbrev, "_", 
-                      sex, "_", age, "_", year, ".tif")
-        download.file(url, file, method = "libcurl",mode="wb")
-      }
-    }
-  }
 }
 
 # Load worldpop  ----------------------------------------------------------
@@ -519,7 +493,7 @@ for(year in pop.year){
   
 # Save national U1 and U5 urban proportions ----------------------------------------------------------  
   setwd(paste0(data.dir,'/Population'))
-  years <- c(beg.year:end.proj.year)
+  years <- c(beg.year:2020)
   natl.u1.urb <- vector()
   natl.u5.urb <- vector()
   

@@ -410,6 +410,13 @@ int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5==0,])/nrow(raw.dat
                       nrow(raw.dat[(raw.dat$b7 %in% 36:47) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
                       nrow(raw.dat[(raw.dat$b7 %in% 48:59) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
 
+# Fix any special cases ----------------------------------------------------------
+if(country=='Malawi'){
+  mod.dat[mod.dat$admin1.name=='Northern' & mod.dat$admin2.name=='Kasungu',]$admin1.name <- 'Central'
+  mod.dat[mod.dat$admin1.name=='Central' & mod.dat$admin2.name=='Kasungu',]$admin1.char <- 'admin1_2'
+  mod.dat[mod.dat$admin1.name=='Central' & mod.dat$admin2.name=='Kasungu',]$admin1 <- 2
+}
+
 # Save processed data  ----------------------------------------------------------
 
 save(mod.dat, file = paste0(country,'_cluster_dat.rda'))
