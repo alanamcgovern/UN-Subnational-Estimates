@@ -1,9 +1,9 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
-survey_years <- c(2018)
-frame_year <- 2017
+country <- 'Malawi'
+survey_years <- c(2010, 2014, 2015)
+frame_year <- 2008
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -71,6 +71,10 @@ if(max(survey_years)>2018){
 
 # Load worldpop  ----------------------------------------------------------
   ### automated downloading, if not working, try manually download
+
+pop.year <- beg.year:2020
+pop.abbrev <- tolower(gadm.abbrev)
+
   setwd(paste0(data.dir,'/Population'))
  
   file <- paste0(pop.abbrev,'_ppp_',frame_year,'_1km_Aggregated_UNadj.tif')
