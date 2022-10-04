@@ -195,10 +195,15 @@ for(survey_year in dhs_survey_years){
     raw.dat.tmp$v025 <- ifelse(raw.dat.tmp$v025 == strat["urban"][[1]],'urban','rural')
     raw.dat.tmp$v025 <- factor(raw.dat.tmp$v025, levels = c('urban','rural'))
     
+    if(country=='Ethiopia'){
+      cmc.adjust <- 92
+    }else{cmc.adjust <- 0}
+    
     # read DHS data
     dat.tmp <- getBirths(data=raw.dat.tmp,
                      surveyyear = survey_year,
-                     year.cut = seq(beg.year, survey_year + 1, 1),compact = T)
+                     year.cut = seq(beg.year, survey_year + 1, 1),
+                     cmc.adjust = cmc.adjust,compact = T)
     
 
     # retrieve the some columns of the full data
