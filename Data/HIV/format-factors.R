@@ -77,6 +77,29 @@ hiv.adj.new <- hiv.adj.new[,c('country','area','survey','years','ratio.x','year'
 colnames(hiv.adj.new) <- c('country','area','survey','years','ratio','year')
 hiv.adj <- hiv.adj.new
 
+
+sapply(unique(hiv.adj$country),function(x){unique(hiv.adj[hiv.adj$country==x,]$area)})
+
+hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mozambique' & area=='Mozambique'),!(country=='Zimbabwe' & area=='Zimbabwe'),!(country=='Zambia' & area=='Zambia'),country!='Cote dIvoire') %>%
+        dplyr::mutate(area=if_else(country=='Mozambique' & area=='Niassa','Nassa',
+                                   if_else(country=='Mozambique' & area=='CaboDelgado',"Cabo Delgado",
+                                    if_else(country=='Mozambique' & area=="Maputo Cidade","Maputo City",
+                                    if_else(country=='Mozambique' & area=="Maputo Provincia",'Maputo',
+                                    if_else(country=='Zimbabwe' & area=="MashonalandCentral", "Mashonaland Central",
+                                    if_else(country=='Zimbabwe' & area=="MashonalandEast", "Mashonaland East",
+                                    if_else(country=='Zimbabwe' & area=="MashonalandWest", "Mashonaland West",
+                                    if_else(country=='Zimbabwe' & area=="MatabelelandNorth","Matabeleland North",
+                                    if_else(country=='Zimbabwe' & area=="MatabelelandSouth", "Matabeleland South",
+                                    if_else(country=='Zimbabwe' & area=="Harare Chitungwiza", "Harare",
+                                    if_else(country=='Zambia' & area=="Northwestern", "North-Western",area))))))))))))
+
+hiv.adj <- hiv.adj[!duplicated((hiv.adj %>% select(country,area,survey,years))),]
+
 # save
 save(hiv.adj, file = "HIVAdjustments.rda")
+
+
+
+
+
 
