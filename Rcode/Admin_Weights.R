@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Myanmar'
+country <- 'Malawi'
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -106,13 +106,13 @@ if(exists('poly.layer.adm2')){
   adm_link <- adm_link[order(adm_link$order),]
 }
 
+pop.year <- beg.year:2020
+pop.abbrev <- tolower(gadm.abbrev)
+
 # Download U5 population  ----------------------------------------------------------
 #### if not working, try manually download
 #### downloading might take a long time, especially for big countries
 setwd(paste0(data.dir,'/worldpop'))
-
-pop.year <- beg.year:2020
-pop.abbrev <- tolower(gadm.abbrev)
 
 options(timeout = 1000) # adjust this time, should be longer than each download
 for(year in pop.year){
