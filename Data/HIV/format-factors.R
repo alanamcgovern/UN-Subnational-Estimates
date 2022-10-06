@@ -21,6 +21,11 @@ subnat_formats <- list(
   "Kenya" = 3
 )
 
+code.path <- rstudioapi::getActiveDocumentContext()$path
+code.path.splitted <- strsplit(code.path, "/")[[1]]
+setwd(paste(code.path.splitted[1: (length(code.path.splitted)-1)], collapse = "/"))
+
+
 # Formatting --------------------------------------------------------------
 
 files <- list.files(folder, pattern = "Q5_", full.names = T, recursive = T)
@@ -91,9 +96,11 @@ hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mo
                                     if_else(country=='Zimbabwe' & area=="MatabelelandNorth","Matabeleland North",
                                     if_else(country=='Zimbabwe' & area=="MatabelelandSouth", "Matabeleland South",
                                     if_else(country=='Zimbabwe' & area=="Harare Chitungwiza", "Harare",
-                                    if_else(country=='Zambia' & area=="Northwestern", "North-Western",area))))))))))))
-
-hiv.adj <- hiv.adj[!duplicated((hiv.adj %>% select(country,area,survey,years))),]
+                                    if_else(country=='Zambia' & area=="Northwestern", "North-Western",area)))))))))))) %>%
+      dplyr::mutate(country=if_else(country=="United Republic of Tanzania",'Tanzania',country)) %>%
+      dplyr::mutate(area=if_else(area=="United Republic of Tanzania",'Tanzania',area))
+  
+hiv.adj <- hiv.adj[!duplicated((hiv.adj %>% dplyr::select(country,area,survey,years))),]
 
 # save
 save(hiv.adj, file = "HIVAdjustments.rda")
