@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Myanmar'
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -94,7 +94,7 @@ if(exists('poly.layer.adm2')){
   admin2.names$admin2.name <- admin2.names$GADM
   admin2.names$order <- 1:nrow(admin2.names)
   adm_link <- merge(adm_link,admin2.names,by='admin2.name')
-  adm_link$admin2_idx<- admin2.names$Internal
+  adm_link$admin2_idx<- adm_link$Internal
   adm_link$admin1_idx <- adm_link$admin1.char
   adm_link <- adm_link[order(adm_link$order),]
 }else{
