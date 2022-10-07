@@ -2,7 +2,7 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 ## Setup -----------------------------------------------
 #### Load libraries and info ----------------------------------------------------------
@@ -108,6 +108,9 @@ if(exists('poly.adm2')){
 
 #### Parameters ####
 
+## MIGHT NEED TO BE CHANGED depending on what you fit
+time.model <- c('rw2','ar1')[2]
+
 plot.years <- 2000:end.proj.year
 n_years <- length(plot.years)
 
@@ -206,8 +209,8 @@ setwd(res.dir)
   
   ### national yearly smooth direct
 {
-  load(file = paste0('Direct/NMR/', country, '_res_natl_yearly_nmr_SmoothedDirect.rda'))  
-  load(file = paste0('Direct/U5MR/', country, '_res_natl_yearly_u5_SmoothedDirect.rda'))
+  load(file = paste0('Direct/NMR/', country, '_res_natl_',time.model,'_yearly_nmr_SmoothedDirect.rda'))  
+  load(file = paste0('Direct/U5MR/', country, '_res_natl_',time.model,'_yearly_u5_SmoothedDirect.rda'))
   
   natl.sd.est.nmr <- res.natl.yearly.nmr[res.natl.yearly.nmr$years %in% beg.year:end.proj.year, "median"]
   natl.sd.lower.nmr <- res.natl.yearly.nmr[res.natl.yearly.nmr$years %in% beg.year:end.proj.year, "lower"]
@@ -270,9 +273,9 @@ setwd(res.dir)
 
   ### smooth direct admin1 3-year window
 {
-  load(file = paste0('Direct/NMR/', country, '_res_admin1_nmr_SmoothedDirect.rda'))
+  load(file = paste0('Direct/NMR/', country, '_res_admin1_',time.model,'_nmr_SmoothedDirect.rda'))
   admin1.sd.nmr <- res.admin1.nmr
-  load(file = paste0('Direct/U5MR/', country, '_res_admin1_u5_SmoothedDirect.rda'))  
+  load(file = paste0('Direct/U5MR/', country, '_res_admin1_',time.model,'_u5_SmoothedDirect.rda'))  
   admin1.sd.u5 <- res.admin1.u5
   
   sd.adm1.to.natl.frame = matrix(NA, nrow = max(pred.period.idx), ncol =  6)
@@ -304,9 +307,9 @@ setwd(res.dir)
 }
   ### smooth direct admin1 yearly
 {
-  load(file = paste0('Direct/NMR/', country, '_res_admin1_nmr_SmoothedDirect_yearly.rda'))
+  load(file = paste0('Direct/NMR/', country, '_res_admin1_',time.model,'_nmr_SmoothedDirect_yearly.rda'))
   admin1.sd.yearly.nmr <- sd.admin1.yearly.nmr
-  load(file = paste0('Direct/U5MR/', country, '_res_admin1_u5_SmoothedDirect_yearly.rda'))  
+  load(file = paste0('Direct/U5MR/', country, '_res_admin1_',time.model,'_u5_SmoothedDirect_yearly.rda'))  
   admin1.sd.yearly.u5 <- sd.admin1.yearly.u5
   
   sd.adm1.yl.to.natl.frame = matrix(NA, nrow = n_years, ncol =  6)
@@ -385,9 +388,9 @@ setwd(res.dir)
 if(exists('poly.adm2')){
   ### smooth direct admin2 3-year window
   {
-    load(file = paste0('Direct/NMR/', country, '_res_admin2_nmr_SmoothedDirect.rda'))
+    load(file = paste0('Direct/NMR/', country, '_res_admin2_',time.model,'_nmr_SmoothedDirect.rda'))
     admin2.sd.nmr <- res.admin2.nmr
-    load(file = paste0('Direct/U5MR/', country, '_res_admin2_u5_SmoothedDirect.rda'))  
+    load(file = paste0('Direct/U5MR/', country, '_res_admin2_',time.model,'_u5_SmoothedDirect.rda'))  
     admin2.sd.u5 <- res.admin2.u5
     
     sd.adm2.to.natl.frame = matrix(NA, nrow = max(pred.period.idx), ncol =  6)
@@ -420,11 +423,11 @@ if(exists('poly.adm2')){
   
   ### smooth direct admin2 yearly
   {
-    if(file.exists(paste0('Direct/NMR/', country, '_res_admin2_nmr_SmoothedDirect_yearly.rda'))){
-      load(file = paste0('Direct/NMR/', country, '_res_admin2_nmr_SmoothedDirect_yearly.rda'))
+    if(file.exists(paste0('Direct/NMR/', country, '_res_admin2_',time.model,'_nmr_SmoothedDirect_yearly.rda'))){
+      load(file = paste0('Direct/NMR/', country, '_res_admin2_',time.model,'_nmr_SmoothedDirect_yearly.rda'))
       admin2.sd.yearly.nmr <- sd.admin2.yearly.nmr}
-    if(file.exists(paste0('Direct/U5MR/', country, '_res_admin2_u5_SmoothedDirect_yearly.rda'))){
-      load(file = paste0('Direct/U5MR/', country, '_res_admin2_u5_SmoothedDirect_yearly.rda'))  
+    if(file.exists(paste0('Direct/U5MR/', country, '_res_admin2_',time.model,'_u5_SmoothedDirect_yearly.rda'))){
+      load(file = paste0('Direct/U5MR/', country, '_res_admin2_',time.model,'_u5_SmoothedDirect_yearly.rda'))  
       admin2.sd.yearly.u5 <- sd.admin2.yearly.u5}
     
     if(exists('admin2.sd.yearly.nmr') | exists('admin2.sd.yearly.u5')){
@@ -520,7 +523,6 @@ if(exists('poly.adm2')){
   methods <- c("natl.direct.yearly.frame","natl.sd.frame","sd.adm1.to.natl.frame","sd.adm1.yl.to.natl.frame","sd.adm2.to.natl.frame","sd.adm2.yl.to.natl.frame",
                'natl.bb.unstrat.frame','natl.bb.strat.frame',"BB8.adm1.to.natl.frame","BB8.adm2.to.natl.frame","igme.frame")
   methods.include <- which(sapply(methods,exists))
-  methods.used <- methods[methods.include]
   
   natl.all <- data.frame()
   for(i in methods.include){
@@ -540,23 +542,23 @@ if(exists('poly.adm2')){
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
-             country, "_comparison_nmr.pdf"),height = 6,width = 6)
- 
+             country, "_comparison_nmr_sd_",time.model, ".pdf"),height = 6,width = 6)
+ {
   natl.to.plot %>% ggplot(aes(x=as.numeric(years),y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
-  
+ }
   dev.off()
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
-             country, "_comparison_u5.pdf"),height = 6,width = 6)
-  
+             country, "_comparison_u5_sd_",time.model, ".pdf"),height = 6,width = 6)
+  { 
  natl.to.plot %>% ggplot(aes(x=as.numeric(years),y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
-  
+  }
   dev.off()
   

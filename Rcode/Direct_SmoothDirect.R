@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Guinea'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -255,7 +255,7 @@ if(length(births.list) != 1){
   save(direct.admin1.yearly.nmr, file = paste0('NMR/',country, '_direct_admin1_yearly_nmr.rda'))
   
 ## Admin2  ------------------------------------------------------
-if(exists("poly.adm2")){
+if(exists("poly.layer.adm2")){
   # compute 3-year direct estimates for at admin2 level. But this may fail due to the data sparsity at admin2 level.
   if(length(births.list) != 1){
     direct.admin2.u5 <-  SUMMER::getDirectList(births.list, periods,
@@ -590,7 +590,8 @@ if(exists("poly.adm2")){
 
 # Smoothed direct estimates  ------------------------------------------------------
 
-  time.model <- c('rw2','ar1')[2]
+  time.model <- c('rw2','ar1')[1]
+  
 ## load in appropriate direct estimates  ------------------------------------------------------
 if(doHIVAdj){
   load(paste0('U5MR/',country, '_directHIV_natl_u5.rda'))
@@ -603,7 +604,7 @@ if(doHIVAdj){
   load(paste0('NMR/',country, '_directHIV_admin1_nmr.rda'))
   load(paste0('NMR/',country, '_directHIV_admin1_yearly_nmr.rda'))
   
-  if(exists("poly.adm2")){
+  if(exists("poly.layer.adm2")){
     load(paste0('U5MR/',country, '_directHIV_admin2_u5.rda'))
     load(paste0('NMR/',country, '_directHIV_admin2_nmr.rda'))
     load(paste0('U5MR/',country, '_directHIV_admin2_yearly_u5.rda'))
@@ -620,7 +621,7 @@ if(doHIVAdj){
   load(paste0('NMR/',country, '_direct_admin1_nmr.rda'))
   load(paste0('NMR/',country, '_direct_admin1_yearly_nmr.rda'))
   
-  if(exists("poly.adm2")){
+  if(exists("poly.layer.adm2")){
     load(paste0('U5MR/',country, '_direct_admin2_u5.rda'))
     load(paste0('NMR/',country, '_direct_admin2_nmr.rda'))
     load(paste0('U5MR/',country, '_direct_admin2_yearly_u5.rda'))
@@ -639,7 +640,7 @@ data.natl.yearly.nmr <- SUMMER::aggregateSurvey(direct.natl.yearly.nmr)
 data.admin1.nmr <- SUMMER::aggregateSurvey(direct.admin1.nmr)
 data.admin1.yearly.nmr <- SUMMER::aggregateSurvey(direct.admin1.yearly.nmr)
 
-if(exists("poly.adm2")){
+if(exists("poly.layer.adm2")){
   data.admin2.u5 <- SUMMER::aggregateSurvey(direct.admin2.u5)
   data.admin2.yearly.u5 <- SUMMER::aggregateSurvey(direct.admin2.yearly.u5)
   data.admin2.nmr <- SUMMER::aggregateSurvey(direct.admin2.nmr)
@@ -676,7 +677,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
  
  res.natl.u5$years.num <- seq(beg.year,max(end.proj.years),3)
  res.natl.u5$region.gadm <- country
- save(res.natl.u5, file = paste0('U5MR/',country, "_res_natl_u5_SmoothedDirect.rda")) # save the national 3-year smoothed direct U5MR
+ save(res.natl.u5, file = paste0('U5MR/',country, "_res_natl_", time.model, "_u5_SmoothedDirect.rda")) # save the national 3-year smoothed direct U5MR
  
  ## NMR
  fit.natl.nmr <- smoothDirect(data.natl.nmr, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
@@ -691,7 +692,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
  
  res.natl.nmr$years.num <- seq(beg.year,max(end.proj.years),3)
  res.natl.nmr$region.gadm <- country
- save(res.natl.nmr, file = paste0('NMR/',country, "_res_natl_nmr_SmoothedDirect.rda"))
+ save(res.natl.nmr, file = paste0('NMR/',country, "_res_natl_", time.model, "_nmr_SmoothedDirect.rda"))
  
 
 ## National, yearly  ------------------------------------------------------
@@ -705,7 +706,7 @@ res.natl.yearly.u5 <- getSmoothed(fit.natl.yearly.u5, year_range = c(beg.year, m
                                year_label = as.character(beg.year:max(end.proj.years)))
 res.natl.yearly.u5$years.num <- beg.year:max(end.proj.years)
 res.natl.yearly.u5$region.gadm <- country
-save(res.natl.yearly.u5, file = paste0('U5MR/',country, "_res_natl_yearly_u5_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
+save(res.natl.yearly.u5, file = paste0('U5MR/',country, "_res_natl_", time.model, "_yearly_u5_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
 
 #NMR
 fit.natl.yearly.nmr <- smoothDirect(data.natl.yearly.nmr, geo = NULL, Amat = NULL,
@@ -716,7 +717,7 @@ res.natl.yearly.nmr <- getSmoothed(fit.natl.yearly.nmr, year_range = c(beg.year,
                                   year_label = as.character(beg.year:max(end.proj.years)))
 res.natl.yearly.nmr$years.num <- beg.year:max(end.proj.years)
 res.natl.yearly.nmr$region.gadm <- country
-save(res.natl.yearly.nmr, file = paste0('NMR/',country, "_res_natl_yearly_nmr_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
+save(res.natl.yearly.nmr, file = paste0('NMR/',country, "_res_natl_", time.model, "_yearly_nmr_SmoothedDirect.rda")) # save the national yearly smoothed direct U5MR
 
 
 ## Admin 1, 3-year period  ------------------------------------------------------
@@ -734,7 +735,7 @@ res.admin1.u5 <- getSmoothed(fit.admin1.u5, Amat = admin1.mat,
 res.admin1.u5$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin1.u5$years, periods)]
 res.admin1.u5$region.gadm <- admin1.names$GADM[match(res.admin1.u5$region, admin1.names$Internal)]
 
-save(res.admin1.u5, file = paste0('U5MR/',country, "_res_admin1_u5_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
+save(res.admin1.u5, file = paste0('U5MR/',country, "_res_admin1_", time.model, "_u5_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
 
 ## NMR
 data.admin1.nmr <- data.admin1.nmr[data.admin1.nmr$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
@@ -749,7 +750,7 @@ res.admin1.nmr <- getSmoothed(fit.admin1.nmr, Amat = admin1.mat,
 res.admin1.nmr$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin1.nmr$years, periods)]
 res.admin1.nmr$region.gadm <- admin1.names$GADM[match(res.admin1.nmr$region, admin1.names$Internal)]
 
-save(res.admin1.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
+save(res.admin1.nmr, file = paste0('NMR/',country, "_res_admin1_", time.model, "_nmr_SmoothedDirect.rda"))# save the admin1 3-year smoothed direct U5MR
 
 
 ## Admin 1, yearly  ------------------------------------------------------
@@ -765,7 +766,7 @@ sd.admin1.yearly.u5 <- getSmoothed(fit.admin1.yearly.u5, Amat = admin1.mat,
                                    save.draws = TRUE)
 sd.admin1.yearly.u5$region.gadm <- admin1.names$GADM[match(sd.admin1.yearly.u5$region, admin1.names$Internal)]
 
-save(sd.admin1.yearly.u5, file = paste0('U5MR/',country, "_res_admin1_u5_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
+save(sd.admin1.yearly.u5, file = paste0('U5MR/',country, "_res_admin1_", time.model, "_u5_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
 
 ##NMR
 data.admin1.yearly.nmr <- data.admin1.yearly.nmr[data.admin1.yearly.nmr$region!='All',]
@@ -778,14 +779,14 @@ sd.admin1.yearly.nmr <- getSmoothed(fit.admin1.yearly.nmr, Amat = admin1.mat,
                                       save.draws = TRUE)
 sd.admin1.yearly.nmr$region.gadm <- admin1.names$GADM[match(sd.admin1.yearly.nmr$region, admin1.names$Internal)]
 
-save(sd.admin1.yearly.nmr, file = paste0('NMR/',country, "_res_admin1_nmr_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
+save(sd.admin1.yearly.nmr, file = paste0('NMR/',country, "_res_admin1_", time.model, "_nmr_SmoothedDirect_yearly.rda")) # save the admin1 yearly smoothed direct U5MR
 
 }, silent=T, error = function(e) {message('Yearly smoothed direct model cannot be fit at the Admin1 level due to data sparsity.
                                       This means a Betabinomial model will need to be fit.')})
 
 ## Admin 2, 3-year period ------------------------------------------------------
 
-if(exists("poly.adm2")){
+if(exists("poly.layer.adm2")){
 
 ## U5MR
 data.admin2.u5 <- data.admin2.u5[data.admin2.u5$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
@@ -800,7 +801,7 @@ res.admin2.u5 <- getSmoothed(fit.admin2.u5, Amat = admin2.mat,
 res.admin2.u5$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin2.u5$years, periods)]
 res.admin2.u5$region.gadm <- admin2.names$GADM[match(res.admin2.u5$region, admin2.names$Internal)]
 
-save(res.admin2.u5, file = paste0('U5MR/',country, "_res_admin2_u5_SmoothedDirect.rda"))
+save(res.admin2.u5, file = paste0('U5MR/',country, "_res_admin2_", time.model, "_u5_SmoothedDirect.rda"))
 
 ## NMR
 data.admin2.nmr <- data.admin2.nmr[data.admin2.nmr$region!='All',] # direct.admin1 is a matrix containing all national and admin1 level estimates. Only admin1 estimates are interested here.
@@ -815,12 +816,12 @@ res.admin2.nmr <- getSmoothed(fit.admin2.nmr, Amat = admin2.mat,
 res.admin2.nmr$years.num <- seq(beg.year,max(end.proj.years),3)[match(res.admin2.nmr$years, periods)]
 res.admin2.nmr$region.gadm <- admin2.names$GADM[match(res.admin2.nmr$region, admin2.names$Internal)]
 
-save(res.admin2.nmr, file = paste0('NMR/',country, "_res_admin2_nmr_SmoothedDirect.rda"))
+save(res.admin2.nmr, file = paste0('NMR/',country, "_res_admin2_", time.model, "_nmr_SmoothedDirect.rda"))
 
 }
 
 ## Admin 2, yearly  ------------------------------------------------------
-if(exists("poly.adm2")){
+if(exists("poly.layer.adm2")){
 ##U5MR
 tryCatch({
 data.admin2.yearly.u5 <- data.admin2.yearly.u5[data.admin2.yearly.u5$region!='All',]
@@ -833,7 +834,7 @@ sd.admin2.yearly.u5 <- getSmoothed(fit.admin2.yearly.u5, Amat = admin2.mat,
                                    save.draws = TRUE)
 sd.admin2.yearly.u5$region.gadm <- admin2.names$GADM[match(sd.admin2.yearly.u5$region, admin2.names$Internal)]
 
-save(sd.admin2.yearly.u5, file = paste0('U5MR/',country, "_res_admin2_u5_SmoothedDirect_yearly.rda")) # save the admin2 yearly smoothed direct U5MR
+save(sd.admin2.yearly.u5, file = paste0('U5MR/',country, "_res_admin2_", time.model, "_u5_SmoothedDirect_yearly.rda")) # save the admin2 yearly smoothed direct U5MR
 
 ##NMR
 data.admin2.yearly.nmr <- data.admin2.yearly.nmr[data.admin2.yearly.nmr$region!='All',]
@@ -846,7 +847,7 @@ sd.admin2.yearly.nmr <- getSmoothed(fit.admin2.yearly.nmr, Amat = admin2.mat,
                                     save.draws = TRUE)
 sd.admin2.yearly.nmr$region.gadm <- admin2.names$GADM[match(sd.admin2.yearly.nmr$region, admin2.names$Internal)]
 
-save(sd.admin2.yearly.nmr, file = paste0('NMR/',country, "_res_admin2_nmr_SmoothedDirect_yearly.rda")) # save the admin2 yearly smoothed direct U5MR
+save(sd.admin2.yearly.nmr, file = paste0('NMR/',country, "_res_admin2_", time.model, "_nmr_SmoothedDirect_yearly.rda")) # save the admin2 yearly smoothed direct U5MR
 
 }, silent=T, error = function(e) {message('Yearly smoothed direct model cannot be fit at the Admin2 level due to data sparsity. 
                                           This means a Betabinomial model will need to be fit.')})
@@ -907,7 +908,7 @@ dev.off()
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
-           '_admin1_u5_SmoothedDirect_poly.pdf'))
+           '_admin1_', time.model, '_u5_SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = res.admin1.u5,
                         is.long = T, 
@@ -927,7 +928,7 @@ dev.off()
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
-           '_admin1_nmr_SmoothedDirect_poly.pdf'))
+           '_admin1_', time.model, '_nmr_SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = res.admin1.nmr,
                         is.long = T, 
@@ -1000,7 +1001,7 @@ if(exists('sd.admin1.yearly.u5')){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
-           '_admin1_yearly_u5_SmoothedDirect_poly.pdf'))
+           '_admin1_', time.model, '_yearly_u5_SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = sd.admin1.yearly.u5,
                         is.long = T, 
@@ -1022,7 +1023,7 @@ if(exists('sd.admin1.yearly.nmr')){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
-           '_admin1_yearly_nmr_SmoothedDirect_poly.pdf'))
+           '_admin1_', time.model, '_yearly_nmr_SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = sd.admin1.yearly.nmr,
                         is.long = T, 
@@ -1041,7 +1042,7 @@ dev.off()
 }
 
 ## Admin 2 Direct, aggregated across surveys  ------------------------------------------------------
-if(exists("poly.adm2")){
+if(exists("poly.layer.adm2")){
 ## U5MR
 plotagg.admin2.u5 <- aggregateSurvey(direct.admin2.u5)
 plotagg.admin2.u5$regionPlot <- admin2.names$GADM[match(plotagg.admin2.u5$region,
@@ -1093,7 +1094,7 @@ if(exists("poly.adm2")){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
-           '_admin2_u5_', 
+           '_admin2_', time.model, '_u5_', 
            'SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = res.admin2.u5,
@@ -1116,7 +1117,7 @@ dev.off()
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
-           '_admin2_nmr_', 
+           '_admin2_', time.model, '_nmr_', 
            'SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = res.admin2.nmr,
@@ -1189,7 +1190,7 @@ if(exists('sd.admin2.yearly.u5')){
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country,
-           '_admin2_yearly_u5_SmoothedDirect_poly.pdf'))
+           '_admin2_', time.model, '_yearly_u5_SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = sd.admin2.yearly.u5,
                         is.long = T, 
@@ -1211,7 +1212,7 @@ if(exists('sd.admin2.yearly.nmr')){
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country,
-           '_admin2_yearly_nmr_SmoothedDirect_poly.pdf'))
+           '_admin2_', time.model, '_yearly_nmr_SmoothedDirect_poly.pdf'))
 {
   print(SUMMER::mapPlot(data = sd.admin2.yearly.nmr,
                         is.long = T, 
@@ -1233,6 +1234,7 @@ dev.off()
 # Spaghetti plots ------------------------------------------------------
 
 ## Load IGME estimates ------------------------------------------------------
+{
 setwd(paste0(home.dir,'/Data/IGME'))
 
 ## U5MR
@@ -1256,7 +1258,7 @@ igme.ests.nmr <- igme.ests.nmr[order(igme.ests.nmr$year),]
 igme.ests.nmr$SD <- (igme.ests.nmr$UPPER_BOUND - igme.ests.nmr$LOWER_BOUND)/(2*1.645*1000)
 igme.ests.nmr$LOWER_BOUND <- igme.ests.nmr$OBS_VALUE - 1.96*igme.ests.nmr$SD
 igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
-
+}
 
 ## National, 3-year period ------------------------------------------------------
 setwd(res.dir)
@@ -1275,7 +1277,7 @@ if(dim(direct.natl.u5)[1] != 0 &
 
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country, 
-           '_natl_u5_SmoothedDirect_spaghetti.pdf'),
+           '_natl_', time.model, '_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1))
@@ -1360,7 +1362,7 @@ if(dim(direct.natl.nmr)[1] != 0 &
 
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country, 
-           '_natl_nmr_SmoothedDirect_spaghetti.pdf'),
+           '_natl_', time.model, '_nmr_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1))
@@ -1449,7 +1451,7 @@ if(dim(direct.natl.yearly.u5)[1] != 0 & !(sum(is.na(direct.natl.yearly.u5$mean))
 
 pdf(paste0("Figures/SmoothedDirect/U5MR/",
            country, 
-           '_natl_yearly_u5_SmoothedDirect_spaghetti.pdf'),
+           '_natl_', time.model, '_yearly_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1))
@@ -1526,7 +1528,7 @@ if(dim(direct.natl.yearly.nmr)[1] != 0 & !(sum(is.na(direct.natl.yearly.nmr$mean
 
 pdf(paste0("Figures/SmoothedDirect/NMR/",
            country, 
-           '_natl_yearly_nmr_SmoothedDirect_spaghetti.pdf'),
+           '_natl_', time.model, '_yearly_nmr_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1))
@@ -1599,7 +1601,7 @@ cols <- rainbow(nrow(admin1.names))
 
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",country, 
-           '_admin1_u5_SmoothedDirect_spaghetti.pdf'),
+           '_admin1_', time.model, '_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1),lend=1)
@@ -1632,7 +1634,7 @@ dev.off()
 
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",country, 
-           '_admin1_nmr_SmoothedDirect_spaghetti.pdf'),
+           '_admin1_', time.model, '_nmr_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1),lend=1)
@@ -1670,7 +1672,7 @@ cols <- rainbow(nrow(admin2.names))
 
 ## U5MR
 pdf(paste0("Figures/SmoothedDirect/U5MR/",country, 
-           '_admin2_u5_SmoothedDirect_spaghetti.pdf'),
+           '_admin2_', time.model, '_u5_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1),lend=1)
@@ -1698,7 +1700,7 @@ dev.off()
 
 ## NMR
 pdf(paste0("Figures/SmoothedDirect/NMR/",country, 
-           '_admin2_nmr_SmoothedDirect_spaghetti.pdf'),
+           '_admin2_', time.model, '_nmr_SmoothedDirect_spaghetti.pdf'),
     height = 6, width = 6)
 {
   par(mfrow=c(1,1),lend=1)
@@ -1724,3 +1726,4 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",country,
 }
 dev.off()
 }
+
