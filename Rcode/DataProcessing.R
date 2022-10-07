@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Angola'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -30,8 +30,8 @@ load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 set_rdhs_config(email = "amcgov@uw.edu",
                 project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
 
-#update_rdhs_config(email = "amcgov@uw.edu", password = T,
- #               project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
+update_rdhs_config(email = "amcgov@uw.edu", password = T,
+                project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
 
 
 # Load polygon files ----------------------------------------------------------
@@ -325,9 +325,9 @@ for(survey_year in dhs_survey_years){
   
     if(survey_year==dhs_survey_years[1]){
       mod.dat <- dat.tmp
-      raw.dat <- raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7','survey_year')]
+      raw.dat <- raw.dat.tmp[,c("caseid", "b5",'b7','survey_year')]
     }else{mod.dat <- rbind(mod.dat,dat.tmp)
-          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", "v001", "v022", "b5",'b7','survey_year')])}
+          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", "b5",'b7','survey_year')])}
   
   }
 
