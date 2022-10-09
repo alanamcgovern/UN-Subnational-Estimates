@@ -375,7 +375,7 @@ if(exists("poly.layer.adm2")){
         tmp.adj[ ,  match(colnames(direct.natl.yearly.u5),
                           colnames(tmp.adj))]
       
-      adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]
       adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
       
       # adjustment for 3-year period u5mr
@@ -400,7 +400,7 @@ if(exists("poly.layer.adm2")){
         tmp.adj[ ,  match(colnames(direct.natl.yearly.nmr),
                           colnames(tmp.adj))]
       
-      adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      adj.frame.tmp <- adj.frame[adj.frame$years  %in%  (beg.period.years + 1), ]
       adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
       
       # adjustment for 3-year period nmr
@@ -437,8 +437,8 @@ if(exists("poly.layer.adm2")){
           }
           adj.frame.tmp <- adj.frame[adj.frame$area == area &
                                        adj.frame$years %in%
-                                       beg.period.years+1, ]
-          adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
+                                       (beg.period.years+1), ]
+          adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years+1)]
         }
         
         area.int <- admin1.names$Internal[match(area, admin1.names$GADM)]
@@ -459,7 +459,7 @@ if(exists("poly.layer.adm2")){
          #adjustment for yearly U5MR
         tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly.u5[direct.admin1.yearly.u5$region == as.character(area.int) &
                                                        direct.admin1.yearly.u5$surveyYears == survey,],
-                                       ratio = adj.frame, 
+                                       ratio = adj.frame[adj.frame$area == area, ],
                                        logit.lower = NULL,
                                        logit.upper = NULL,
                                        prob.upper = "upper",
@@ -485,7 +485,7 @@ if(exists("poly.layer.adm2")){
         #adjustment for yearly NMR
         tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly.nmr[direct.admin1.yearly.nmr$region == as.character(area.int) &
                                                                  direct.admin1.yearly.nmr$surveyYears == survey,],
-                                       ratio = adj.frame, 
+                                       ratio = adj.frame[adj.frame$area == area, ], 
                                        logit.lower = NULL,
                                        logit.upper = NULL,
                                        prob.upper = "upper",
@@ -520,7 +520,7 @@ if(exists("poly.layer.adm2")){
           #adjustment for yearly U5MR
           tmp.adj <- SUMMER::getAdjusted(direct.admin2.yearly.u5[direct.admin2.yearly.u5$region %in% admin2s &
                                                                    direct.admin2.yearly.u5$surveyYears == survey,],
-                                         ratio = adj.frame, 
+                                         ratio = adj.frame[adj.frame$area == area, ], 
                                          logit.lower = NULL,
                                          logit.upper = NULL,
                                          prob.upper = "upper",
@@ -554,7 +554,7 @@ if(exists("poly.layer.adm2")){
           #adjustment for yearly NMR
           tmp.adj <- SUMMER::getAdjusted(direct.admin2.yearly.nmr[direct.admin2.yearly.nmr$region %in% admin2s &
                                                                    direct.admin2.yearly.nmr$surveyYears == survey,],
-                                         ratio = adj.frame, 
+                                         ratio = adj.frame[adj.frame$area == area, ], 
                                          logit.lower = NULL,
                                          logit.upper = NULL,
                                          prob.upper = "upper",
