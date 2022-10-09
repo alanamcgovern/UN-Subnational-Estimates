@@ -1153,12 +1153,12 @@ pdf(paste0("Figures/Direct/U5MR/Admin2/",
                         variables = "years", 
                         values = "mean",
                         direction = -1,
-                        geo = poly.adm1,
+                        geo = poly.adm2,
                         ncol = 5,
                         legend.label = "U5MR",
                         per1000 = TRUE,
                         by.data = "regionPlot",
-                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
 }
 dev.off()
 
@@ -1175,12 +1175,12 @@ pdf(paste0("Figures/Direct/NMR/Admin2/",
                         variables = "years", 
                         values = "mean",
                         direction = -1,
-                        geo = poly.adm1,
+                        geo = poly.adm2,
                         ncol = 5,
                         legend.label = "NMR",
                         per1000 = TRUE,
                         by.data = "regionPlot",
-                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
 }
 dev.off()
 }
@@ -1197,12 +1197,12 @@ pdf(paste0("Figures/SmoothedDirect/U5MR/",
                         variables = "years", 
                         values = "median",
                         direction = -1,
-                        geo = poly.adm1,
+                        geo = poly.adm2,
                         ncol = 5,
                         legend.label = "U5MR",
                         per1000 = TRUE,
                         by.data = "region.gadm",
-                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
   
 }
 dev.off()
@@ -1219,12 +1219,12 @@ pdf(paste0("Figures/SmoothedDirect/NMR/",
                         variables = "years", 
                         values = "median",
                         direction = -1,
-                        geo = poly.adm1,
+                        geo = poly.adm2,
                         ncol = 5,
                         legend.label = "NMR",
                         per1000 = TRUE,
                         by.data = "region.gadm",
-                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
   
 }
 dev.off()
