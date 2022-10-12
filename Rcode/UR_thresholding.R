@@ -1,9 +1,9 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
-survey_years <- c(2010, 2014, 2015)
-frame_year <- 2008
+country <- 'Angola'
+survey_years <- 2015
+frame_year <- 2014
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -139,25 +139,28 @@ pop.abbrev <- tolower(gadm.abbrev)
       normc<-1
     }else{  normc<-1}
     
-    
-    
     ## prepare sample frame
     
     temp_val<-values(temp_pop_admin)
-    pop_index<-which(!is.na(temp_val))
     
-    
-    temp_frame<-as.data.frame(coordinates(temp_pop_admin))
-    pixel_candidate<-temp_frame[pop_index,]
-    pixel_candidate$pop_den<-temp_val[pop_index]
-    
-    pixel_candidate$center_x<-obs$LONGNUM
-    pixel_candidate$center_y<-obs$LATNUM
-    pixel_candidate$dist<-diag(distm(pixel_candidate[,c('x','y')], 
-                                     pixel_candidate[,c('center_x','center_y')]))
-    
-    pixel_candidate$unn_w<-pixel_candidate$pop_den*
-      1/(2*pi * 2 * pixel_candidate$dist)*normc*prob_r
+    ## only try correction if there are viable options in admin area
+    if(sum(is.na(temp_val)) != length(temp_val)){
+      pop_index<-which(!is.na(temp_val))
+      
+      temp_frame<-as.data.frame(coordinates(temp_pop_admin))
+      pixel_candidate<-temp_frame[pop_index,]
+      pixel_candidate$pop_den<-temp_val[pop_index]
+      
+      pixel_candidate$center_x<-obs$LONGNUM
+      pixel_candidate$center_y<-obs$LATNUM
+      pixel_candidate$dist<-diag(distm(pixel_candidate[,c('x','y')], 
+                                       pixel_candidate[,c('center_x','center_y')]))
+      
+      pixel_candidate$unn_w<-pixel_candidate$pop_den*
+        1/(2*pi * 2 * pixel_candidate$dist)*normc*prob_r 
+    }else{
+      pixel_candidate <- data.frame(x=NA,y=NA,unn_w=NA)
+    }
     
     pixel_candidate$normc<-normc
     return(pixel_candidate[,c("x","y",'normc','unn_w')])
