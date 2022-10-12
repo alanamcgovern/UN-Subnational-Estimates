@@ -28,7 +28,7 @@ load(paste0(poly.path,'/',  country, '_Amat_Names.rda'))  # load names of admin1
 ## BEFORE RUNNING THIS SECTION: follow vignette to create a txt file with urban population fraction at admin1 level
 
 # read the excel file containing urban population fraction at admin1 level.
-frame <- read.xlsx(paste0(home.dir,'/Data/urban_frames/', country.abbrev,'_',frame_year, '_frame_urb_prop.xlsx'))
+frame <- read_csv(paste0(home.dir,'/Data/urban_frames/', country.abbrev,'_',frame_year, '_frame_urb_prop.csv'))
 
 ## check that that the admin1 names in your table and admin1.names (from the DHS data) are the same (differences in spacing or accents is fine)
 sort(frame[,1])==sort(admin1.names$GADM)
