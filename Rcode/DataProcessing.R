@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Angola'
+country <- "Mauritania"
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -20,18 +20,19 @@ code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
 # retrieve directories
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
+                  collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
 # set API to get DHS data -- you will need to change this to your information!
-set_rdhs_config(email = "amcgov@uw.edu",
-                project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
+set_rdhs_config(email = "jlg0003@uw.edu",
+                project = "African Mortality Estimation Project")
 
-update_rdhs_config(email = "amcgov@uw.edu", password = T,
-                project = "Spatial Modeling for Subnational Administrative Level 2 Small-Area Estimation - Under 5 Mortality Rate")
+update_rdhs_config(email = "jlg0003@uw.edu", password = TRUE,
+                project = "African Mortality Estimation Project")
 
 
 # Load polygon files ----------------------------------------------------------
@@ -81,8 +82,10 @@ if(exists("poly.adm2")){  # create the adjacency matrix for admin2 regions.
 }
 
 if(exists("poly.adm2")){
-  save(admin1.mat, admin2.mat, file = paste0(poly.path,'/', country, '_Amat.rda')) # save the admin1 and admin2 adjacency matrix
-  save(admin1.names, admin2.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
+  save(admin1.mat, admin2.mat,
+       file = paste0(poly.path,'/', country, '_Amat.rda')) # save the admin1 and admin2 adjacency matrix
+  save(admin1.names, admin2.names,
+       file = paste0(poly.path, '/', country, '_Amat_Names.rda')) # save the admin1 and admin2 names
 }else{
   save(admin1.mat, file = paste0(poly.path,'/', country, '_Amat.rda'))
   save(admin1.names, file = paste0(poly.path, '/', country, '_Amat_Names.rda'))
@@ -156,15 +159,28 @@ if(exists("admin2.mat")){
 #get country ID
 countryId <- dhs_countries()[dhs_countries()$ISO3_CountryCode==toupper(gadm.abbrev),]
 
-potential_surveys <- dhs_datasets(countryIds = countryId$DHS_CountryCode, surveyYearStart = 2000) %>% dplyr::filter((FileType == 'Births Recode' & FileFormat=='Stata dataset (.dta)') |(FileType == 'Geographic Data' & FileFormat =='Flat ASCII data (.dat)'))
+potential_surveys <- dhs_datasets(countryIds = countryId$DHS_CountryCode, 
+                                  surveyYearStart = 2000) %>%
+  dplyr::filter((FileType == 'Births Recode' & 
+                   FileFormat=='Stata dataset (.dta)') |
+                  (FileType == 'Geographic Data' & 
+                     FileFormat =='Flat ASCII data (.dat)'))
 
 #only keep surveys with both a births recode and a geographic dataset
-dhs_survey_ids <- as.numeric(unique(potential_surveys$SurveyNum)[sapply(unique(potential_surveys$SurveyNum),
-                                                                           function(num){
-                                                                             if(sum(c("Births Recode","Geographic Data") %in% (potential_surveys %>% filter(SurveyNum==num))$FileType) ==2){return(T)
-                                                                             }else(return(F))})])
+dhs_survey_ids <- as.numeric(unique(potential_surveys$SurveyNum)[
+  sapply(unique(potential_surveys$SurveyNum),
+         function(num){
+           if(sum(c("Births Recode","Geographic Data") %in% 
+                  (potential_surveys %>% filter(SurveyNum==num))$FileType) ==2){
+             return(TRUE)
+           }else{
+             return(F)
+             }
+           })])
 
-surveys <- potential_surveys %>% filter(SurveyNum %in% dhs_survey_ids) %>% group_by(SurveyYear) %>% arrange(SurveyYear,DatasetType)
+surveys <- potential_surveys %>% 
+  filter(SurveyNum %in% dhs_survey_ids) %>%
+  group_by(SurveyYear) %>% arrange(SurveyYear,DatasetType)
 dhs_survey_years <- as.numeric(unique(surveys$SurveyYear))
 
 # CHECK THAT SURVEYS FOR CORRECT COUNTRY HAVE BEEN CHOSEN
@@ -180,7 +196,9 @@ for(survey_year in dhs_survey_years){
     dhs.svy.ind <- which(dhs_survey_years==survey_year)
     message('Processing DHS data for ', country,' ', survey_year,'\n')
     
-    data.paths.tmp <- get_datasets(surveys[surveys$SurveyYear==survey_year,]$FileName, clear_cache = T)
+    data.paths.tmp <- get_datasets(surveys[surveys$SurveyYear == 
+                                             survey_year,]$FileName,
+                                   clear_cache = T)
     
     raw.dat.tmp <- readRDS(paste0(data.paths.tmp[2]))
   
@@ -192,7 +210,8 @@ for(survey_year in dhs_survey_years){
     
     strat <- attr(raw.dat.tmp$v025,which='labels')
     names(strat) <- tolower(names(strat))
-    raw.dat.tmp$v025 <- ifelse(raw.dat.tmp$v025 == strat["urban"][[1]],'urban','rural')
+    raw.dat.tmp$v025 <- ifelse(raw.dat.tmp$v025 == strat["urban"][[1]],
+                               'urban','rural')
     raw.dat.tmp$v025 <- factor(raw.dat.tmp$v025, levels = c('urban','rural'))
     
     if(country=='Ethiopia'){
@@ -214,8 +233,11 @@ for(survey_year in dhs_survey_years){
     points <- readRDS(paste0(data.paths.tmp[1]))
     
     # detect points in the DHS GPS file with mis-specified coordinates and remove them if any
-    wrong.points <- which(points@data$LATNUM == 0.0 & points@data$LONGNUM == 0.0)
-    if(!is.null(dim(wrong.points))){message("There are wrong GPS points: (Longitude, Latitude) = (0, 0)")}
+    wrong.points <- which(points@data$LATNUM == 0.0 &
+                            points@data$LONGNUM == 0.0)
+    if(!is.null(dim(wrong.points))){
+      message("There are wrong GPS points: (Longitude, Latitude) = (0, 0)")
+    }
 
     # remove wrong points in the data if any
     dat.tmp <- dat.tmp[!(dat.tmp$v001 %in% points@data$DHSCLUST[wrong.points]),]
@@ -224,8 +246,10 @@ for(survey_year in dhs_survey_years){
     # add the column for GPS coordinate in the data
    dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
     for(i in 1:dim(points)[1]){
-     dat.tmp$LATNUM[dat.tmp$v001 == points@data$DHSCLUST[i]] <- points@data$LATNUM[i] # assign latitude to DHS cluster location
-     dat.tmp$LONGNUM[dat.tmp$v001 == points@data$DHSCLUST[i]] <- points@data$LONGNUM[i] # assign longitude to DHS cluster location
+     dat.tmp$LATNUM[dat.tmp$v001 == points@data$DHSCLUST[i]] <- 
+       points@data$LATNUM[i] # assign latitude to DHS cluster location
+     dat.tmp$LONGNUM[dat.tmp$v001 == points@data$DHSCLUST[i]] <-
+       points@data$LONGNUM[i] # assign longitude to DHS cluster location
    }
 
    # remove missing points in the data if any
@@ -309,14 +333,18 @@ for(survey_year in dhs_survey_years){
     if(adm2.ind){
       dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", 
                             "v025", "LONGNUM", "LATNUM","strata",
-                            "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")]
+                            "admin1", "admin2", "admin1.char", "admin2.char",
+                            "admin1.name", "admin2.name")]
       colnames(dat.tmp) <- c("cluster", "age", "years", "total",
                              "Y", "v005", "urban", "LONGNUM", "LATNUM","strata",
-                             "admin1", "admin2", "admin1.char", "admin2.char", "admin1.name", "admin2.name")
+                             "admin1", "admin2", "admin1.char", "admin2.char", 
+                             "admin1.name", "admin2.name")
     }else{
-      dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", "v025", "LONGNUM", "LATNUM","strata",
+      dat.tmp <- dat.tmp[,c("v001", "age", "time", "total", "died", "v005", "v025", 
+                            "LONGNUM", "LATNUM","strata",
                             "admin1", "admin1.char", "admin1.name")]
-      colnames(dat.tmp) <- c("cluster", "age", "years", "total", "Y", "v005", "urban", "LONGNUM", "LATNUM","strata",
+      colnames(dat.tmp) <- c("cluster", "age", "years", "total", "Y", "v005",
+                             "urban", "LONGNUM", "LATNUM","strata",
                              "admin1", "admin1.char", "admin1.name")
     }
     
@@ -327,18 +355,27 @@ for(survey_year in dhs_survey_years){
       mod.dat <- dat.tmp
       raw.dat <- raw.dat.tmp[,c("caseid", "b5",'b7','survey_year')]
     }else{mod.dat <- rbind(mod.dat,dat.tmp)
-          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", "b5",'b7','survey_year')])}
+          raw.dat <- rbind(raw.dat,raw.dat.tmp[,c("caseid", 
+                                                  "b5",'b7','survey_year')])}
   
   }
 
 # Process data for each MICS survey year ----------------------------------------------------------
 if(dir.exists(paste0(home.dir,'/Data/MICS/',country))){
   
-  mics_files <- list.files(paste0(home.dir,'/Data/MICS/',country))[(grepl('tmp.rda',list.files(paste0(home.dir,'/Data/MICS/',country))))]
+  mics_files <- list.files(paste0(home.dir,'/Data/MICS/',
+                                  country))[(grepl('tmp.rda',
+                                                   list.files(
+                                                     paste0(home.dir,
+                                                            '/Data/MICS/',
+                                                            country)
+                                                     )))]
   
   #make admin key
   if(adm2.ind){
-    admin.key <- mod.dat %>% dplyr::select(admin1,admin2,admin1.char,admin2.char,admin1.name,admin2.name,strata) %>% distinct()
+    admin.key <- mod.dat %>% dplyr::select(admin1,admin2,admin1.char,
+                                           admin2.char,admin1.name,
+                                           admin2.name,strata) %>% distinct()
   
   for(k in 1:length(mics_files)){
     
@@ -360,14 +397,18 @@ if(dir.exists(paste0(home.dir,'/Data/MICS/',country))){
     #prepare to merge with DHS data
     dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
     dat.tmp$survey.type <- 'MICS'
-    dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1','admin2',
-                          'admin1.char','admin2.char','admin1.name','admin2.name','survey','survey.type')]
+    dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',
+                          "LONGNUM","LATNUM",'strata','admin1','admin2',
+                          'admin1.char','admin2.char',
+                          'admin1.name','admin2.name',
+                          'survey','survey.type')]
     
     #add to prepared data
     mod.dat <- rbind(mod.dat,dat.tmp)
     }
   }else{
-    admin.key <- mod.dat %>% dplyr::select(admin1,admin1.char,admin1.name,strata) %>% distinct()
+    admin.key <- mod.dat %>%
+      dplyr::select(admin1,admin1.char,admin1.name,strata) %>% distinct()
     
     for(k in 1:length(mics_files)){
       
@@ -386,13 +427,15 @@ if(dir.exists(paste0(home.dir,'/Data/MICS/',country))){
       #prepare to merge with DHS data
       dat.tmp$LONGNUM <- dat.tmp$LATNUM <- NA
       dat.tmp$survey.type <- 'MICS'
-      dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005','urban',"LONGNUM","LATNUM",'strata','admin1',
+      dat.tmp <- dat.tmp[,c("cluster",'age','years','total','Y','v005',
+                            'urban',"LONGNUM","LATNUM",'strata','admin1',
                             'admin1.char','admin1.name','survey','survey.type')]
       
       #add to prepared data
       mod.dat <- rbind(mod.dat,dat.tmp)
     }
-    message('Processing MICS data for ', country,' ', unique(dat.tmp$survey),'\n')
+    message('Processing MICS data for ', country,' ',
+            unique(dat.tmp$survey),'\n')
   }
 }
 
@@ -404,22 +447,39 @@ mod.dat$cluster <- mod.dat$cluster.new
 mod.dat <- mod.dat[,!(names(mod.dat)=='cluster.new')]
 
 survey_years <- sort(unique(mod.dat$survey))
-mod.dat$survey.id<- unlist(sapply(1:nrow(mod.dat),function(x){which(mod.dat$survey[x] ==survey_years)}))
+mod.dat$survey.id<- unlist(sapply(1:nrow(mod.dat),
+                                  function(x){
+                                    which(mod.dat$survey[x] ==survey_years)
+                                    }))
 
 # Use raw data to calculate age band intercept priors for benchmarking ----------------------------------------------------------
 raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5==0,])/nrow(raw.dat)
-int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5==0,])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
-                      nrow(raw.dat[(raw.dat$b7 %in% 1:11) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5==1,])*(1/raw.u5mr), #1-11 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 12:23) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=12 | raw.dat$b5==1,])*(1/raw.u5mr), #12-23 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 24:35) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=24 | raw.dat$b5==1,])*(1/raw.u5mr), #24-35 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 36:47) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
-                      nrow(raw.dat[(raw.dat$b7 %in% 48:59) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
+int.priors.bench <- 
+  c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5==0,])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
+    nrow(raw.dat[(raw.dat$b7 %in% 1:11) &
+                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=1 |
+                                                   raw.dat$b5==1,])*(1/raw.u5mr), #1-11 months  
+    nrow(raw.dat[(raw.dat$b7 %in% 12:23) &
+                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=12 | 
+                                                   raw.dat$b5==1,])*(1/raw.u5mr), #12-23 months  
+    nrow(raw.dat[(raw.dat$b7 %in% 24:35) & 
+                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=24 |
+                                                   raw.dat$b5==1,])*(1/raw.u5mr), #24-35 months  
+    nrow(raw.dat[(raw.dat$b7 %in% 36:47) & 
+                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=36 | 
+                                                   raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
+    nrow(raw.dat[(raw.dat$b7 %in% 48:59) & 
+                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=48 | 
+                                                   raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
 
 # Fix any special cases ----------------------------------------------------------
 if(country=='Malawi'){
-  mod.dat[mod.dat$admin1.name=='Northern' & mod.dat$admin2.name=='Kasungu',]$admin1.name <- 'Central'
-  mod.dat[mod.dat$admin1.name=='Central' & mod.dat$admin2.name=='Kasungu',]$admin1.char <- 'admin1_2'
-  mod.dat[mod.dat$admin1.name=='Central' & mod.dat$admin2.name=='Kasungu',]$admin1 <- 2
+  mod.dat[mod.dat$admin1.name=='Northern' & 
+            mod.dat$admin2.name=='Kasungu',]$admin1.name <- 'Central'
+  mod.dat[mod.dat$admin1.name=='Central' &
+            mod.dat$admin2.name=='Kasungu',]$admin1.char <- 'admin1_2'
+  mod.dat[mod.dat$admin1.name=='Central' & 
+            mod.dat$admin2.name=='Kasungu',]$admin1 <- 2
 }
 
 # Save processed data  ----------------------------------------------------------
