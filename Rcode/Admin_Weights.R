@@ -201,42 +201,6 @@ for (year in pop.year){
 }
 
 
-# Check for missing Admin2 areas ----------------------------------------------------------
-if(exists('poly.adm2')){
-  if(nrow(poly.adm2)!=nrow(adm_link)){
-    pop.adm2 <- matrix(NA,nrow(poly.adm2),length(seq(beg.year,end.proj.year,5)))
-    #don't need to check for all years
-    for(year in seq(beg.year,end.proj.year,5)){
-      print(year)
-      ind <- which(year==seq(beg.year,end.proj.year,5))
-      pop_u5<- raster(paste0(data.dir,'/Population/',country.abbrev,'_u5_',year,'_100m','.tif'))
-      
-      # make sure polygons have same crs as population raster
-      adm.shp <- spTransform(poly.adm2, pop_u5@crs)
-      
-      # admin level population
-      wp.adm.list <- lapply(1:nrow(adm.shp), function(x) {
-        list(state_id = x, state_raster = raster::mask(crop(pop_u5,adm.shp[x,]),
-                                                       mask = adm.shp[x,]))
-      })
-      
-      # store total population at admin
-      pop.adm<-vector()
-      for (j in 1:nrow(adm.shp)){
-        pop_j<-wp.adm.list[[j]]
-        pop.adm[j]<-sum(values(pop_j$state_raster),na.rm=TRUE)
-        
-      }
-      pop.adm2[,ind] <- pop.adm
-    }
-    rownames(pop.adm2) <- eval(str2lang(poly.label.adm2))
-    colnames(pop.adm2) <- seq(beg.year,end.proj.year,5)
-    
-    #prints out the approximate population count for all Admin2 areas missing from data
-    pop.adm2[which(!(eval(str2lang(poly.label.adm2)) %in% adm_link$admin2.name)),]
-  }
-}
-
 # calculate weights ----------------------------------------------------------
 
 for(year in pop.year){
