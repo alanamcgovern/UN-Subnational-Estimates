@@ -1,8 +1,8 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR OF SAMPLING FRAME (must be in frame_years)  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
-frame_year <- 2017
+country <- "Mauritania"
+frame_year <- 2013
 
 # Load libraries and Info -----------------------------------------------
 
@@ -28,7 +28,8 @@ load(paste0(poly.path,'/',  country, '_Amat_Names.rda'))  # load names of admin1
 ## BEFORE RUNNING THIS SECTION: follow vignette to create a txt file with urban population fraction at admin1 level
 
 # read the excel file containing urban population fraction at admin1 level.
-frame <- read_csv(paste0(home.dir,'/Data/urban_frames/', country.abbrev,'_',frame_year, '_frame_urb_prop.csv'))
+frame <- read_csv(paste0(home.dir,'/Data/urban_frames/', 
+                         country.abbrev,'_',frame_year, '_frame_urb_prop.csv'))
 
 ## check that that the admin1 names in your table and admin1.names (from the DHS data) are the same (differences in spacing or accents is fine)
 sort(frame[,1])==sort(admin1.names$GADM)
