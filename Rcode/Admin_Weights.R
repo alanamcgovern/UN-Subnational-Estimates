@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -201,7 +201,7 @@ for (year in pop.year){
 }
 
 
-# calculate weights ----------------------------------------------------------
+# Calculate weights ----------------------------------------------------------
 
 for(year in pop.year){
   
@@ -306,3 +306,79 @@ save(weight.adm2.u1,file=paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
 save(weight.adm2.u5,file=paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
 }
 
+# Get map plots of population weights ----------------------------------------------------------
+
+load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
+load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
+if(exists('poly.layer.adm2')){
+  load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
+  load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
+}
+
+pdf(paste0(data.dir,'/worldpop/admin1_u1_weights.pdf'))
+{
+  weight.adm1.u1$regionPlot <- admin1.names$GADM[match(weight.adm1.u1$region,admin1.names$Internal)]
+print(SUMMER::mapPlot(data = weight.adm1.u1,
+                      is.long = T, 
+                      variables = "years", 
+                      values = "proportion",
+                      direction = -1,
+                      geo = poly.adm1,
+                      ncol = 5,
+                      legend.label = "Population weight",
+                      per1000 = FALSE,
+                      by.data = "regionPlot",
+                      by.geo = sub(".*data[$]","",poly.label.adm1)))
+}
+dev.off()
+
+pdf(paste0(data.dir,'/worldpop/admin1_u5_weights.pdf'))
+{
+  weight.adm1.u5$regionPlot <- admin1.names$GADM[match(weight.adm1.u1$region,admin1.names$Internal)]
+  print(SUMMER::mapPlot(data = weight.adm1.u5,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "proportion",
+                        direction = -1,
+                        geo = poly.adm1,
+                        ncol = 5,
+                        legend.label = "Population weight",
+                        per1000 = FALSE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+}
+dev.off()
+
+pdf(paste0(data.dir,'/worldpop/admin2_u1_weights.pdf'))
+{
+  weight.adm2.u1$regionPlot <- admin2.names$GADM[match(weight.adm2.u1$region,admin2.names$Internal)]
+  print(SUMMER::mapPlot(data = weight.adm2.u1,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "proportion",
+                        direction = -1,
+                        geo = poly.adm2,
+                        ncol = 5,
+                        legend.label = "Population weight",
+                        per1000 = FALSE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
+}
+dev.off()
+
+pdf(paste0(data.dir,'/worldpop/admin2_u5_weights.pdf'))
+{
+  weight.adm2.u5$regionPlot <- admin2.names$GADM[match(weight.adm2.u1$region,admin2.names$Internal)]
+  print(SUMMER::mapPlot(data = weight.adm2.u5,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "proportion",
+                        direction = -1,
+                        geo = poly.adm2,
+                        ncol = 5,
+                        legend.label = "Population weight",
+                        per1000 = FALSE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
+}
+dev.off()
