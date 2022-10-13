@@ -133,12 +133,15 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
   weight.strata.natl.u5 <- readRDS(paste0('U5_fraction/','natl_u5_urban_weights.rds'))
   weight.strata.natl.u5$rural <- 1-weight.strata.natl.u5$urban
   weight.strata.adm1.u5 <- readRDS(paste0('U5_fraction/','admin1_u5_urban_weights.rds'))
-  weight.strata.adm2.u5 <- readRDS(paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
 
   weight.strata.natl.u1 <- readRDS(paste0('U1_fraction/','natl_u1_urban_weights.rds'))
   weight.strata.natl.u1$rural <- 1-weight.strata.natl.u1$urban
   weight.strata.adm1.u1 <- readRDS(paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
+  
+  if(exists('poly.adm2')){
+  weight.strata.adm2.u5 <- readRDS(paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
   weight.strata.adm2.u1 <- readRDS(paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
+  }
 }
 
 ## Fit BB8 models -----------------------------------------------
