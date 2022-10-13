@@ -18,7 +18,11 @@ library(openxlsx)
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
+<<<<<<< HEAD
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], 
+=======
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
+>>>>>>> a73044c4512eba477a84669b9b0945b675fd12a1
                   collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
@@ -94,6 +98,8 @@ pop_adm<-function(adm.shp, wp,admin_pop_dat){
 #### downloading might take a long time, especially for big countries
 setwd(paste0(data.dir,'/worldpop'))
 
+pop.year <- beg.year:2020
+pop.abbrev <- tolower(gadm.abbrev)
 options(timeout = 1000) # adjust this time, should be longer than each download
 for(year in pop.year){
   print(year)
@@ -113,8 +119,7 @@ for(year in pop.year){
 
 # Prepare U1 and U5 Populations ----------------------------------------------------------
 
-pop.year <- beg.year:2020
-pop.abbrev <- tolower(gadm.abbrev)
+
 # aggregate the under-five population spatial surface to resolution of 1km*1km
 for (year in pop.year){
   print(year)
