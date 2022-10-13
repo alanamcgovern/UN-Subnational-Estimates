@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- "Mauritania"
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -18,7 +18,8 @@ library(openxlsx)
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], 
+                  collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
