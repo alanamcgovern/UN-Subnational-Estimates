@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Lesotho'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -430,6 +430,7 @@ if(exists("poly.layer.adm2")){
           adj.frame.tmp <- adj.frame[adj.frame$years %in% 
                                        (beg.period.years+1), ]
           adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
+          adj.frame.tmp.yearly <- adj.frame
           
         }else{
           if(country == "Zambia" & area == "North-Western"){
@@ -439,6 +440,7 @@ if(exists("poly.layer.adm2")){
                                        adj.frame$years %in%
                                        (beg.period.years+1), ]
           adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years+1)]
+          adj.frame.tmp.yearly <- adj.frame[adj.frame$area == area, ]
         }
         
         area.int <- admin1.names$Internal[match(area, admin1.names$GADM)]
@@ -459,7 +461,7 @@ if(exists("poly.layer.adm2")){
          #adjustment for yearly U5MR
         tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly.u5[direct.admin1.yearly.u5$region == as.character(area.int) &
                                                        direct.admin1.yearly.u5$surveyYears == survey,],
-                                       ratio = adj.frame[adj.frame$area == area, ],
+                                       ratio = adj.frame.tmp.yearly,
                                        logit.lower = NULL,
                                        logit.upper = NULL,
                                        prob.upper = "upper",
@@ -485,7 +487,7 @@ if(exists("poly.layer.adm2")){
         #adjustment for yearly NMR
         tmp.adj <- SUMMER::getAdjusted(direct.admin1.yearly.nmr[direct.admin1.yearly.nmr$region == as.character(area.int) &
                                                                  direct.admin1.yearly.nmr$surveyYears == survey,],
-                                       ratio = adj.frame[adj.frame$area == area, ], 
+                                       ratio = adj.frame.tmp.yearly, 
                                        logit.lower = NULL,
                                        logit.upper = NULL,
                                        prob.upper = "upper",
@@ -520,7 +522,7 @@ if(exists("poly.layer.adm2")){
           #adjustment for yearly U5MR
           tmp.adj <- SUMMER::getAdjusted(direct.admin2.yearly.u5[direct.admin2.yearly.u5$region %in% admin2s &
                                                                    direct.admin2.yearly.u5$surveyYears == survey,],
-                                         ratio = adj.frame[adj.frame$area == area, ], 
+                                         ratio = adj.frame.tmp.yearly, 
                                          logit.lower = NULL,
                                          logit.upper = NULL,
                                          prob.upper = "upper",
@@ -554,7 +556,7 @@ if(exists("poly.layer.adm2")){
           #adjustment for yearly NMR
           tmp.adj <- SUMMER::getAdjusted(direct.admin2.yearly.nmr[direct.admin2.yearly.nmr$region %in% admin2s &
                                                                    direct.admin2.yearly.nmr$surveyYears == survey,],
-                                         ratio = adj.frame[adj.frame$area == area, ], 
+                                         ratio = adj.frame.tmp.yearly, 
                                          logit.lower = NULL,
                                          logit.upper = NULL,
                                          prob.upper = "upper",
@@ -590,7 +592,7 @@ if(exists("poly.layer.adm2")){
 
 # Smoothed direct estimates  ------------------------------------------------------
 
-  time.model <- c('rw2','ar1')[1]
+  time.model <- c('rw2','ar1')[2]
   
 ## load in appropriate direct estimates  ------------------------------------------------------
 if(doHIVAdj){
