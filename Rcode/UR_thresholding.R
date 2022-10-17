@@ -103,6 +103,8 @@ pop.abbrev <- tolower(gadm.abbrev)
   
   constr_prior <- function(obs,jitter_r,prob_r,poly_admin,pop_ras){
     
+    tryCatch({
+      
     # for the cluster, find its coordinates and admin1 area
     if(exists("poly.adm2")){
       admin1_index<-obs$admin2
@@ -142,9 +144,6 @@ pop.abbrev <- tolower(gadm.abbrev)
     ## prepare sample frame
     
     temp_val<-values(temp_pop_admin)
-    
-    ## only try correction if there are viable options in admin area
-    if(sum(is.na(temp_val)) != length(temp_val)){
       pop_index<-which(!is.na(temp_val))
       
       temp_frame<-as.data.frame(coordinates(temp_pop_admin))
@@ -158,11 +157,15 @@ pop.abbrev <- tolower(gadm.abbrev)
       
       pixel_candidate$unn_w<-pixel_candidate$pop_den*
         1/(2*pi * 2 * pixel_candidate$dist)*normc*prob_r 
-    }else{
-      pixel_candidate <- data.frame(x=NA,y=NA,unn_w=NA)
-    }
+      
+      pixel_candidate$normc<-normc
     
-    pixel_candidate$normc<-normc
+    
+    },error=function(e){ })
+    
+    if(!exists('pixel_candidate')){
+      pixel_candidate <- data.frame(x=NA,y=NA,unn_w=NA,normc=1)
+    }
     return(pixel_candidate[,c("x","y",'normc','unn_w')])
     #return(pixel_candidate)
     
