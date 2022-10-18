@@ -93,14 +93,30 @@ pop_adm<-function(adm.shp, wp,admin_pop_dat){
 #### downloading might take a long time, especially for big countries
 setwd(paste0(data.dir,'/worldpop'))
 
-options(timeout = 1000) # adjust this time, should be longer than each download
+options(timeout = 2000) # adjust this time, should be longer than each download
+rigorousFileTest = TRUE # set to TRUE after files have been downloaded to test 
+# if files were downloaded correctly, i.e. if they can be loaded into R
 for(year in pop.year){
   print(year)
   # includes ages 0-1 years and 1-5 years
   for(age in c(0, 1)){
     for(sex in c("f", "m")){
       file <- paste0(pop.abbrev,'_', sex, '_', age, '_', year,'.tif')
-      if(!file.exists(file)){
+      
+      # check if the raster file exists. If rigorousFileTest == TRUE, also check 
+      # if the file can be successfully loaded
+      goodFile = file.exists(file)
+      if(goodFile && rigorousFileTest) {
+        goodFile = tryCatch(
+          {
+            test = raster(file)
+            TRUE
+          }, 
+          error = function(e) {FALSE}
+        )
+      }
+      
+      if(!goodFile){
         url <- paste0("https://data.worldpop.org/GIS/AgeSex_structures/Global_2000_2020/", 
                       year, "/", toupper(pop.abbrev), "/", pop.abbrev, "_", 
                       sex, "_", age, "_", year, ".tif")
