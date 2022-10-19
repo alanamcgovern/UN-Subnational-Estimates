@@ -18,13 +18,10 @@ library(openxlsx)
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-<<<<<<< HEAD
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], 
-=======
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
->>>>>>> a73044c4512eba477a84669b9b0945b675fd12a1
                   collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+#data.dir <- paste0(home.dir,'/Data/',country)
+data.dir <- "R:/Project/STAB/Mauritania"# set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
@@ -121,7 +118,7 @@ for(year in pop.year){
 
 
 # aggregate the under-five population spatial surface to resolution of 1km*1km
-for (year in pop.year){
+for (year in 2019){
   print(year)
   
   # load worldpop

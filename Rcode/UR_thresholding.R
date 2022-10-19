@@ -1,9 +1,9 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Angola'
-survey_years <- 2015
-frame_year <- 2014
+country <- "Mauritania"
+survey_years <- 2020
+frame_year <- 2013
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -20,7 +20,8 @@ library(openxlsx)
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], 
+                  collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
