@@ -1,4 +1,11 @@
 rm(list=ls())
+expit <- function(x){
+  exp(x)/(1 + exp(x))
+}
+
+logit <- function(x){
+  log(x/(1-x))
+}
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
@@ -11,6 +18,9 @@ country <- "Mauritania"
 options(gsubfn.engine = "R")
 library(rgdal)
 library(Rfast)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -110,7 +120,7 @@ if(exists('poly.adm2')){
 #### Parameters ####
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
-time.model <- c('rw2','ar1')[2]
+time.model <- c('rw2','ar1')[1]
 
 plot.years <- 2000:end.proj.year
 n_years <- length(plot.years)
@@ -562,4 +572,5 @@ if(exists('poly.adm2')){
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
   }
   dev.off()
+  
   
