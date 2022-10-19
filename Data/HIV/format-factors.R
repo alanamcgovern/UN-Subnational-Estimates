@@ -76,12 +76,11 @@ factors$survey <- as.double(factors$survey)
 factors$years <- as.numeric(factors$years)
 factors$year <- as.numeric(factors$year)
 
-hiv.adj.new <- full_join(factors,hiv.adj,by = c('country','area','survey','years','year'))
-hiv.adj.new[is.na(hiv.adj.new$ratio.x),]$ratio.x <- hiv.adj.new[is.na(hiv.adj.new$ratio.x),]$ratio.y
-hiv.adj.new <- hiv.adj.new[,c('country','area','survey','years','ratio.x','year')]
-colnames(hiv.adj.new) <- c('country','area','survey','years','ratio','year')
-hiv.adj <- hiv.adj.new
+load('HIVAdjustments_Old.rda')
 
+hiv.adj.new <- left_join(factors,hiv.adj,by = c('country','area','survey','years','year'))
+colnames(hiv.adj.new) <- c('country','area','survey','years','ratio','year','old_ratio')
+hiv.adj <- hiv.adj.new
 
 sapply(unique(hiv.adj$country),function(x){unique(hiv.adj[hiv.adj$country==x,]$area)})
 
@@ -100,8 +99,6 @@ hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mo
       dplyr::mutate(country=if_else(country=="United Republic of Tanzania",'Tanzania',country)) %>%
       dplyr::mutate(area=if_else(area=="United Republic of Tanzania",'Tanzania',area))
   
-hiv.adj <- hiv.adj[!duplicated((hiv.adj %>% dplyr::select(country,area,survey,years))),]
-
 # save
 save(hiv.adj, file = "HIVAdjustments.rda")
 
