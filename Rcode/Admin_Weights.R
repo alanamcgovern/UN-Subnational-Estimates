@@ -93,6 +93,9 @@ pop_adm<-function(adm.shp, wp,admin_pop_dat){
 #### downloading might take a long time, especially for big countries
 setwd(paste0(data.dir,'/worldpop'))
 
+pop.year <- beg.year:2020
+pop.abbrev <- tolower(gadm.abbrev)
+
 options(timeout = 2000) # adjust this time, should be longer than each download
 rigorousFileTest = TRUE # set to TRUE after files have been downloaded to test 
 # if files were downloaded correctly, i.e. if they can be loaded into R
