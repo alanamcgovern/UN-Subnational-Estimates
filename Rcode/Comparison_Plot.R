@@ -2,7 +2,7 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 ## Setup -----------------------------------------------
 #### Load libraries and info ----------------------------------------------------------
@@ -11,6 +11,7 @@ country <- 'Malawi'
 options(gsubfn.engine = "R")
 library(rgdal)
 library(Rfast)
+library(tidyverse)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -109,7 +110,7 @@ if(exists('poly.adm2')){
 #### Parameters ####
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
-time.model <- c('rw2','ar1')[2]
+time.model <- c('rw2','ar1')[1]
 
 plot.years <- 2000:end.proj.year
 n_years <- length(plot.years)
@@ -142,7 +143,7 @@ pane.years <- c((end.period.years + beg.period.years)/2, (end.proj.years+beg.pro
 est.period.idx <- 1:length(beg.period.years)
 pred.period.idx <- (length(beg.period.years)+1):(length(beg.period.years)+length(beg.proj.years))
 
-##### function to get posterior draws from BB8 ####
+##### function to organize posterior draws from BB8 ####
 
 draw_1y_adm<-function(admin_draws, year_num,admin_vec, nsim=1000){
   
@@ -187,26 +188,6 @@ draw_1y_adm<-function(admin_draws, year_num,admin_vec, nsim=1000){
 #### prepare national level models ####
 setwd(res.dir)
 
-  ### national yearly direct
-{
-  load(file = paste0('Direct/NMR/', country, '_direct_natl_yearly_nmr.rda'))  
-  load(file = paste0('Direct/U5MR/', country, '_direct_natl_yearly_u5.rda')) 
-  
-  direct.natl.yearly.nmr <- direct.natl.yearly.nmr[!is.na(direct.natl.yearly.nmr$mean),]
-  natl.direct.yearly.nmr.draw = expit(Rfast::rmvnorm(10000, mu = direct.natl.yearly.nmr$logit.est,sigma = direct.natl.yearly.nmr$var.est*diag(nrow(direct.natl.yearly.nmr))))
-  natl.direct.yearly.nmr = t(apply(natl.direct.yearly.nmr.draw, 2, quantile, probs = c(0.025, 0.5, 0.975)))
-  colnames(natl.direct.yearly.nmr) = c("lower_nmr", "median_nmr", "upper_nmr")
-  
-  direct.natl.yearly.u5 <- direct.natl.yearly.u5[!is.na(direct.natl.yearly.u5$mean),]
-  natl.direct.yearly.u5.draw = expit(Rfast::rmvnorm(10000, mu = direct.natl.yearly.u5$logit.est,sigma = direct.natl.yearly.u5$var.est*diag(nrow(direct.natl.yearly.u5))))
-  natl.direct.yearly.u5 = t(apply(natl.direct.yearly.u5.draw, 2, quantile, probs = c(0.025, 0.5, 0.975)))
-  colnames(natl.direct.yearly.u5) = c("lower_u5", "median_u5", "upper_u5")
-  
-  natl.direct.yearly.frame <- as.data.frame(cbind(natl.direct.yearly.nmr,natl.direct.yearly.u5))
-  natl.direct.yearly.frame$method <- 'natl.direct'
-  natl.direct.yearly.frame$years <- direct.natl.yearly.nmr$years
-}
-  
   ### national yearly smooth direct
 {
   load(file = paste0('Direct/NMR/', country, '_res_natl_',time.model,'_yearly_nmr_SmoothedDirect.rda'))  
@@ -339,6 +320,50 @@ setwd(res.dir)
   sd.adm1.yl.to.natl.frame$method <- "aggre.sd.yearly.adm1"
   sd.adm1.yl.to.natl.frame$years = beg.year:end.proj.year
 }
+### BB8 admin1 unstratified  -- change to benchmarked later
+{
+  
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr.rda'))
+    res.unstrat.admin1.nmr <- bb.res.adm1.unstrat.nmr
+    admin1.unstrat.nmr.BB8<-res.unstrat.admin1.nmr$overall}
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5.rda'))
+    res.unstrat.admin1.u5 <- bb.res.adm1.unstrat.u5
+    admin1.unstrat.u5.BB8<-res.unstrat.admin1.u5$overall} 
+  
+  if(exists('admin1.unstrat.nmr.BB8') | exists('admin1.unstrat.u5.BB8')){
+    
+    BB8.adm1.unstrat.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
+    for (i in 1: n_years){
+      year = (beg.year:end.proj.year)[i]
+      
+      if(exists('admin1.unstrat.nmr.BB8')){
+        adm1.pop.nmr <- weight.adm1.u1[weight.adm1.u1$years==year,]
+        admin1.unstrat.nmr.BB8.draw<-draw_1y_adm(admin_draws=res.unstrat.admin1.nmr$draws.est.overall,
+                                               year_num=year,
+                                               admin_vec=admin1.names$Internal)
+        natl.tmp.nmr <- admin1.unstrat.nmr.BB8.draw %*% adm1.pop.nmr$proportion
+        BB8.adm1.unstrat.to.natl.frame[i, 1:3] = c(quantile(natl.tmp.nmr, probs = c(0.025, 0.5, 0.975)))
+      }
+      
+      if(exists('admin1.unstrat.u5.BB8')){
+        adm1.pop.u5 <- weight.adm1.u5[weight.adm1.u5$years==year,]
+        admin1.unstrat.u5.BB8.draw<-draw_1y_adm(admin_draws=res.unstrat.admin1.u5$draws.est.overall,
+                                              year_num=year,
+                                              admin_vec=admin1.names$Internal)
+        natl.tmp.u5 <- admin1.unstrat.u5.BB8.draw %*% adm1.pop.u5$proportion
+        BB8.adm1.unstrat.to.natl.frame[i, 4:6] = c(quantile(natl.tmp.u5, probs = c(0.025, 0.5, 0.975)))
+      }
+      
+    }
+    
+    BB8.adm1.unstrat.to.natl.frame<-as.data.frame(BB8.adm1.unstrat.to.natl.frame)
+    colnames(BB8.adm1.unstrat.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
+    BB8.adm1.unstrat.to.natl.frame$method <- "aggre.adm1.unstrat.BB8"
+    BB8.adm1.unstrat.to.natl.frame$years = beg.year:end.proj.year
+  }
+}
   ### BB8 admin1 stratified  -- change to benchmarked later
 {
   
@@ -353,7 +378,7 @@ setwd(res.dir)
   
   if(exists('admin1.strat.nmr.BB8') | exists('admin1.strat.u5.BB8')){
   
-  BB8.adm1.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
+  BB8.adm1.strat.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
   for (i in 1: n_years){
     year = (beg.year:end.proj.year)[i]
     
@@ -363,7 +388,7 @@ setwd(res.dir)
                                            year_num=year,
                                            admin_vec=admin1.names$Internal)
     natl.tmp.nmr <- admin1.strat.nmr.BB8.draw %*% adm1.pop.nmr$proportion
-    BB8.adm1.to.natl.frame[i, 1:3] = c(quantile(natl.tmp.nmr, probs = c(0.025, 0.5, 0.975)))
+    BB8.adm1.strat.to.natl.frame[i, 1:3] = c(quantile(natl.tmp.nmr, probs = c(0.025, 0.5, 0.975)))
     }
     
     if(exists('admin1.strat.u5.BB8')){
@@ -372,15 +397,15 @@ setwd(res.dir)
                                           year_num=year,
                                           admin_vec=admin1.names$Internal)
     natl.tmp.u5 <- admin1.strat.u5.BB8.draw %*% adm1.pop.u5$proportion
-    BB8.adm1.to.natl.frame[i, 4:6] = c(quantile(natl.tmp.u5, probs = c(0.025, 0.5, 0.975)))
+    BB8.adm1.strat.to.natl.frame[i, 4:6] = c(quantile(natl.tmp.u5, probs = c(0.025, 0.5, 0.975)))
     }
 
   }
   
-  BB8.adm1.to.natl.frame<-as.data.frame(BB8.adm1.to.natl.frame)
-  colnames(BB8.adm1.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
-  BB8.adm1.to.natl.frame$method <- "aggre.adm1.strat.BB8"
-  BB8.adm1.to.natl.frame$years = beg.year:end.proj.year
+  BB8.adm1.strat.to.natl.frame<-as.data.frame(BB8.adm1.strat.to.natl.frame)
+  colnames(BB8.adm1.strat.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
+  BB8.adm1.strat.to.natl.frame$method <- "aggre.adm1.strat.BB8"
+  BB8.adm1.strat.to.natl.frame$years = beg.year:end.proj.year
   }
 }
 
@@ -465,6 +490,51 @@ if(exists('poly.adm2')){
     }
   }
 
+  ### BB8 admin2 unstratified
+  {
+    
+    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr.rda'))){
+      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr.rda'))
+      res.unstrat.admin2.nmr <- bb.res.adm2.unstrat.nmr
+      admin2.unstrat.nmr.BB8<-res.unstrat.admin2.nmr$overall}
+    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5.rda'))){
+      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5.rda'))
+      res.unstrat.admin2.u5 <- bb.res.adm2.unstrat.u5
+      admin2.unstrat.u5.BB8<-res.unstrat.admin2.u5$overall} 
+    
+    if(exists('admin2.unstrat.nmr.BB8') | exists('admin2.unstrat.u5.BB8')){
+      
+      BB8.adm2.unstrat.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
+      for (i in 1: n_years){
+        year = (beg.year:end.proj.year)[i]
+        
+        if(exists('admin2.unstrat.nmr.BB8')){
+          adm2.pop.nmr <- weight.adm2.u1[weight.adm2.u1$years==year,]
+          admin2.unstrat.nmr.BB8.draw<-draw_1y_adm(admin_draws=res.unstrat.admin2.nmr$draws.est.overall,
+                                                 year_num=year,
+                                                 admin_vec=admin2.names$Internal)
+          natl.tmp.nmr <- admin2.unstrat.nmr.BB8.draw %*% adm2.pop.nmr$proportion
+          BB8.adm2.unstrat.to.natl.frame[i, 1:3] = c(quantile(natl.tmp.nmr, probs = c(0.025, 0.5, 0.975)))
+        }
+        
+        if(exists('admin2.unstrat.u5.BB8')){
+          adm2.pop.u5 <- weight.adm2.u5[weight.adm2.u5$years==year,]
+          admin2.unstrat.u5.BB8.draw<-draw_1y_adm(admin_draws=res.unstrat.admin2.u5$draws.est.overall,
+                                                year_num=year,
+                                                admin_vec=admin2.names$Internal)
+          natl.tmp.u5 <- admin2.unstrat.u5.BB8.draw %*% adm2.pop.u5$proportion
+          BB8.adm2.unstrat.to.natl.frame[i, 4:6] = c(quantile(natl.tmp.u5, probs = c(0.025, 0.5, 0.975)))
+        }
+        
+      }
+      
+      BB8.adm2.unstrat.to.natl.frame<-as.data.frame(BB8.adm2.unstrat.to.natl.frame)
+      colnames(BB8.adm2.unstrat.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
+      BB8.adm2.unstrat.to.natl.frame$method <- "aggre.adm2.unstrat.BB8"
+      BB8.adm2.unstrat.to.natl.frame$years = beg.year:end.proj.year
+    }
+  }
+  
 ### BB8 admin2 stratified -- change to benchmarked later
   {
     
@@ -479,7 +549,7 @@ if(exists('poly.adm2')){
     
     if(exists('admin2.strat.nmr.BB8') | exists('admin2.strat.u5.BB8')){
       
-      BB8.adm2.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
+      BB8.adm2.strat.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
       for (i in 1: n_years){
         year = (beg.year:end.proj.year)[i]
         
@@ -489,7 +559,7 @@ if(exists('poly.adm2')){
                                                  year_num=year,
                                                  admin_vec=admin2.names$Internal)
           natl.tmp.nmr <- admin2.strat.nmr.BB8.draw %*% adm2.pop.nmr$proportion
-          BB8.adm2.to.natl.frame[i, 1:3] = c(quantile(natl.tmp.nmr, probs = c(0.025, 0.5, 0.975)))
+          BB8.adm2.strat.to.natl.frame[i, 1:3] = c(quantile(natl.tmp.nmr, probs = c(0.025, 0.5, 0.975)))
         }
         
         if(exists('admin2.strat.u5.BB8')){
@@ -498,15 +568,15 @@ if(exists('poly.adm2')){
                                                 year_num=year,
                                                 admin_vec=admin2.names$Internal)
           natl.tmp.u5 <- admin2.strat.u5.BB8.draw %*% adm2.pop.u5$proportion
-          BB8.adm2.to.natl.frame[i, 4:6] = c(quantile(natl.tmp.u5, probs = c(0.025, 0.5, 0.975)))
+          BB8.adm2.strat.to.natl.frame[i, 4:6] = c(quantile(natl.tmp.u5, probs = c(0.025, 0.5, 0.975)))
         }
         
       }
       
-      BB8.adm2.to.natl.frame<-as.data.frame(BB8.adm2.to.natl.frame)
-      colnames(BB8.adm2.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
-      BB8.adm2.to.natl.frame$method <- "aggre.adm2.strat.BB8"
-      BB8.adm2.to.natl.frame$years = beg.year:end.proj.year
+      BB8.adm2.strat.to.natl.frame<-as.data.frame(BB8.adm2.strat.to.natl.frame)
+      colnames(BB8.adm2.strat.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
+      BB8.adm2.strat.to.natl.frame$method <- "aggre.adm2.strat.BB8"
+      BB8.adm2.strat.to.natl.frame$years = beg.year:end.proj.year
     }
   }
 }
@@ -516,35 +586,34 @@ if(exists('poly.adm2')){
                                     igme.ests.u5$LOWER_BOUND,igme.ests.u5$OBS_VALUE,igme.ests.u5$UPPER_BOUND))
   colnames(igme.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
   igme.frame$method <- "igme"
-  igme.frame$years <- beg.year:2020
+  igme.frame$years <- beg.year:max(igme.ests.nmr$year)
   
 #### final plot ####
   
-  methods <- c("natl.direct.yearly.frame","natl.sd.frame","sd.adm1.to.natl.frame","sd.adm1.yl.to.natl.frame","sd.adm2.to.natl.frame","sd.adm2.yl.to.natl.frame",
-               'natl.bb.unstrat.frame','natl.bb.strat.frame',"BB8.adm1.to.natl.frame","BB8.adm2.to.natl.frame","igme.frame")
+  methods <- c("natl.sd.frame","sd.adm1.to.natl.frame","sd.adm1.yl.to.natl.frame","sd.adm2.to.natl.frame","sd.adm2.yl.to.natl.frame",
+               'natl.bb.unstrat.frame','natl.bb.strat.frame',"BB8.adm1.unstrat.to.natl.frame","BB8.adm1.strat.to.natl.frame","BB8.adm2.unstrat.to.natl.frame","BB8.adm2.strat.to.natl.frame","igme.frame")
   methods.include <- which(sapply(methods,exists))
   
   natl.all <- data.frame()
   for(i in methods.include){
     if(nrow(natl.all)==0){
       natl.all <- eval(str2lang(methods[i]))
+      natl.all$years <- as.numeric(paste(natl.all$years))
     }else{
       natl.all <- rbind(natl.all,eval(str2lang(methods[i])))
     }
   }
   
-  natl.all$years.num <- as.numeric(natl.all$years)
-  natl.all$is.yearly <- FALSE
-  
+  natl.all$years <- as.numeric(natl.all$years)
   natl.to.plot <- natl.all
   # use this argument to only plot certain methods
-  natl.to.plot <- natl.all %>% filter(!(method %in% c('natl.direct')))
+  natl.to.plot <- natl.all %>% filter(!(method %in% c("aggre.sd.yearly.adm1","aggre.sd.yearly.adm2","aggre.sd.adm2")))
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
              country, "_comparison_nmr_sd_",time.model, ".pdf"),height = 6,width = 6)
  {
-  natl.to.plot %>% ggplot(aes(x=as.numeric(years),y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+  natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
@@ -555,10 +624,11 @@ if(exists('poly.adm2')){
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
              country, "_comparison_u5_sd_",time.model, ".pdf"),height = 6,width = 6)
   { 
- natl.to.plot %>% ggplot(aes(x=as.numeric(years),y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+ natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
   }
   dev.off()
+  
   
