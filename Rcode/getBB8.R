@@ -268,8 +268,9 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     
     ## Get approximation of acceptance ratio
     suppressMessages({
-    bench.acr <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
-                                    estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')$accept.ratio
+      bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
+                                estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
+      bench.acr <- bb.res.bench$accept.ratio
     })
     
     ## Now we know how many draws we need to get a certain number (nsim) accepted
@@ -278,16 +279,33 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     }
     
     message('Acceptance rate is ', bench.acr, '. Taking ', round(nsim/bench.acr), ' posterior draws to achieve approximately ', nsim, ' accepted draws.')
-    bb.res.adj <- getSmoothed(inla_mod = bb.fit.adj, 
-                                year_range = beg.year:end.year, 
-                                year_label = beg.year:end.year, nsim = round(nsim/bench.acr), 
-                                weight.strata = weight.strata, 
-                                weight.frame = NULL,
-                                CI=0.95, save.draws = TRUE)
     
-    ## Final benchmark
-    bb.res.bench <- Benchmark(bb.res.adj,igme.ests,weight.region = weight.region,
-                              estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
+    # define total number of draws we'll need to get appropriate accept ratio
+    tot_accepted_draws <- length(bb.res.bench$draws)
+    
+    # while tot_accepted_draws < nsim, take more samples 
+    while (tot_accepted_draws < nsim) {
+      tmp <- getSmoothed(inla_mod = bb.fit.adj, 
+                         year_range = beg.year:end.year, 
+                         year_label = beg.year:end.year, nsim = 10000, 
+                         weight.strata = weight.strata, 
+                         weight.frame = NULL,
+                         CI=0.95, save.draws = TRUE)
+      
+      # combine samples from draws.est.overall
+      bb.res.tmp
+      for (i in 1:length(tmp$draws.est.overall)) {
+        bb.res.tmp$draws.est.overall[[i]]$draws <- c(bb.res.tmp$draws.est.overall[[i]]$draws, tmp$draws.est.overall[[i]]$draws)
+      }
+      
+      # run benchmarking again
+      bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
+                                estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
+      
+      # add accepted draws to tot_accepted_draws
+      tot_accepted_draws <- length(bb.res.bench$draws)
+    }
+    
 
   }
    
