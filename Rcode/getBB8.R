@@ -41,11 +41,11 @@
 ##################################################################
 
 getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
-                    time.model, st.time.model = NULL, 
-                    stratified, weight.strata = NULL,
-                    admin.level, weight.region = NULL,
-                    outcome,
-                    doBenchmark, igme.ests = NULL, 
+                   time.model, st.time.model = NULL, 
+                   stratified, weight.strata = NULL,
+                   admin.level, weight.region = NULL,
+                   outcome,
+                   doBenchmark, igme.ests = NULL, 
                    int.priors.bench = NULL, int.priors.prec.bench=10,
                    adj.frame, adj.varnames, nsim=1000){
   
@@ -203,15 +203,15 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                               overdisp.mean = -7.5, overdisp.prec = 0.39,
                               control.inla = list(strategy = "adaptive", int.strategy = "eb"))
     }
-
-  
-  ## Get posterior draws -----------------------------------------------
-  bb.res <- getSmoothed(inla_mod = bb.fit, 
-                                  year_range = beg.year:end.year, 
-                                  year_label = beg.year:end.year, nsim = nsim, 
-                                  weight.strata = weight.strata, 
-                                  weight.frame = NULL,
-                                  draws = NULL, save.draws = TRUE)
+    
+    
+    ## Get posterior draws -----------------------------------------------
+    bb.res <- getSmoothed(inla_mod = bb.fit, 
+                          year_range = beg.year:end.year, 
+                          year_label = beg.year:end.year, nsim = nsim, 
+                          weight.strata = weight.strata, 
+                          weight.frame = NULL,
+                          draws = NULL, save.draws = TRUE)
   }
   
   ## Benchmarked model  -----------------------------------------------
@@ -222,49 +222,49 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
       message('Due to small number of areas (<5), the model will include a fixed spatial effect (rather than BYM2) and a Type 1 space-time interaction term.')
       suppressMessages({
         bb.fit.adj <- smoothCluster_mod(data = mod.dat, family = "betabinomial",
-                                    Amat = Amat, 
-                                    year_label = c(beg.year:end.year),
-                                    time.model = time.model, 
-                                    pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
-                                    type.st = 1, spat.fixed = T,
-                                    bias.adj = adj.frame, bias.adj.by = adj.varnames,
-                                    survey.effect = TRUE,
-                                    strata.time.effect = strata.time.effect,
-                                    age.groups = age.groups,
-                                    age.n = age.n,
-                                    age.rw.group = age.rw.group,
-                                    age.strata.fixed.group = age.strata.fixed.group,
-                                    overdisp.mean = -7.5, overdisp.prec = 0.39,
-                                    control.fixed = int.adj,
-                                    control.inla = list(strategy='adaptive',int.strategy='eb'))
+                                        Amat = Amat, 
+                                        year_label = c(beg.year:end.year),
+                                        time.model = time.model, 
+                                        pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
+                                        type.st = 1, spat.fixed = T,
+                                        bias.adj = adj.frame, bias.adj.by = adj.varnames,
+                                        survey.effect = TRUE,
+                                        strata.time.effect = strata.time.effect,
+                                        age.groups = age.groups,
+                                        age.n = age.n,
+                                        age.rw.group = age.rw.group,
+                                        age.strata.fixed.group = age.strata.fixed.group,
+                                        overdisp.mean = -7.5, overdisp.prec = 0.39,
+                                        control.fixed = int.adj,
+                                        control.inla = list(strategy='adaptive',int.strategy='eb'))
       })
       
     }else{
-    bb.fit.adj <- smoothCluster(data = mod.dat, family = "betabinomial",
-                                Amat = Amat, 
-                                year_label = c(beg.year:end.year),
-                                time.model = time.model, st.time.model = st.time.model,
-                                pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
-                                type.st = 4,
-                                bias.adj = adj.frame, bias.adj.by = adj.varnames,
-                                survey.effect = TRUE,
-                                strata.time.effect = strata.time.effect,
-                                age.groups = age.groups,
-                                age.n = age.n,
-                                age.rw.group = age.rw.group,
-                                age.strata.fixed.group = age.strata.fixed.group,
-                                overdisp.mean = -7.5, overdisp.prec = 0.39,
-                                control.fixed = int.adj,
-                                control.inla = list(strategy='adaptive',int.strategy='eb'))
+      bb.fit.adj <- smoothCluster(data = mod.dat, family = "betabinomial",
+                                  Amat = Amat, 
+                                  year_label = c(beg.year:end.year),
+                                  time.model = time.model, st.time.model = st.time.model,
+                                  pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
+                                  type.st = 4,
+                                  bias.adj = adj.frame, bias.adj.by = adj.varnames,
+                                  survey.effect = TRUE,
+                                  strata.time.effect = strata.time.effect,
+                                  age.groups = age.groups,
+                                  age.n = age.n,
+                                  age.rw.group = age.rw.group,
+                                  age.strata.fixed.group = age.strata.fixed.group,
+                                  overdisp.mean = -7.5, overdisp.prec = 0.39,
+                                  control.fixed = int.adj,
+                                  control.inla = list(strategy='adaptive',int.strategy='eb'))
     }
     
     ## Get posterior draws from adjusted model
     bb.res.tmp <- getSmoothed(inla_mod = bb.fit.adj, 
-                          year_range = beg.year:end.year, 
-                          year_label = beg.year:end.year, nsim = 10000, 
-                          weight.strata = weight.strata, 
-                          weight.frame = NULL,
-                          CI=0.95, draws = NULL, save.draws = TRUE)
+                              year_range = beg.year:end.year, 
+                              year_label = beg.year:end.year, nsim = 10000, 
+                              weight.strata = weight.strata, 
+                              weight.frame = NULL,
+                              CI=0.95, draws = NULL, save.draws = TRUE)
     
     ## Get approximation of acceptance ratio
     suppressMessages({
@@ -288,25 +288,25 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     while (tot_accepted_draws < nsim) {
       message('Taking 10000 more posterior draws.')
       suppressMessages({
-      tmp <- getSmoothed(inla_mod = bb.fit.adj, 
-                         year_range = beg.year:end.year, 
-                         year_label = beg.year:end.year, nsim = 10000, 
-                         weight.strata = weight.strata, 
-                         weight.frame = NULL,
-                         CI=0.95, save.draws = TRUE)
-      
-      # combine draws with previously taken draws
-      bb.res.tmp$draws <- c(bb.res.tmp$draws,tmp$draws)
-      for (i in 1:length(tmp$draws.est)) {
-        bb.res.tmp$draws.est[[i]]$draws <- c(bb.res.tmp$draws.est[[i]]$draws, tmp$draws.est[[i]]$draws)
-      }
-      for (i in 1:length(tmp$draws.est.overall)) {
-        bb.res.tmp$draws.est.overall[[i]]$draws <- c(bb.res.tmp$draws.est.overall[[i]]$draws, tmp$draws.est.overall[[i]]$draws)
-      }
-      
-      # run benchmarking again
-      bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
-                                estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
+        tmp <- getSmoothed(inla_mod = bb.fit.adj, 
+                           year_range = beg.year:end.year, 
+                           year_label = beg.year:end.year, nsim = 10000, 
+                           weight.strata = weight.strata, 
+                           weight.frame = NULL,
+                           CI=0.95, save.draws = TRUE)
+        
+        # combine draws with previously taken draws
+        bb.res.tmp$draws <- c(bb.res.tmp$draws,tmp$draws)
+        for (i in 1:length(tmp$draws.est)) {
+          bb.res.tmp$draws.est[[i]]$draws <- c(bb.res.tmp$draws.est[[i]]$draws, tmp$draws.est[[i]]$draws)
+        }
+        for (i in 1:length(tmp$draws.est.overall)) {
+          bb.res.tmp$draws.est.overall[[i]]$draws <- c(bb.res.tmp$draws.est.overall[[i]]$draws, tmp$draws.est.overall[[i]]$draws)
+        }
+        
+        # run benchmarking again
+        bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
+                                  estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
       })
       
       # add accepted draws to tot_accepted_draws
@@ -315,40 +315,12 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
       message(paste0(tot_accepted_draws, ' posterior draws have been accepted.'))
     }
     
-    message('Acceptance rate is ', bench.acr, '. Taking ', round(nsim/bench.acr), ' posterior draws to achieve approximately ', nsim, ' accepted draws.')
-    
-    # define total number of draws we'll need to get appropriate accept ratio
-    tot_accepted_draws <- length(bb.res.bench$draws)
-    
-    # while tot_accepted_draws < nsim, take more samples 
-    while (tot_accepted_draws < nsim) {
-      tmp <- getSmoothed(inla_mod = bb.fit.adj, 
-                         year_range = beg.year:end.year, 
-                         year_label = beg.year:end.year, nsim = 10000, 
-                         weight.strata = weight.strata, 
-                         weight.frame = NULL,
-                         CI=0.95, save.draws = TRUE)
-      
-      # combine samples from draws.est.overall
-      bb.res.tmp
-      for (i in 1:length(tmp$draws.est.overall)) {
-        bb.res.tmp$draws.est.overall[[i]]$draws <- c(bb.res.tmp$draws.est.overall[[i]]$draws, tmp$draws.est.overall[[i]]$draws)
-      }
-      
-      # run benchmarking again
-      bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
-                                estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
-      
-      # add accepted draws to tot_accepted_draws
-      tot_accepted_draws <- length(bb.res.bench$draws)
-    }
-    
   }
-   
+  
   ## Return fit and estimates -----------------------------------------------
   if(!doBenchmark){
-  out <- list(bb.fit,bb.res)
-  names(out) <- c('fit','results')
+    out <- list(bb.fit,bb.res)
+    names(out) <- c('fit','results')
   }
   if(doBenchmark){
     out <- list(bb.fit.adj,bb.res.bench)
