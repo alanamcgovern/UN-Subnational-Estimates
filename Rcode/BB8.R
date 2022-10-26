@@ -287,12 +287,10 @@ save(bb.res.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_res_a
 pdf(file = paste0('Betabinomial/NMR/',country,'_adm1_strat_nmr_bench_trace.pdf'))
 par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
 ind <- sort(sample(1:length(bb.res.adm1.strat.nmr.bench$draws.est.overall),12))
-thin_n <- floor(length(bb.res.adm1.strat.nmr.bench$draws.est.overall[[1]]$draws)/1000)
 for(i in ind){
   bb.draws.tmp <- bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$draws
-  bb.draws.thin.tmp <- bb.draws.tmp[(1:length(bb.draws.tmp) %% thin_n)==0]
-  plot(bb.draws.thin.tmp,type='l',
-       ylab=' ',xlab='',main=paste0(bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$years))
+  plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+       main=paste0(bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$years))
 }
 dev.off()
 
@@ -382,11 +380,9 @@ save(bb.res.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_res_a
 pdf(file = paste0('Betabinomial/NMR/',country,'_adm2_strat_nmr_bench_trace.pdf'))
 par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
 ind <- sort(sample(1:length(bb.res.adm2.strat.nmr.bench$draws.est.overall),12))
-thin_n <- floor(length(bb.res.adm2.strat.nmr.bench$draws.est.overall[[1]]$draws)/1000)
 for(i in ind){
   bb.draws.tmp <- bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$draws
-  bb.draws.thin.tmp <- bb.draws.tmp[(1:length(bb.draws.tmp) %% thin_n)==0]
-  plot(bb.draws.thin.tmp,type='l',
+  plot(bb.draws.tmp,type='l',
        ylab=' ',xlab='',main=paste0(bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$years))
 }
 dev.off()
@@ -527,6 +523,17 @@ save(bb.fixed.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_fix
 # save results
 save(bb.res.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_strat_u5_bench.rda'))
 
+# save traceplots from benchmarking for 12 random combinations of admin area and year
+pdf(file = paste0('Betabinomial/U5MR/',country,'_adm1_strat_u5_bench_trace.pdf'))
+par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+ind <- sort(sample(1:length(bb.res.adm1.strat.u5.bench$draws.est.overall),12))
+for(i in ind){
+  bb.draws.tmp <- bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$draws
+  plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+       main=paste0(bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$years))
+}
+dev.off()
+
   #### Admin2 Unstrat ---------------------------------------------
 bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
@@ -609,3 +616,13 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   # save results
   save(bb.res.adm2.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_strat_u5_bench.rda'))
   
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/U5MR/',country,'_adm2_strat_u5_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm2.strat.u5.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm2.strat.u5.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm2.strat.u5.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.u5.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()

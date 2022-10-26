@@ -21,20 +21,20 @@
 ## nsim: if doBenchmark=F, nsim is the number of posterior draws to be taken; if doBenchmark=T, nsim is the target number of posterior draws to be accepted
 
 ### useful for troubleshooting ----------------------------------------------
-    # end.year=end.proj.year
-    #        Amat=admin1.mat
-    #        admin.level='Admin1'
-    #        stratified=T
-    #        weight.strata=weight.strata.adm1.u1
-    #        outcome='nmr'
-    #        time.model='ar1'
-    #        st.time.model='ar1'
-    #        weight.region = weight.adm1.u1
-    #        igme.ests = igme.ests.nmr
-    #        int.priors.bench = int.priors.bench
-    #        int.priors.prec.bench = 10
-    #        doBenchmark=T
-    #        nsim=1000
+     # end.year=end.proj.year
+     #        Amat=admin1.mat
+     #        admin.level='Admin1'
+     #        stratified=T
+     #        weight.strata=weight.strata.adm1.u1
+     #        outcome='nmr'
+     #        time.model='ar1'
+     #        st.time.model='ar1'
+     #        weight.region = weight.adm1.u1
+     #        igme.ests = igme.ests.nmr
+     #        int.priors.bench = int.priors.bench
+     #        int.priors.prec.bench = 10
+     #        doBenchmark=T
+     #        nsim=1000
 
 ##################################################################
 ###### Define BB8 function
@@ -72,7 +72,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   if(doBenchmark & is.null(weight.region)){
     stop('To perform benchmarking, admin-level weights must be provided')
   }
-  if(sum(is.nan(int.priors.bench)) + sum(is.na(int.priors.bench)) >0){
+  if(outcome=='u5mr' & doBenchmark  & sum(is.nan(int.priors.bench)) + sum(is.na(int.priors.bench)) >0){
     stop('Priors on intercepts (priors.int.bench) contain missing values')
   }
   
@@ -168,7 +168,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   ## Unbenchmarked model -----------------------------------------------
   if(!doBenchmark){
     ## Fit model 
-    if(length(unique(mod.dat$region))<5){
+    if(length(unique(mod.dat$region))<5 & !is.null(Amat)){
       message('Due to small number of areas (<5), the model will include a fixed spatial effect (rather than BYM2) and a Type 1 space-time interaction term.')
       suppressMessages({
         bb.fit <- smoothCluster_mod(data = mod.dat, family = "betabinomial",
@@ -218,7 +218,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
   if(doBenchmark){
     
     ## fit model with adjusted intercepts
-    if(length(unique(mod.dat$region))<5){
+    if(length(unique(mod.dat$region))<5 & !is.null(Amat)){
       message('Due to small number of areas (<5), the model will include a fixed spatial effect (rather than BYM2) and a Type 1 space-time interaction term.')
       suppressMessages({
         bb.fit.adj <- smoothCluster_mod(data = mod.dat, family = "betabinomial",
@@ -261,34 +261,60 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     ## Get posterior draws from adjusted model
     bb.res.tmp <- getSmoothed(inla_mod = bb.fit.adj, 
                           year_range = beg.year:end.year, 
-                          year_label = beg.year:end.year, nsim = 1000, 
+                          year_label = beg.year:end.year, nsim = 10000, 
                           weight.strata = weight.strata, 
                           weight.frame = NULL,
                           CI=0.95, draws = NULL, save.draws = TRUE)
     
     ## Get approximation of acceptance ratio
     suppressMessages({
-    bench.acr <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
-                                    estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')$accept.ratio
+      bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
+                                estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
+      bench.acr <- bb.res.bench$accept.ratio
     })
     
     ## Now we know how many draws we need to get a certain number (nsim) accepted
     if(bench.acr<0.001){
       stop(paste0('Acceptance ratio is approximately ', bench.acr, ', which is very small. Check specification of priors on intercepts (int.priors.bench).'))
     }
+    message('Acceptance rate is ', bench.acr, '. Taking approximately ', round(nsim/bench.acr,-3), ' posterior draws to achieve approximately ', nsim, ' accepted draws.')
     
-    message('Acceptance rate is ', bench.acr, '. Taking ', round(nsim/bench.acr), ' posterior draws to achieve approximately ', nsim, ' accepted draws.')
-    bb.res.adj <- getSmoothed(inla_mod = bb.fit.adj, 
-                                year_range = beg.year:end.year, 
-                                year_label = beg.year:end.year, nsim = round(nsim/bench.acr), 
-                                weight.strata = weight.strata, 
-                                weight.frame = NULL,
-                                CI=0.95, save.draws = TRUE)
+    # update number of draws that have been accepted
+    tot_accepted_draws <- round(bench.acr*10000)
     
-    ## Final benchmark
-    bb.res.bench <- Benchmark(bb.res.adj,igme.ests,weight.region = weight.region,
-                              estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
-
+    message(paste0(tot_accepted_draws, ' posterior draws have been accepted.'))
+    
+    # while less than nsim draws have been accepted, take more samples 
+    while (tot_accepted_draws < nsim) {
+      message('Taking 10000 more posterior draws.')
+      suppressMessages({
+      tmp <- getSmoothed(inla_mod = bb.fit.adj, 
+                         year_range = beg.year:end.year, 
+                         year_label = beg.year:end.year, nsim = 10000, 
+                         weight.strata = weight.strata, 
+                         weight.frame = NULL,
+                         CI=0.95, save.draws = TRUE)
+      
+      # combine draws with previously taken draws
+      bb.res.tmp$draws <- c(bb.res.tmp$draws,tmp$draws)
+      for (i in 1:length(tmp$draws.est)) {
+        bb.res.tmp$draws.est[[i]]$draws <- c(bb.res.tmp$draws.est[[i]]$draws, tmp$draws.est[[i]]$draws)
+      }
+      for (i in 1:length(tmp$draws.est.overall)) {
+        bb.res.tmp$draws.est.overall[[i]]$draws <- c(bb.res.tmp$draws.est.overall[[i]]$draws, tmp$draws.est.overall[[i]]$draws)
+      }
+      
+      # run benchmarking again
+      bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
+                                estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
+      })
+      
+      # add accepted draws to tot_accepted_draws
+      tot_accepted_draws <- round(bench.acr*length(bb.res.bench$draws))
+      
+      message(paste0(tot_accepted_draws, ' posterior draws have been accepted.'))
+    }
+    
   }
    
   ## Return fit and estimates -----------------------------------------------
