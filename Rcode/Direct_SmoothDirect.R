@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Guinea'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -651,12 +651,7 @@ if(exists("poly.layer.adm2")){
 
 
 ## extend periods to include projected years  ------------------------------------------------------
-if(max(survey_years)>2018){
-  end.proj.year <- 2022
-}else{
-  end.proj.year <- 2020
-}
-
+end.proj.year <- 2021
 beg.proj.years <- seq(end.year+1,end.proj.year,3)
 end.proj.years <- beg.proj.years+2
 proj.per <- paste(beg.proj.years, end.proj.years, sep = "-") # add the 3-year period to be projected

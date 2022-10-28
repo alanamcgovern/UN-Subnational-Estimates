@@ -1,9 +1,9 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
-survey_years <- c(2010,2014,2015)
-frame_year <- 2008
+country <- 'Lesotho'
+survey_years <- 2018
+frame_year <- 2016
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -62,12 +62,8 @@ cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
                                             'LONGNUM','LATNUM')]),]
 
 survey_years <- unique(mod.dat$survey)
+end.proj.year <- 2021
 
-if(max(survey_years)>2018){
-  end.proj.year <- 2022
-}else{
-  end.proj.year <- 2020
-}
 
 # Load worldpop  ----------------------------------------------------------
   ### automated downloading, if not working, try manually download

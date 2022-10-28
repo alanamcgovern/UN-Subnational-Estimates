@@ -2,7 +2,7 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Malawi'
 
 ## Setup -----------------------------------------------
 #### Load libraries and info ----------------------------------------------------------
@@ -30,23 +30,6 @@ if(!dir.exists(paste0(res.dir,  '/Figures/Summary/U5MR'))){
   dir.create(paste0(res.dir,  '/Figures/Summary/U5MR'))}
 if(!dir.exists(paste0(res.dir,'/Figures/Summary/NMR'))){
   dir.create(paste0(res.dir, '/Figures/Summary/NMR'))}
-
-#### Load model data ----------------------------------------------------------
-
-load(paste0(data.dir, '/', country, '_cluster_dat.rda'), envir = .GlobalEnv)
-
-mod.dat$years <- as.numeric(as.character(mod.dat$years))
-dat.years <- sort(unique(mod.dat$years))
-mod.dat$strata.orig <- mod.dat$strata
-mod.dat$strata <- mod.dat$urban
-mod.dat$country <- as.character(country)
-survey_years <- unique(mod.dat$survey)
-
-if(max(survey_years)>2018){
-  end.proj.year <- 2022
-}else{
-  end.proj.year <- 2020
-}
 
 #### Load polygon files  ------------------------------------------------------
 setwd(data.dir)
@@ -112,19 +95,16 @@ if(exists('poly.adm2')){
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 time.model <- c('rw2','ar1')[1]
 
+load(paste0(data.dir, '/', country, '_cluster_dat_1frame.rda'), envir = .GlobalEnv)
+end.year.1frame <- max(mod.dat$survey)
+
+load(paste0(data.dir, '/', country, '_cluster_dat.rda'), envir = .GlobalEnv)
+end.year <- max(mod.dat$survey)
+end.proj.year <- 2021
+
 plot.years <- 2000:end.proj.year
 n_years <- length(plot.years)
 
-cols <- rainbow(8+1+1+1)
-cols <- cols[c(1,3,7,2,4,11,9,5,6,8,10)]
-
-survey.legends <- unique(mod.dat[,c("survey","survey.type")])
-survey.legends <- survey.legends[order(survey.legends$survey),]
-survey_names <- paste0(survey.legends$survey.type, ' ', survey.legends$survey)
-
-end.year <- max(survey_years)
-est.idx <- 1:(end.year-beg.year+1)
-pred.idx <- (end.year-beg.year+2):n_years
 if(((end.year-beg.year+1) %% 3)==0){
   beg.period.years <- seq(beg.year,end.year,3) 
   end.period.years <- beg.period.years + 2 
@@ -136,9 +116,12 @@ if(((end.year-beg.year+1) %% 3)==0){
   end.period.years <- c(beg.year+1,seq(beg.year+4,end.year,3))
 }
 
-beg.proj.years <- seq(end.year+1,end.proj.year,3)
+if(end.year>end.year.1frame & end.year>2018){
+  beg.proj.years <- seq(end.year+1,2021,3)
+}else{
+  beg.proj.years <- seq(end.year+1,2020,3)
+}
 end.proj.years <- beg.proj.years+2
-
 pane.years <- c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2)
 est.period.idx <- 1:length(beg.period.years)
 pred.period.idx <- (length(beg.period.years)+1):(length(beg.period.years)+length(beg.proj.years))
@@ -335,7 +318,7 @@ setwd(res.dir)
   if(exists('admin1.unstrat.nmr.BB8') | exists('admin1.unstrat.u5.BB8')){
     
     BB8.adm1.unstrat.to.natl.frame <- matrix(NA, nrow = n_years, ncol =  6)
-    for (i in 1: n_years){
+    for (i in 1:n_years){
       year = (beg.year:end.proj.year)[i]
       
       if(exists('admin1.unstrat.nmr.BB8')){
@@ -611,7 +594,7 @@ if(exists('poly.adm2')){
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
-             country, "_comparison_nmr_sd_",time.model, ".pdf"),height = 6,width = 6)
+             country, "_comparison_nmr_bb_",time.model, ".pdf"),height = 6,width = 6)
  {
   natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
@@ -622,7 +605,7 @@ if(exists('poly.adm2')){
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
-             country, "_comparison_u5_sd_",time.model, ".pdf"),height = 6,width = 6)
+             country, "_comparison_u5_bb_",time.model, ".pdf"),height = 6,width = 6)
   { 
  natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +

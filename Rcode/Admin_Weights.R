@@ -53,12 +53,8 @@ cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
                                             'LONGNUM','LATNUM')]),]
 
 survey_years <- unique(mod.dat$survey)
+end.proj.year <- 2021
 
-if(max(survey_years)>2018){
-  end.proj.year <- 2022
-}else{
-  end.proj.year <- 2020
-}
 
 # function that calculates population in each admin area ----------------------------------------------------------
 pop_adm<-function(adm.shp, wp,admin_pop_dat){
