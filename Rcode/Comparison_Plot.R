@@ -2,7 +2,7 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 ## Setup -----------------------------------------------
 #### Load libraries and info ----------------------------------------------------------
@@ -588,13 +588,15 @@ if(exists('poly.adm2')){
   }
   
   natl.all$years <- as.numeric(natl.all$years)
+  
+  ## Compare smoothed direct estimates ---------------
   natl.to.plot <- natl.all
-  # use this argument to only plot certain methods
-  natl.to.plot <- natl.all %>% filter(!(method %in% c("aggre.sd.yearly.adm1","aggre.sd.yearly.adm2","aggre.sd.adm2")))
+  # USE THIS ARGUMENT TO PICK METHODS TO PLOT -- may have to change this line
+  natl.to.plot <- natl.all %>% filter((method %in% c("natl.sd.yearly","aggre.sd.adm1","aggre.sd.yearly.adm1","aggre.sd.adm2","aggre.sd.yearly.adm2","igme")))
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
-             country, "_comparison_nmr_bb_",time.model, ".pdf"),height = 6,width = 6)
+             country, "_comparison_nmr_sd_",time.model, ".pdf"),height = 6,width = 6)
  {
   natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
@@ -605,12 +607,39 @@ if(exists('poly.adm2')){
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
-             country, "_comparison_u5_bb_",time.model, ".pdf"),height = 6,width = 6)
+             country, "_comparison_u5_sd_",time.model, ".pdf"),height = 6,width = 6)
   { 
  natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
+  }
+  dev.off()
+  
+  ## Compare betabinomial estimates ---------------
+  natl.to.plot <- natl.all
+  # USE THIS ARGUMENT TO PICK METHODS TO PLOT -- may have to change this line
+  natl.to.plot <- natl.all %>% filter((method %in% c("natl.bb.unstrat","natl.bb.strat","aggre.adm1.unstrat.BB8","aggre.adm1.strat.BB8","aggre.adm2.unstrat.BB8","aggre.adm2.strat.BB8","igme")))
+  
+  ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the  PDF!
+  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
+             country, "_comparison_nmr_bb8.pdf"),height = 6,width = 6)
+  {
+    natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+      ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
+  }
+  dev.off()
+  
+  ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
+  pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
+             country, "_comparison_u5_bb8.pdf"),height = 6,width = 6)
+  { 
+    natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+      ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
+      scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
   }
   dev.off()
   
