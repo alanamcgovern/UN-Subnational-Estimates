@@ -21,20 +21,20 @@
 ## nsim: if doBenchmark=F, nsim is the number of posterior draws to be taken; if doBenchmark=T, nsim is the target number of posterior draws to be accepted
 
 ### useful for troubleshooting ----------------------------------------------
-     # end.year=end.proj.year
-     #        Amat=admin1.mat
-     #        admin.level='Admin1'
-     #        stratified=T
-     #        weight.strata=weight.strata.adm1.u1
-     #        outcome='nmr'
-     #        time.model='ar1'
-     #        st.time.model='ar1'
-     #        weight.region = weight.adm1.u1
-     #        igme.ests = igme.ests.nmr
-     #        int.priors.bench = int.priors.bench
-     #        int.priors.prec.bench = 10
-     #        doBenchmark=T
-     #        nsim=1000
+       # end.year=end.proj.year
+       #        Amat=admin1.mat
+       #        admin.level='Admin1'
+       #        stratified=T
+       #        weight.strata=weight.strata.adm1.u5
+       #        outcome='u5mr'
+       #        time.model='ar1'
+       #        st.time.model='ar1'
+       #        weight.region = weight.adm1.u1
+       #        igme.ests = igme.ests.nmr
+       #        int.priors.bench = int.priors.bench
+       #        int.priors.prec.bench = 10
+       #        doBenchmark=T
+       #        nsim=1000
 
 ##################################################################
 ###### Define BB8 function
@@ -183,7 +183,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                     age.rw.group = age.rw.group, 
                                     age.strata.fixed.group = age.strata.fixed.group,
                                     overdisp.mean = -7.5, overdisp.prec = 0.39,
-                                    control.inla = list(strategy = "adaptive", int.strategy = "eb"))
+                                    control.inla = list(strategy = "adaptive", int.strategy = "auto"))
       })
       
     }else{
@@ -201,7 +201,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                               age.rw.group = age.rw.group,
                               age.strata.fixed.group = age.strata.fixed.group,
                               overdisp.mean = -7.5, overdisp.prec = 0.39,
-                              control.inla = list(strategy = "adaptive", int.strategy = "eb"))
+                              control.inla = list(strategy = "adaptive", int.strategy = "auto"))
     }
     
     
@@ -236,7 +236,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                         age.strata.fixed.group = age.strata.fixed.group,
                                         overdisp.mean = -7.5, overdisp.prec = 0.39,
                                         control.fixed = int.adj,
-                                        control.inla = list(strategy='adaptive',int.strategy='eb'))
+                                        control.inla = list(strategy='adaptive',int.strategy='auto'))
       })
       
     }else{
@@ -255,7 +255,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                   age.strata.fixed.group = age.strata.fixed.group,
                                   overdisp.mean = -7.5, overdisp.prec = 0.39,
                                   control.fixed = int.adj,
-                                  control.inla = list(strategy='adaptive',int.strategy='eb'))
+                                  control.inla = list(strategy='adaptive',int.strategy='auto'))
     }
     
     ## Get posterior draws from adjusted model
@@ -275,7 +275,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     
     ## Now we know how many draws we need to get a certain number (nsim) accepted
     if(bench.acr<0.001){
-      stop(paste0('Acceptance ratio is approximately ', bench.acr, ', which is very small. Check specification of priors on intercepts (int.priors.bench).'))
+      warning(paste0('Acceptance ratio is approximately ', bench.acr, ', which is very small. Check specification of priors on intercepts (int.priors.bench).'))
     }
     message('Acceptance rate is ', bench.acr, '. Taking approximately ', round(nsim/bench.acr,-3), ' posterior draws to achieve approximately ', nsim, ' accepted draws.')
     
@@ -293,7 +293,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                            year_label = beg.year:end.year, nsim = 10000, 
                            weight.strata = weight.strata, 
                            weight.frame = NULL,
-                           CI=0.95, save.draws = TRUE)
+                           CI=0.95, draws=NULL, save.draws = TRUE)
         
         # combine draws with previously taken draws
         bb.res.tmp$draws <- c(bb.res.tmp$draws,tmp$draws)
@@ -310,7 +310,7 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
       })
       
       # add accepted draws to tot_accepted_draws
-      tot_accepted_draws <- round(bench.acr*length(bb.res.bench$draws))
+      tot_accepted_draws <- round(bb.res.bench$accept.ratio*length(bb.res.bench$draws))
       
       message(paste0(tot_accepted_draws, ' posterior draws have been accepted.'))
     }
