@@ -364,9 +364,16 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
         data$age.intercept <- data$strata
       } else {
         age.groups <- expand.grid(age.groups.vec, stratalevels)
-        age.groups <- paste(age.groups[, 1], age.groups[, 
-                                                        2], sep = ":")
-        data$age <- paste(data$age, data$strata, sep = ":")
+        if (sum(age.groups[, 2] != "") > 0) {
+          age.groups <- paste(age.groups[, 1], age.groups[, 
+                                                          2], sep = ":")
+        }
+        else {
+          age.groups <- age.groups[, 1]
+        }
+        if (sum(data$age != "") > 0) {
+          data$age <- paste(data$age, data$strata, sep = ":")
+        }
       }
     }
     is.age.diff <- FALSE
@@ -384,22 +391,32 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
         data$age.intercept <- data$age.orig
         data$age.diff <- age.groups.new[match(data$age.orig, 
                                               age.groups.vec)]
-        data$age.diff <- paste(data$age.diff, data$strata, 
-                               sep = ":")
+        if (sum(data$strata != "") > 0) {
+          data$age.diff <- paste(data$age.diff, data$strata, 
+                                 sep = ":")
+        }
         data$age.diff[data$strata == stratalevels[1]] <- "base"
         age.diff.levels <- sort(unique(data$age.diff))
         age.diff.levels <- c("base", age.diff.levels[age.diff.levels != 
                                                        "base"])
-      } else {
+      }
+      else {
         data$age.intercept <- age.groups.new[match(data$age.orig, 
                                                    age.groups.vec)]
-        data$age.intercept <- paste(data$age.intercept, 
-                                    data$strata, sep = ":")
+        if (sum(data$strata != "") > 0) {
+          data$age.intercept <- paste(data$age.intercept, 
+                                      data$strata, sep = ":")
+        }
         data$age.diff <- NA
         age.groups.new <- expand.grid(age.groups.new, 
                                       stratalevels)
-        age.groups.new <- paste(age.groups.new[, 1], 
-                                age.groups.new[, 2], sep = ":")
+        if (sum(age.groups.new[, 2] != "") > 0) {
+          age.groups.new <- paste(age.groups.new[, 1], 
+                                  age.groups.new[, 2], sep = ":")
+        }
+        else {
+          age.groups.new <- age.groups.new[, 1]
+        }
       }
     }
     if (strata.time.effect) {
@@ -483,7 +500,8 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
           if (sum(is.na(X[which, ])) > 0) 
             stop("NA in covariate matrix.")
         }
-      } else if ((!"region" %in% by) && "years" %in% by) {
+      }
+      else if ((!"region" %in% by) && "years" %in% by) {
         for (tt in unique(newdata$years)) {
           which <- which(X$years == tt)
           if (length(which) == 0) {
@@ -496,7 +514,8 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
           if (sum(is.na(X[which, ])) > 0) 
             stop("NA in covariate matrix.")
         }
-      } else if ("region" %in% by && "years" %in% by) {
+      }
+      else if ("region" %in% by && "years" %in% by) {
         for (tt in unique(newdata$years)) {
           for (ii in unique(newdata$region)) {
             which <- intersect(which(X$years == tt), 
@@ -512,7 +531,8 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
               stop("NA in covariate matrix.")
           }
         }
-      } else {
+      }
+      else {
         stop("Covariate need to contain column 'region' or 'years'.")
       }
       if ("years" %in% by) {
@@ -524,7 +544,8 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
           }
         }
       }
-    } else {
+    }
+    else {
       covariate.names <- NULL
     }
     if (!is.null(X)) {
@@ -585,14 +606,17 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
           formula <- Y ~ f(time.struct, model = paste0("rw", 
                                                        rw), constr = TRUE, extraconstr = NULL, hyper = hyperpc1, 
                            replicate = age.rep.idx)
-        } else if (!is.main.ar) {
+        }
+        else if (!is.main.ar) {
           formula <- Y ~ f(time.struct, model = paste0("rw", 
                                                        rw), constr = TRUE, extraconstr = NULL, hyper = hyperpc1)
-        } else if (replicate.rw && is.main.ar) {
+        }
+        else if (replicate.rw && is.main.ar) {
           formula <- Y ~ f(time.struct, model = "ar", 
                            order = ar, hyper = hyperar1, constr = TRUE, 
                            extraconstr = NULL, values = 1:N, replicate = age.rep.idx)
-        } else {
+        }
+        else {
           formula <- Y ~ f(time.struct, model = "ar", 
                            order = ar, hyper = hyperar1, constr = TRUE, 
                            extraconstr = NULL, values = 1:N)
@@ -672,7 +696,8 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
                                               graph = Amat, group = time.int, control.group = list(model = "ar", 
                                                                                                    order = st.ar, hyper = hyperar2), scale.model = TRUE, 
                                               adjust.for.con.comp = TRUE))
-          } else {
+          }
+          else {
             inla.rw = utils::getFromNamespace("inla.rw", 
                                               "INLA")
             inla.scale.model.bym = utils::getFromNamespace("inla.scale.model.bym", 
@@ -796,19 +821,23 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
         if (is.age.diff) {
           formula <- update(formula, ~. - 1 + age.intercept + 
                               age.diff)
-        } else {
+        }
+        else {
           formula <- update(formula, ~. - 1 + age.intercept)
         }
-      } else {
+      }
+      else {
         if (has.strata) {
           if (is.age.diff) {
             formula <- update(formula, ~. - 1 + age.intercept + 
                                 strata + age.diff)
-          } else {
+          }
+          else {
             formula <- update(formula, ~. - 1 + age.intercept + 
                                 strata)
           }
-        } else {
+        }
+        else {
           formula <- update(formula, ~. - 1 + age.intercept)
         }
       }
@@ -889,7 +918,8 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
                        FALSE]
       if (!is.temporal) {
         Xnew <- data.frame(region.struct = 1:S)
-      } else {
+      }
+      else {
         Xnew <- expand.grid(time.unstruct = 1:N, region.struct = 1:S)
         if (!is.spatial) 
           Xnew$region.struct <- 0
@@ -903,11 +933,13 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
         exdat <- merge(exdat, Xnew[, c(covariate.names, 
                                        "time.unstruct", "region.struct")], by = c("time.unstruct", 
                                                                                   "region.struct"), all.x = TRUE)
-      } else if ("region" %in% by) {
+      }
+      else if ("region" %in% by) {
         exdat <- merge(exdat, Xnew[, c(covariate.names, 
                                        "region.struct")], by = c("region.struct"), 
                        all.x = TRUE)
-      } else if ("years" %in% by) {
+      }
+      else if ("years" %in% by) {
         exdat <- merge(exdat, Xnew[, c(covariate.names, 
                                        "region.struct")], by = c("time.unstruct"), 
                        all.x = TRUE)
@@ -946,7 +978,7 @@ smoothCluster_mod <- function (data, X = NULL, family = c("betabinomial", "binom
       control.family <- NULL
       if (family == "betabinomial") {
         control.family <- list(hyper = list(rho = list(param = c(overdisp.mean, 
-                                                                 overdisp.prec))))
+                                                                 overdisp.prec), initial = overdisp.mean)))
         fit <- INLA::inla(formula, family = family, control.compute = options, 
                           control.family = control.family, data = exdat, 
                           control.predictor = list(compute = FALSE, link = 1), 
