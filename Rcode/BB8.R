@@ -1,7 +1,7 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Guinea'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
@@ -83,6 +83,39 @@ if(exists('poly.adm2')){
 load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
 }
+
+#update them if necessary
+if((max(weight.adm1.u1$years)<end.proj.year)){
+  weight.adm1.u1 <- rbind(weight.adm1.u1,data.frame(region=rep(weight.adm1.u1[weight.adm1.u1$years==2020,]$region,(end.proj.year - 2020)),
+                                                    proportion=rep(weight.adm1.u1[weight.adm1.u1$years==2020,]$proportion,(end.proj.year - 2020)),
+                                                    years=sort(rep(2021:end.proj.year,length(admin1.names$GADM)))))
+  weight.adm1.u5 <- rbind(weight.adm1.u5,data.frame(region=rep(weight.adm1.u5[weight.adm1.u5$years==2020,]$region,(end.proj.year - 2020)),
+                                                    proportion=rep(weight.adm1.u5[weight.adm1.u5$years==2020,]$proportion,(end.proj.year - 2020)),
+                                                    years=sort(rep(2021:end.proj.year,length(admin1.names$GADM)))))
+  if(exists('poly.layer.adm2')){
+    weight.adm2.u1 <- rbind(weight.adm2.u1,data.frame(region=rep(weight.adm2.u1[weight.adm2.u1$years==2020,]$region,(end.proj.year - 2020)),
+                                                      proportion=rep(weight.adm2.u1[weight.adm2.u1$years==2020,]$proportion,(end.proj.year - 2020)),
+                                                      years=sort(rep(2021:end.proj.year,length(admin2.names$GADM)))))
+    weight.adm2.u5 <- rbind(weight.adm2.u5,data.frame(region=rep(weight.adm2.u5[weight.adm2.u5$years==2020,]$region,(end.proj.year - 2020)),
+                                                      proportion=rep(weight.adm2.u5[weight.adm2.u5$years==2020,]$proportion,(end.proj.year - 2020)),
+                                                      years=sort(rep(2021:end.proj.year,length(admin2.names$GADM)))))
+  }
+}else if((max(weight.adm1.u1$years)>end.proj.year)){
+  weight.adm1.u1 <- weight.adm1.u1[weight.adm1.u1$years<=end.proj.year,]
+  weight.adm1.u5 <- weight.adm1.u5[weight.adm1.u5$years<=end.proj.year,]
+  if(exists('poly.layer.adm2')){
+    weight.adm2.u1 <- weight.adm2.u1[weight.adm2.u1$years<=end.proj.year,]
+    weight.adm2.u5 <- weight.adm2.u5[weight.adm2.u5$years<=end.proj.year,]
+  }
+}
+
+save(weight.adm1.u1,file=paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
+save(weight.adm1.u5,file=paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
+if(exists('poly.layer.adm2')){
+  save(weight.adm2.u1,file=paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
+  save(weight.adm2.u5,file=paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
+}
+
 ## Load intercept priors for benchmarking -----------------------------------------------
 load(paste0(data.dir,'/',country,'_age_int_priors_bench.rda'))
 
@@ -137,6 +170,45 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
   if(exists('poly.adm2')){
   weight.strata.adm2.u5 <- readRDS(paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
   weight.strata.adm2.u1 <- readRDS(paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
+  }
+  
+  #adjust if necessary
+  if(end.proj.year > max(weight.strata.natl.u1)){
+    weight.strata.natl.u1 <- rbind(weight.strata.natl.u1,
+                                   data.frame(years=2021:end.proj.year,
+                                              urban=rep(weight.strata.natl.u1[weight.strata.natl.u1$years==2020,]$urban,end.proj.year-2020),
+                                              rural=1-rep(weight.strata.natl.u1[weight.strata.natl.u1$years==2020,]$urban,end.proj.year-2020)))
+    weight.strata.natl.u5 <- rbind(weight.strata.natl.u5,
+                                   data.frame(years=2021:end.proj.year,
+                                              urban=rep(weight.strata.natl.u5[weight.strata.natl.u5$years==2020,]$urban,end.proj.year-2020),
+                                              rural=1-rep(weight.strata.natl.u5[weight.strata.natl.u5$years==2020,]$urban,end.proj.year-2020)))
+    weight.strata.adm1.u1 <- rbind(weight.strata.adm1.u1,
+                                   data.frame(region=rep(admin1.names$Internal,end.proj.year-2020),
+                                              years=sort(rep(2021:end.proj.year,nrow(admin1.names))),
+                                              urban=rep(weight.strata.adm1.u1[weight.strata.adm1.u1$years==2020,]$urban,end.proj.year-2020),
+                                              rural=1-rep(weight.strata.adm1.u1[weight.strata.adm1.u1$years==2020,]$urban,end.proj.year-2020)))
+    weight.strata.adm1.u5 <- rbind(weight.strata.adm1.u5,
+                                   data.frame(region=rep(admin1.names$Internal,end.proj.year-2020),
+                                              years=sort(rep(2021:end.proj.year,nrow(admin1.names))),
+                                              urban=rep(weight.strata.adm1.u5[weight.strata.adm1.u5$years==2020,]$urban,end.proj.year-2020),
+                                              rural=1-rep(weight.strata.adm1.u5[weight.strata.adm1.u5$years==2020,]$urban,end.proj.year-2020)))
+    weight.strata.adm2.u1 <- rbind(weight.strata.adm2.u1,
+                                   data.frame(region=rep(admin2.names$Internal,end.proj.year-2020),
+                                              years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
+                                              urban=rep(weight.strata.adm2.u1[weight.strata.adm2.u1$years==2020,]$urban,end.proj.year-2020),
+                                              rural=1-rep(weight.strata.adm2.u1[weight.strata.adm2.u1$years==2020,]$urban,end.proj.year-2020)))
+    weight.strata.adm2.u5 <- rbind(weight.strata.adm2.u5,
+                                   data.frame(region=rep(admin2.names$Internal,end.proj.year-2020),
+                                              years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
+                                              urban=rep(weight.strata.adm2.u5[weight.strata.adm2.u5$years==2020,]$urban,end.proj.year-2020),
+                                              rural=1-rep(weight.strata.adm2.u5[weight.strata.adm2.u5$years==2020,]$urban,end.proj.year-2020)))
+  }else if(end.proj.year < max(weight.strata.natl.u1)){
+    weight.strata.natl.u1 <- weight.strata.natl.u1[weight.strata.natl.u1$years<=end.proj.year,]
+    weight.strata.natl.u5 <- weight.strata.natl.u5[weight.strata.natl.u5$years<=end.proj.year,]
+    weight.strata.adm1.u1 <- weight.strata.adm1.u1[weight.strata.adm1.u1$years<=end.proj.year,]
+    weight.strata.adm1.u5 <- weight.strata.adm1.u5[weight.strata.adm1.u5$years<=end.proj.year,]
+    weight.strata.adm2.u1 <- weight.strata.adm2.u1[weight.strata.adm2.u1$years<=end.proj.year,]
+    weight.strata.adm2.u5 <- weight.strata.adm2.u5[weight.strata.adm2.u5$years<=end.proj.year,]
   }
 }
 
