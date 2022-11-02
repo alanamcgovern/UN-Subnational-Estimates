@@ -192,6 +192,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
                                               years=sort(rep(2021:end.proj.year,nrow(admin1.names))),
                                               urban=rep(weight.strata.adm1.u5[weight.strata.adm1.u5$years==2020,]$urban,end.proj.year-2020),
                                               rural=1-rep(weight.strata.adm1.u5[weight.strata.adm1.u5$years==2020,]$urban,end.proj.year-2020)))
+    if(exists('poly.adm2')){
     weight.strata.adm2.u1 <- rbind(weight.strata.adm2.u1,
                                    data.frame(region=rep(admin2.names$Internal,end.proj.year-2020),
                                               years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
@@ -202,6 +203,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
                                               years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
                                               urban=rep(weight.strata.adm2.u5[weight.strata.adm2.u5$years==2020,]$urban,end.proj.year-2020),
                                               rural=1-rep(weight.strata.adm2.u5[weight.strata.adm2.u5$years==2020,]$urban,end.proj.year-2020)))
+    }
   }else if(end.proj.year < max(weight.strata.natl.u1)){
     weight.strata.natl.u1 <- weight.strata.natl.u1[weight.strata.natl.u1$years<=end.proj.year,]
     weight.strata.natl.u5 <- weight.strata.natl.u5[weight.strata.natl.u5$years<=end.proj.year,]
