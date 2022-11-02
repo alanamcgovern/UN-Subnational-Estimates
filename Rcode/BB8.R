@@ -1,7 +1,7 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Lesotho'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
@@ -207,8 +207,10 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
     weight.strata.natl.u5 <- weight.strata.natl.u5[weight.strata.natl.u5$years<=end.proj.year,]
     weight.strata.adm1.u1 <- weight.strata.adm1.u1[weight.strata.adm1.u1$years<=end.proj.year,]
     weight.strata.adm1.u5 <- weight.strata.adm1.u5[weight.strata.adm1.u5$years<=end.proj.year,]
+    if(exists('poly.adm2')){
     weight.strata.adm2.u1 <- weight.strata.adm2.u1[weight.strata.adm2.u1$years<=end.proj.year,]
     weight.strata.adm2.u5 <- weight.strata.adm2.u5[weight.strata.adm2.u5$years<=end.proj.year,]
+    }
   }
 }
 
