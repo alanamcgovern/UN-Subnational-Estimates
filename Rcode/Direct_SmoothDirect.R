@@ -666,7 +666,7 @@ periods <- c(periods,proj.per)
 fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
                      year_label = c(periods), time.model = time.model,
                      year_range = c(beg.year, max(end.proj.years)),
-                     control.inla = list(strategy = "adaptive", int.strategy = "eb"), is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
+                     control.inla = list(strategy = "adaptive", int.strategy = "auto"), is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
 ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
 
  res.natl.u5 <- getSmoothed(fit.natl.u5,year_range = c(beg.year, max(end.proj.years)),
@@ -680,7 +680,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
  fit.natl.nmr <- smoothDirect(data.natl.nmr, geo = NULL, Amat = NULL, # national level model doesn't need to specify adjacency matrix since it would just be 1.
                              year_label = c(periods),
                              year_range = c(beg.year, max(end.proj.years)),time.model = time.model,
-                             control.inla = list(strategy = "adaptive", int.strategy = "eb"),
+                             control.inla = list(strategy = "adaptive", int.strategy = "auto"),
                              is.yearly = F) # fit the smoothed direct model. Changing the year label and year range can change the years the estimators to be computed, 
  ## even for future years where DHS data is not yet available. But this would lead to less accurate estimates and larger uncertainty level.
  
@@ -698,7 +698,7 @@ fit.natl.u5 <- smoothDirect(data.natl.u5, Amat = NULL, # national level model do
 fit.natl.yearly.u5 <- smoothDirect(data.natl.yearly.u5, geo = NULL, Amat = NULL,
                            year_label = as.character(beg.year:max(end.proj.years)),
                            year_range = c(beg.year, max(end.proj.years)), time.model = time.model,
-                           control.inla = list(strategy = "adaptive", int.strategy = "eb"),  is.yearly = F)
+                           control.inla = list(strategy = "adaptive", int.strategy = "auto"),  is.yearly = F)
 res.natl.yearly.u5 <- getSmoothed(fit.natl.yearly.u5, year_range = c(beg.year, max(end.proj.years)),
                                year_label = as.character(beg.year:max(end.proj.years)))
 res.natl.yearly.u5$years.num <- beg.year:max(end.proj.years)
@@ -709,7 +709,7 @@ save(res.natl.yearly.u5, file = paste0('U5MR/',country, "_res_natl_", time.model
 fit.natl.yearly.nmr <- smoothDirect(data.natl.yearly.nmr, geo = NULL, Amat = NULL,
                                    year_label = as.character(beg.year:max(end.proj.years)), time.model = time.model,
                                    year_range = c(beg.year, max(end.proj.years)), 
-                                   control.inla = list(strategy = "adaptive", int.strategy = "eb"), is.yearly = F)
+                                   control.inla = list(strategy = "adaptive", int.strategy = "auto"), is.yearly = F)
 res.natl.yearly.nmr <- getSmoothed(fit.natl.yearly.nmr, year_range = c(beg.year, max(end.proj.years)),
                                   year_label = as.character(beg.year:max(end.proj.years)))
 res.natl.yearly.nmr$years.num <- beg.year:max(end.proj.years)
