@@ -598,10 +598,11 @@ if(exists('poly.adm2')){
  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
              country, "_comparison_nmr_sd_",time.model, ".pdf"),height = 6,width = 6)
  {
-  natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+  g <- natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
+    print(g)
  }
   dev.off()
   
@@ -609,10 +610,11 @@ if(exists('poly.adm2')){
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
              country, "_comparison_u5_sd_",time.model, ".pdf"),height = 6,width = 6)
   { 
- natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+   g <- natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
     ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
     theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
     scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
+    print(g)
   }
   dev.off()
   
@@ -625,10 +627,11 @@ if(exists('poly.adm2')){
   pdf(paste0(res.dir, "/Figures/Summary/NMR/",
              country, "_comparison_nmr_bb8.pdf"),height = 6,width = 6)
   {
-    natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+    g <- natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
       ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
+    print(g)
   }
   dev.off()
   
@@ -636,10 +639,11 @@ if(exists('poly.adm2')){
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
              country, "_comparison_u5_bb8.pdf"),height = 6,width = 6)
   { 
-    natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
+    g <- natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
       ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
       scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
+    print(g)
   }
   dev.off()
   
