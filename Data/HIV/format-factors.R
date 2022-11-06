@@ -84,7 +84,7 @@ hiv.adj <- hiv.adj.new
 
 sapply(unique(hiv.adj$country),function(x){unique(hiv.adj[hiv.adj$country==x,]$area)})
 
-hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mozambique' & area=='Mozambique'),!(country=='Zimbabwe' & area=='Zimbabwe'),!(country=='Zambia' & area=='Zambia'),country!='Cote dIvoire') %>%
+hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mozambique' & area=='Mozambique'),!(country=='Zimbabwe' & area=='Zimbabwe'),country!='Cote dIvoire') %>%
         dplyr::mutate(area=if_else(country=='Mozambique' & area=='Niassa','Nassa',
                                    if_else(country=='Mozambique' & area=='CaboDelgado',"Cabo Delgado",
                                     if_else(country=='Mozambique' & area=="Maputo Cidade","Maputo City",
