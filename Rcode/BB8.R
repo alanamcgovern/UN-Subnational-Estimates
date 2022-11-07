@@ -1,7 +1,7 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Zimbabwe'
+country <- 'Mozambique'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
@@ -136,18 +136,10 @@ if(doHIVAdj){
     adj.frame <- hiv.adj
     adj.varnames <- c("country", "survey", "years")
   }else{ adj.frame <- hiv.adj
-  if(country == "Kenya"){
-    load(paste0(folder.name,
-                '/', country,
-                '_HIVNameKey.rda'), envir = .GlobalEnv)
-    adj.frame$area <- tolower(adj.frame$area)
-    hiv.name.key$OTHREGNA <- gsub(" ", "", hiv.name.key$OTHREGNA)
-    hiv.name.key$OTHREGNA <- tolower(hiv.name.key$OTHREGNA)
-    mod.dat$area <- hiv.name.key$OTHREGNA[match(mod.dat$admin1.name,
-                                                hiv.name.key$DHSREGEN)]
-  }else{
     mod.dat$area <- mod.dat$admin1.name
-  }
+    if(country=='Mozambique'){
+      mod.dat[mod.dat$area=='Maputo City',]$area <- 'Maputo'
+    }
   adj.varnames <- c("country", "area","survey", "years")
   }
   adj.frame <- adj.frame[adj.frame$survey %in% survey_years,c(adj.varnames,"ratio")]
