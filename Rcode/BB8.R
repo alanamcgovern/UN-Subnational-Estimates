@@ -1,11 +1,12 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Lesotho'
+country <- 'Zimbabwe'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
 library(INLA)
+inla.setOption(inla.mode="experimental")
 options(gsubfn.engine = "R")
 library(rgdal)
 library(tidyverse)
@@ -144,7 +145,7 @@ if(doHIVAdj){
     hiv.name.key$OTHREGNA <- tolower(hiv.name.key$OTHREGNA)
     mod.dat$area <- hiv.name.key$OTHREGNA[match(mod.dat$admin1.name,
                                                 hiv.name.key$DHSREGEN)]
-  }else if(sum(!(admin1.names$GADM %in% hiv.adj$area)) != 0){
+  }else{
     mod.dat$area <- mod.dat$admin1.name
   }
   adj.varnames <- c("country", "area","survey", "years")
