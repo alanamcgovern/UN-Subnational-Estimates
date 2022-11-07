@@ -147,10 +147,6 @@ if(doHIVAdj){
                                                 hiv.name.key$DHSREGEN)]
   }else{
     mod.dat$area <- mod.dat$admin1.name
-  }else{
-    # I'm not sure what the previous elseif does
-    # But mod.dat need to have an area column in order to merge the adjustment ratio later 
-    mod.dat$area <- mod.dat$admin1.name
   }
   adj.varnames <- c("country", "area","survey", "years")
   }
