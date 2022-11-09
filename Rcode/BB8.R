@@ -1,7 +1,7 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Mozambique'
+country <- 'Malawi'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
@@ -51,30 +51,36 @@ mod.dat$country <- as.character(country)
 survey_years <- unique(mod.dat$survey)
 end.proj.year <- 2021
 
-## Load National IGME estimates ------------------------------------------------------
-setwd(paste0(home.dir,'/Data/IGME'))
-
-## U5MR
-igme.ests.u5 <- read.csv(paste0(country.abbrev,'_u5_igme_est.csv'), header = T)
-names(igme.ests.u5) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
-igme.ests.u5$year <- igme.ests.u5$year-0.5
-igme.ests.u5$OBS_VALUE <- igme.ests.u5$OBS_VALUE/1000
-igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.year,]
-igme.ests.u5 <- igme.ests.u5[order(igme.ests.u5$year),]
-igme.ests.u5$SD <- (igme.ests.u5$UPPER_BOUND - igme.ests.u5$LOWER_BOUND)/(2*1.645*1000)
-igme.ests.u5$LOWER_BOUND <- igme.ests.u5$OBS_VALUE - 1.96*igme.ests.u5$SD
-igme.ests.u5$UPPER_BOUND <- igme.ests.u5$OBS_VALUE + 1.96*igme.ests.u5$SD
-
-## NMR
-igme.ests.nmr <- read.csv(paste0(country.abbrev,'_nmr_igme_est.csv'),  header = T)
-names(igme.ests.nmr) <- c('year','OBS_VALUE','LOWER_BOUND','UPPER_BOUND')
-igme.ests.nmr$year <- igme.ests.nmr$year-0.5
-igme.ests.nmr$OBS_VALUE <- igme.ests.nmr$OBS_VALUE/1000
-igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:end.proj.year,]
-igme.ests.nmr <- igme.ests.nmr[order(igme.ests.nmr$year),]
-igme.ests.nmr$SD <- (igme.ests.nmr$UPPER_BOUND - igme.ests.nmr$LOWER_BOUND)/(2*1.645*1000)
-igme.ests.nmr$LOWER_BOUND <- igme.ests.nmr$OBS_VALUE - 1.96*igme.ests.nmr$SD
-igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
+## Load IGME estimates ------------------------------------------------------
+{
+  setwd(paste0(home.dir,'/Data/IGME'))
+  
+  ## U5MR
+  igme.ests.u5.raw <- read.csv('igme2022_u5.csv')
+  igme.ests.u5 <- igme.ests.u5.raw[igme.ests.u5.raw$ISO.Code==gadm.abbrev,]
+  igme.ests.u5 <- data.frame(t(igme.ests.u5[,10:ncol(igme.ests.u5)]))
+  names(igme.ests.u5) <- c('LOWER_BOUND','OBS_VALUE','UPPER_BOUND')
+  igme.ests.u5$year <-  as.numeric(stringr::str_remove(row.names(igme.ests.u5),'X')) - 0.5
+  igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.year,]
+  rownames(igme.ests.u5) <- NULL
+  igme.ests.u5$OBS_VALUE <- igme.ests.u5$OBS_VALUE/1000
+  igme.ests.u5$SD <- (igme.ests.u5$UPPER_BOUND - igme.ests.u5$LOWER_BOUND)/(2*1.645*1000)
+  igme.ests.u5$LOWER_BOUND <- igme.ests.u5$OBS_VALUE - 1.96*igme.ests.u5$SD
+  igme.ests.u5$UPPER_BOUND <- igme.ests.u5$OBS_VALUE + 1.96*igme.ests.u5$SD
+  
+  ## NMR
+  igme.ests.nmr.raw <- read.csv('igme2022_nmr.csv')
+  igme.ests.nmr <- igme.ests.nmr.raw[igme.ests.nmr.raw$iso==gadm.abbrev,]
+  igme.ests.nmr <- data.frame(t(igme.ests.nmr[,10:ncol(igme.ests.nmr)]))
+  names(igme.ests.nmr) <- c('LOWER_BOUND','OBS_VALUE','UPPER_BOUND')
+  igme.ests.nmr$year <-  as.numeric(stringr::str_remove(row.names(igme.ests.nmr),'X')) - 0.5
+  igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:end.proj.year,]
+  rownames(igme.ests.nmr) <- NULL
+  igme.ests.nmr$OBS_VALUE <- igme.ests.nmr$OBS_VALUE/1000
+  igme.ests.nmr$SD <- (igme.ests.nmr$UPPER_BOUND - igme.ests.nmr$LOWER_BOUND)/(2*1.645*1000)
+  igme.ests.nmr$LOWER_BOUND <- igme.ests.nmr$OBS_VALUE - 1.96*igme.ests.nmr$SD
+  igme.ests.nmr$UPPER_BOUND <- igme.ests.nmr$OBS_VALUE + 1.96*igme.ests.nmr$SD
+}
 
 ## Load Admin 1 and 2 population proportions (for benchmarking) ------------------------------------------------------
 
