@@ -215,7 +215,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
   }
 }
 
-## Fit BB8 models -----------------------------------------------
+## Fit BB8 models w surveys from same sampling frame  -----------------------------------------------
 setwd(paste0(res.dir))
 
 ### NMR -----------------------------------------------
@@ -324,47 +324,6 @@ save(bb.fixed.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_adm
 # save results
 save(bb.res.adm1.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm1_strat_nmr.rda'))
 
-  #### Admin1 Strat, Benchmarked -----------------------------------------------
-bb.adm1.strat.nmr.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
-                                  Amat=admin1.mat, admin.level='Admin1',
-                                  stratified=T, weight.strata=weight.strata.adm1.u1,
-                                  outcome='nmr',
-                                  time.model='ar1', st.time.model='ar1',
-                                  adj.frame=adj.frame, adj.varnames=adj.varnames,
-                                  weight.region = weight.adm1.u1,
-                                  igme.ests = igme.ests.nmr,
-                                  int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
-                                  doBenchmark=T, nsim = 1000)
-
-bb.fit.adm1.strat.nmr.bench <- bb.adm1.strat.nmr.bench[[1]]
-bb.res.adm1.strat.nmr.bench <- bb.adm1.strat.nmr.bench[[2]]
-
-bb.temporals.adm1.strat.nmr.bench <- getDiag(bb.adm1.strat.nmr.bench$fit,field = "time",year_label=beg.year:end.proj.year)
-bb.hyperpar.adm1.strat.nmr.bench <- bb.fit.adm1.strat.nmr.bench$fit$summary.hyperpar
-bb.fixed.adm1.strat.nmr.bench <- bb.fit.adm1.strat.nmr.bench$fit$summary.fixed
-
-# save summary of fit to a txt file
-sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr_bench.txt'))
-summary(bb.fit.adm1.strat.nmr.bench)
-sink(file=NULL)
-# save smaller components of fit
-save(bb.temporals.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_temporals_adm1_strat_nmr_bench.rda'))
-save(bb.hyperpar.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm1_strat_nmr_bench.rda'))
-save(bb.fixed.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_fixed_adm1_strat_nmr_bench.rda'))
-# save results
-save(bb.res.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_res_adm1_strat_nmr_bench.rda'))
-
-# save traceplots from benchmarking for 12 random combinations of admin area and year
-pdf(file = paste0('Betabinomial/NMR/',country,'_adm1_strat_nmr_bench_trace.pdf'))
-par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
-ind <- sort(sample(1:length(bb.res.adm1.strat.nmr.bench$draws.est.overall),12))
-for(i in ind){
-  bb.draws.tmp <- bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$draws
-  plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
-       main=paste0(bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$years))
-}
-dev.off()
-
   #### Admin2 Unstrat ----------------------------------------------
 bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                               Amat=admin2.mat, admin.level='Admin2',
@@ -417,46 +376,6 @@ save(bb.hyperpar.adm2.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_hyperp
 save(bb.fixed.adm2.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_adm2_strat_nmr.rda'))
 # save results
 save(bb.res.adm2.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm2_strat_nmr.rda'))
-
-  #### Admin2 Strat, Benchmarked -----------------------------------------------
-bb.adm2.strat.nmr.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
-                                  Amat=admin2.mat, admin.level='Admin2',
-                                  stratified=T, weight.strata=weight.strata.adm2.u1,
-                                  outcome='nmr',
-                                  time.model='ar1', st.time.model='ar1',
-                                  adj.frame=adj.frame, adj.varnames=adj.varnames,
-                                  weight.region = weight.adm2.u1, 
-                                  igme.ests = igme.ests.nmr,
-                                  int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
-                                  doBenchmark=T,nsim = 1000)
-bb.fit.adm2.strat.nmr.bench <- bb.adm2.strat.nmr.bench[[1]]
-bb.res.adm2.strat.nmr.bench <- bb.adm2.strat.nmr.bench[[2]]
-
-bb.temporals.adm2.strat.nmr.bench <- getDiag(bb.adm2.strat.nmr.bench$fit,field = "time",year_label=beg.year:end.proj.year)
-bb.hyperpar.adm2.strat.nmr.bench <- bb.fit.adm2.strat.nmr.bench$fit$summary.hyperpar
-bb.fixed.adm2.strat.nmr.bench <- bb.fit.adm2.strat.nmr.bench$fit$summary.fixed
-
-# save summary of fit to a txt file
-sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm2_strat_nmr_bench.txt'))
-summary(bb.fit.adm2.strat.nmr.bench)
-sink(file=NULL)
-# save smaller components of fit
-save(bb.temporals.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_temporals_adm2_strat_nmr_bench.rda'))
-save(bb.hyperpar.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm2_strat_nmr_bench.rda'))
-save(bb.fixed.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_fixed_adm2_strat_nmr_bench.rda'))
-# save results
-save(bb.res.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_res_adm2_strat_nmr_bench.rda'))
-
-# save traceplots from benchmarking for 12 random combinations of admin area and year
-pdf(file = paste0('Betabinomial/NMR/',country,'_adm2_strat_nmr_bench_trace.pdf'))
-par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
-ind <- sort(sample(1:length(bb.res.adm2.strat.nmr.bench$draws.est.overall),12))
-for(i in ind){
-  bb.draws.tmp <- bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$draws
-  plot(bb.draws.tmp,type='l',
-       ylab=' ',xlab='',main=paste0(bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$years))
-}
-dev.off()
 
 ### U5MR -----------------------------------------------
   #### National Unstrat ----------------------------------------------
@@ -563,48 +482,6 @@ save(bb.fixed.adm1.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm
 # save results
 save(bb.res.adm1.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_strat_u5.rda'))
 
-  #### Admin1 Strat, Benchmarked -----------------------------------------------
-
-bb.adm1.strat.u5.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
-                                 Amat=admin1.mat, admin.level='Admin1',
-                                 stratified=T, weight.strata=weight.strata.adm1.u5,
-                                 outcome='u5mr',
-                                 time.model='ar1', st.time.model='ar1',
-                                 adj.frame=adj.frame, adj.varnames=adj.varnames,
-                                 weight.region = weight.adm1.u5, 
-                                 igme.ests = igme.ests.u5,
-                                 int.priors.bench = int.priors.bench,
-                                 int.priors.prec.bench = 10, # can change this if getting very small acceptance
-                                 doBenchmark=T,nsim=1000)
-bb.fit.adm1.strat.u5.bench <- bb.adm1.strat.u5.bench[[1]]
-bb.res.adm1.strat.u5.bench <- bb.adm1.strat.u5.bench[[2]]
-
-bb.temporals.adm1.strat.u5.bench <- getDiag(bb.adm1.strat.u5.bench$fit,field = "time",year_label=beg.year:end.proj.year)
-bb.hyperpar.adm1.strat.u5.bench <- bb.fit.adm1.strat.u5.bench$fit$summary.hyperpar
-bb.fixed.adm1.strat.u5.bench <- bb.fit.adm1.strat.u5.bench$fit$summary.fixed
-
-# save summary of fit to a txt file
-sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_strat_u5_bench.txt'))
-summary(bb.fit.adm1.strat.u5.bench)
-sink(file=NULL)
-# save smaller components of fit
-save(bb.temporals.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_temporals_adm1_strat_u5_bench.rda'))
-save(bb.hyperpar.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_adm1_strat_u5_bench.rda'))
-save(bb.fixed.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm1_strat_u5_bench.rda'))
-# save results
-save(bb.res.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_strat_u5_bench.rda'))
-
-# save traceplots from benchmarking for 12 random combinations of admin area and year
-pdf(file = paste0('Betabinomial/U5MR/',country,'_adm1_strat_u5_bench_trace.pdf'))
-par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
-ind <- sort(sample(1:length(bb.res.adm1.strat.u5.bench$draws.est.overall),12))
-for(i in ind){
-  bb.draws.tmp <- bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$draws
-  plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
-       main=paste0(bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$years))
-}
-dev.off()
-
   #### Admin2 Unstrat ---------------------------------------------
 bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin2.mat, admin.level='Admin2',
@@ -657,18 +534,144 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   # save results
   save(bb.res.adm2.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_strat_u5.rda'))
   
+## Get benchmarked stratified models  -----------------------------------------------
+### NMR -----------------------------------------------
+  #### Admin1 Strat, Benchmarked -----------------------------------------------
+  bb.adm1.strat.nmr.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                    Amat=admin1.mat, admin.level='Admin1',
+                                    stratified=T, weight.strata=weight.strata.adm1.u1,
+                                    outcome='nmr',
+                                    time.model='ar1', st.time.model='ar1',
+                                    adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                    weight.region = weight.adm1.u1,
+                                    igme.ests = igme.ests.nmr,
+                                    int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                    doBenchmark=T, nsim = 1000)
+  
+  bb.fit.adm1.strat.nmr.bench <- bb.adm1.strat.nmr.bench[[1]]
+  bb.res.adm1.strat.nmr.bench <- bb.adm1.strat.nmr.bench[[2]]
+  
+  bb.temporals.adm1.strat.nmr.bench <- getDiag(bb.adm1.strat.nmr.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm1.strat.nmr.bench <- bb.fit.adm1.strat.nmr.bench$fit$summary.hyperpar
+  bb.fixed.adm1.strat.nmr.bench <- bb.fit.adm1.strat.nmr.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr_bench.txt'))
+  summary(bb.fit.adm1.strat.nmr.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_temporals_adm1_strat_nmr_bench.rda'))
+  save(bb.hyperpar.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm1_strat_nmr_bench.rda'))
+  save(bb.fixed.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_fixed_adm1_strat_nmr_bench.rda'))
+  # save results
+  save(bb.res.adm1.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_res_adm1_strat_nmr_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/NMR/',country,'_adm1_strat_nmr_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm1.strat.nmr.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.nmr.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+  
+  #### Admin2 Strat, Benchmarked -----------------------------------------------
+  bb.adm2.strat.nmr.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                    Amat=admin2.mat, admin.level='Admin2',
+                                    stratified=T, weight.strata=weight.strata.adm2.u1,
+                                    outcome='nmr',
+                                    time.model='ar1', st.time.model='ar1',
+                                    adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                    weight.region = weight.adm2.u1, 
+                                    igme.ests = igme.ests.nmr,
+                                    int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                    doBenchmark=T,nsim = 1000)
+  bb.fit.adm2.strat.nmr.bench <- bb.adm2.strat.nmr.bench[[1]]
+  bb.res.adm2.strat.nmr.bench <- bb.adm2.strat.nmr.bench[[2]]
+  
+  bb.temporals.adm2.strat.nmr.bench <- getDiag(bb.adm2.strat.nmr.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm2.strat.nmr.bench <- bb.fit.adm2.strat.nmr.bench$fit$summary.hyperpar
+  bb.fixed.adm2.strat.nmr.bench <- bb.fit.adm2.strat.nmr.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm2_strat_nmr_bench.txt'))
+  summary(bb.fit.adm2.strat.nmr.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_temporals_adm2_strat_nmr_bench.rda'))
+  save(bb.hyperpar.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm2_strat_nmr_bench.rda'))
+  save(bb.fixed.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_fixed_adm2_strat_nmr_bench.rda'))
+  # save results
+  save(bb.res.adm2.strat.nmr.bench,file=paste0('Betabinomial/NMR/',country,'_res_adm2_strat_nmr_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/NMR/',country,'_adm2_strat_nmr_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm2.strat.nmr.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l',
+         ylab=' ',xlab='',main=paste0(bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.nmr.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+  
+### U5MR -----------------------------------------------
+  #### Admin1 Strat, Benchmarked -----------------------------------------------
+  
+  bb.adm1.strat.u5.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                   Amat=admin1.mat, admin.level='Admin1',
+                                   stratified=T, weight.strata=weight.strata.adm1.u5,
+                                   outcome='u5mr',
+                                   time.model='ar1', st.time.model='ar1',
+                                   adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                   weight.region = weight.adm1.u5, 
+                                   igme.ests = igme.ests.u5,
+                                   int.priors.bench = int.priors.bench,
+                                   int.priors.prec.bench = 10, # can change this if getting very small acceptance
+                                   doBenchmark=T,nsim=1000)
+  bb.fit.adm1.strat.u5.bench <- bb.adm1.strat.u5.bench[[1]]
+  bb.res.adm1.strat.u5.bench <- bb.adm1.strat.u5.bench[[2]]
+  
+  bb.temporals.adm1.strat.u5.bench <- getDiag(bb.adm1.strat.u5.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm1.strat.u5.bench <- bb.fit.adm1.strat.u5.bench$fit$summary.hyperpar
+  bb.fixed.adm1.strat.u5.bench <- bb.fit.adm1.strat.u5.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_strat_u5_bench.txt'))
+  summary(bb.fit.adm1.strat.u5.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_temporals_adm1_strat_u5_bench.rda'))
+  save(bb.hyperpar.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_adm1_strat_u5_bench.rda'))
+  save(bb.fixed.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm1_strat_u5_bench.rda'))
+  # save results
+  save(bb.res.adm1.strat.u5.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_strat_u5_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/U5MR/',country,'_adm1_strat_u5_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm1.strat.u5.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.u5.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+  
   #### Admin2 Strat, Benchmarked -----------------------------------------------
   bb.adm2.strat.u5.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
-                             Amat=admin2.mat, admin.level='Admin2',
-                             stratified=T, weight.strata=weight.strata.adm2.u5,
-                             outcome='u5mr',
-                             time.model='ar1', st.time.model='ar1',
-                             adj.frame=adj.frame, adj.varnames=adj.varnames,
-                             weight.region = weight.adm2.u5, 
-                             igme.ests = igme.ests.u5,
-                             int.priors.bench = int.priors.bench,
-                             int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
-                             doBenchmark=T,nsim=1000)
+                                   Amat=admin2.mat, admin.level='Admin2',
+                                   stratified=T, weight.strata=weight.strata.adm2.u5,
+                                   outcome='u5mr',
+                                   time.model='ar1', st.time.model='ar1',
+                                   adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                   weight.region = weight.adm2.u5, 
+                                   igme.ests = igme.ests.u5,
+                                   int.priors.bench = int.priors.bench,
+                                   int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                   doBenchmark=T,nsim=1000)
   bb.fit.adm2.strat.u5.bench <- bb.adm2.strat.u5.bench[[1]]
   bb.res.adm2.strat.u5.bench <- bb.adm2.strat.u5.bench[[2]]
   
@@ -697,3 +700,342 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
          main=paste0(bb.res.adm2.strat.u5.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.u5.bench$draws.est.overall[[i]]$years))
   }
   dev.off()
+## Fit BB8 models w all surveys (from different sampling frames) -----------------------------------------------
+## Load data -----------------------------------------------
+  setwd(data.dir)
+  load(paste0(country,'_cluster_dat.rda'),
+       envir = .GlobalEnv)
+  
+  mod.dat$years <- as.numeric(as.character(mod.dat$years))
+  mod.dat$country <- as.character(country)
+  survey_years <- unique(mod.dat$survey)
+  
+### NMR -----------------------------------------------
+  setwd(paste0(res.dir))
+  #### National Unstrat ----------------------------------------------
+  bb.natl.unstrat.nmr.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                Amat=NULL, admin.level='National',
+                                stratified=F, weight.strata=NULL,
+                                outcome='nmr', time.model='ar1',
+                                adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                doBenchmark=F,nsim = 1000)
+  
+  bb.fit.natl.unstrat.nmr.allsurveys <- bb.natl.unstrat.nmr.allsurveys[[1]]
+  bb.res.natl.unstrat.nmr.allsurveys <- bb.natl.unstrat.nmr.allsurveys[[2]]
+  
+  bb.temporals.natl.unstrat.nmr.allsurveys <- getDiag(bb.natl.unstrat.nmr.allsurveys$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.natl.unstrat.nmr.allsurveys <- bb.fit.natl.unstrat.nmr.allsurveys$fit$summary.hyperpar
+  bb.fixed.natl.unstrat.nmr.allsurveys <- bb.fit.natl.unstrat.nmr.allsurveys$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr_allsurveys.txt'))
+  summary(bb.fit.natl.unstrat.nmr.allsurveys)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_unstrat_nmr_allsurveys.rda'))
+  save(bb.hyperpar.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_unstrat_nmr_allsurveys.rda'))
+  save(bb.fixed.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_unstrat_nmr_allsurveys.rda'))
+  # save results
+  save(bb.res.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_res_natl_unstrat_nmr_allsurveys.rda'))
+  
+  #### Admin1 Unstrat ----------------------------------------------
+  bb.adm1.unstrat.nmr.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                Amat=admin1.mat, admin.level='Admin1',
+                                stratified=F, weight.strata=NULL,
+                                outcome='nmr',
+                                time.model='ar1', st.time.model='ar1',
+                                adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                doBenchmark=F,nsim = 1000)
+  
+  bb.fit.adm1.unstrat.nmr.allsurveys <- bb.adm1.unstrat.nmr.allsurveys[[1]]
+  bb.res.adm1.unstrat.nmr.allsurveys <- bb.adm1.unstrat.nmr.allsurveys[[2]]
+  
+  bb.temporals.adm1.unstrat.nmr.allsurveys <- getDiag(bb.adm1.unstrat.nmr.allsurveys$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm1.unstrat.nmr.allsurveys <- bb.fit.adm1.unstrat.nmr.allsurveys$fit$summary.hyperpar
+  bb.fixed.adm1.unstrat.nmr.allsurveys <- bb.fit.adm1.unstrat.nmr.allsurveys$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm1_unstrat_nmr_allsurveys.txt'))
+  summary(bb.fit.adm1.unstrat.nmr.allsurveys)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm1.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_temporals_adm1_unstrat_nmr_allsurveys.rda'))
+  save(bb.hyperpar.adm1.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm1_unstrat_nmr_allsurveys.rda'))
+  save(bb.fixed.adm1.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_fixed_adm1_unstrat_nmr_allsurveys.rda'))
+  # save results
+  save(bb.res.adm1.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_res_adm1_unstrat_nmr_allsurveys.rda'))
+  
+  #### Admin2 Unstrat ----------------------------------------------
+  bb.adm2.unstrat.nmr.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                           Amat=admin2.mat, admin.level='Admin2',
+                                           stratified=F, weight.strata=NULL,
+                                           outcome='nmr',
+                                           time.model='ar1', st.time.model='ar1',
+                                           adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                           doBenchmark=F,nsim = 1000)
+  
+  bb.fit.adm2.unstrat.nmr.allsurveys <- bb.adm2.unstrat.nmr.allsurveys[[1]]
+  bb.res.adm2.unstrat.nmr.allsurveys <- bb.adm2.unstrat.nmr.allsurveys[[2]]
+  
+  bb.temporals.adm2.unstrat.nmr.allsurveys <- getDiag(bb.adm2.unstrat.nmr.allsurveys$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm2.unstrat.nmr.allsurveys <- bb.fit.adm2.unstrat.nmr.allsurveys$fit$summary.hyperpar
+  bb.fixed.adm2.unstrat.nmr.allsurveys <- bb.fit.adm2.unstrat.nmr.allsurveys$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm2_unstrat_nmr_allsurveys.txt'))
+  summary(bb.fit.adm2.unstrat.nmr.allsurveys)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm2.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_temporals_adm2_unstrat_nmr_allsurveys.rda'))
+  save(bb.hyperpar.adm2.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm2_unstrat_nmr_allsurveys.rda'))
+  save(bb.fixed.adm2.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_fixed_adm2_unstrat_nmr_allsurveys.rda'))
+  # save results
+  save(bb.res.adm2.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_res_adm2_unstrat_nmr_allsurveys.rda'))
+  
+### U5MR -----------------------------------------------
+  setwd(paste0(res.dir))
+  #### National Unstrat ----------------------------------------------
+  bb.natl.unstrat.u5.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                           Amat=NULL, admin.level='National',
+                                           stratified=F, weight.strata=NULL,
+                                           outcome='u5mr', time.model='ar1',
+                                           adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                           doBenchmark=F,nsim = 1000)
+  
+  bb.fit.natl.unstrat.u5.allsurveys <- bb.natl.unstrat.u5.allsurveys[[1]]
+  bb.res.natl.unstrat.u5.allsurveys <- bb.natl.unstrat.u5.allsurveys[[2]]
+  
+  bb.temporals.natl.unstrat.u5.allsurveys <- getDiag(bb.natl.unstrat.u5.allsurveys$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.natl.unstrat.u5.allsurveys <- bb.fit.natl.unstrat.u5.allsurveys$fit$summary.hyperpar
+  bb.fixed.natl.unstrat.u5.allsurveys <- bb.fit.natl.unstrat.u5.allsurveys$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5_allsurveys.txt'))
+  summary(bb.fit.natl.unstrat.u5.allsurveys)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_unstrat_u5_allsurveys.rda'))
+  save(bb.hyperpar.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_unstrat_u5_allsurveys.rda'))
+  save(bb.fixed.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_unstrat_u5_allsurveys.rda'))
+  # save results
+  save(bb.res.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_res_natl_unstrat_u5_allsurveys.rda'))
+  
+  #### Admin1 Unstrat ----------------------------------------------
+  bb.adm1.unstrat.u5.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                           Amat=admin1.mat, admin.level='Admin1',
+                                           stratified=F, weight.strata=NULL,
+                                           outcome='u5mr',
+                                           time.model='ar1', st.time.model='ar1',
+                                           adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                           doBenchmark=F,nsim = 1000)
+  
+  bb.fit.adm1.unstrat.u5.allsurveys <- bb.adm1.unstrat.u5.allsurveys[[1]]
+  bb.res.adm1.unstrat.u5.allsurveys <- bb.adm1.unstrat.u5.allsurveys[[2]]
+  
+  bb.temporals.adm1.unstrat.u5.allsurveys <- getDiag(bb.adm1.unstrat.u5.allsurveys$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm1.unstrat.u5.allsurveys <- bb.fit.adm1.unstrat.u5.allsurveys$fit$summary.hyperpar
+  bb.fixed.adm1.unstrat.u5.allsurveys <- bb.fit.adm1.unstrat.u5.allsurveys$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_unstrat_u5_allsurveys.txt'))
+  summary(bb.fit.adm1.unstrat.u5.allsurveys)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm1.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_temporals_adm1_unstrat_u5_allsurveys.rda'))
+  save(bb.hyperpar.adm1.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_adm1_unstrat_u5_allsurveys.rda'))
+  save(bb.fixed.adm1.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm1_unstrat_u5_allsurveys.rda'))
+  # save results
+  save(bb.res.adm1.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_unstrat_u5_allsurveys.rda'))
+  
+  #### Admin2 Unstrat ----------------------------------------------
+  bb.adm2.unstrat.u5.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                          Amat=admin2.mat, admin.level='Admin2',
+                                          stratified=F, weight.strata=NULL,
+                                          outcome='u5mr',
+                                          time.model='ar1', st.time.model='ar1',
+                                          adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                          doBenchmark=F,nsim = 1000)
+  
+  bb.fit.adm2.unstrat.u5.allsurveys <- bb.adm2.unstrat.u5.allsurveys[[1]]
+  bb.res.adm2.unstrat.u5.allsurveys <- bb.adm2.unstrat.u5.allsurveys[[2]]
+  
+  bb.temporals.adm2.unstrat.u5.allsurveys <- getDiag(bb.adm2.unstrat.u5.allsurveys$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm2.unstrat.u5.allsurveys <- bb.fit.adm2.unstrat.u5.allsurveys$fit$summary.hyperpar
+  bb.fixed.adm2.unstrat.u5.allsurveys <- bb.fit.adm2.unstrat.u5.allsurveys$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm2_unstrat_u5_allsurveys.txt'))
+  summary(bb.fit.adm2.unstrat.u5.allsurveys)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm2.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_temporals_adm2_unstrat_u5_allsurveys.rda'))
+  save(bb.hyperpar.adm2.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_adm2_unstrat_u5_allsurveys.rda'))
+  save(bb.fixed.adm2.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm2_unstrat_u5_allsurveys.rda'))
+  # save results
+  save(bb.res.adm2.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_unstrat_u5_allsurveys.rda'))
+## Get benchmarked unstratified models (using all surveys)  -----------------------------------------------
+### NMR -----------------------------------------------
+  #### Admin1 Unstrat,  Benchmarked ----------------------------------------------
+  bb.adm1.strat.nmr.allsurveys.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                    Amat=admin1.mat, admin.level='Admin1',
+                                    stratified=F, weight.strata=NULL,
+                                    outcome='nmr',
+                                    time.model='ar1', st.time.model='ar1',
+                                    adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                    weight.region = weight.adm1.u1,
+                                    igme.ests = igme.ests.nmr,
+                                    int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                    doBenchmark=T, nsim = 1000)
+  
+  bb.fit.adm1.strat.nmr.allsurveys.bench <- bb.adm1.strat.nmr.allsurveys.bench[[1]]
+  bb.res.adm1.strat.nmr.allsurveys.bench <- bb.adm1.strat.nmr.allsurveys.bench[[2]]
+  
+  bb.temporals.adm1.strat.nmr.allsurveys.bench <- getDiag(bb.adm1.strat.nmr.allsurveys.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm1.strat.nmr.allsurveys.bench <- bb.fit.adm1.strat.nmr.allsurveys.bench$fit$summary.hyperpar
+  bb.fixed.adm1.strat.nmr.allsurveys.bench <- bb.fit.adm1.strat.nmr.allsurveys.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm1_strat_nmr_allsurveys_bench.txt'))
+  summary(bb.fit.adm1.strat.nmr.allsurveys.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm1.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_temporals_adm1_strat_nmr_allsurveys_bench.rda'))
+  save(bb.hyperpar.adm1.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm1_strat_nmr_allsurveys_bench.rda'))
+  save(bb.fixed.adm1.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_fixed_adm1_strat_nmr_allsurveys_bench.rda'))
+  # save results
+  save(bb.res.adm1.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_res_adm1_strat_nmr_allsurveys_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/NMR/',country,'_adm1_strat_nmr_allsurveys_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm1.strat.nmr.allsurveys.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm1.strat.nmr.allsurveys.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm1.strat.nmr.allsurveys.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.nmr.allsurveys.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+  
+  #### Admin2 Unstrat, Benchmarked ----------------------------------------------
+  bb.adm2.strat.nmr.allsurveys.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                               Amat=admin2.mat, admin.level='Admin2',
+                                               stratified=F, weight.strata=NULL,
+                                               outcome='nmr',
+                                               time.model='ar1', st.time.model='ar1',
+                                               adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                               weight.region = weight.adm2.u1,
+                                               igme.ests = igme.ests.nmr,
+                                               int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                               doBenchmark=T, nsim = 1000)
+  
+  bb.fit.adm2.strat.nmr.allsurveys.bench <- bb.adm2.strat.nmr.allsurveys.bench[[1]]
+  bb.res.adm2.strat.nmr.allsurveys.bench <- bb.adm2.strat.nmr.allsurveys.bench[[2]]
+  
+  bb.temporals.adm2.strat.nmr.allsurveys.bench <- getDiag(bb.adm2.strat.nmr.allsurveys.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm2.strat.nmr.allsurveys.bench <- bb.fit.adm2.strat.nmr.allsurveys.bench$fit$summary.hyperpar
+  bb.fixed.adm2.strat.nmr.allsurveys.bench <- bb.fit.adm2.strat.nmr.allsurveys.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_adm2_strat_nmr_allsurveys_bench.txt'))
+  summary(bb.fit.adm2.strat.nmr.allsurveys.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm2.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_temporals_adm2_strat_nmr_allsurveys_bench.rda'))
+  save(bb.hyperpar.adm2.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_hyperpar_adm2_strat_nmr_allsurveys_bench.rda'))
+  save(bb.fixed.adm2.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_fixed_adm2_strat_nmr_allsurveys_bench.rda'))
+  # save results
+  save(bb.res.adm2.strat.nmr.allsurveys.bench,file=paste0('Betabinomial/NMR/',country,'_res_adm2_strat_nmr_allsurveys_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/NMR/',country,'_adm2_strat_nmr_allsurveys_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm2.strat.nmr.allsurveys.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm2.strat.nmr.allsurveys.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm2.strat.nmr.allsurveys.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.nmr.allsurveys.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+### U5MR -----------------------------------------------
+  #### Admin1 Unstrat,  Benchmarked ----------------------------------------------
+  bb.adm1.strat.u5.allsurveys.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                               Amat=admin1.mat, admin.level='Admin1',
+                                               stratified=F, weight.strata=NULL,
+                                               outcome='u5mr',
+                                               time.model='ar1', st.time.model='ar1',
+                                               adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                               weight.region = weight.adm1.u1,
+                                               igme.ests = igme.ests.u5,
+                                               int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                               doBenchmark=T, nsim = 1000)
+  
+  bb.fit.adm1.strat.u5.allsurveys.bench <- bb.adm1.strat.u5.allsurveys.bench[[1]]
+  bb.res.adm1.strat.u5.allsurveys.bench <- bb.adm1.strat.u5.allsurveys.bench[[2]]
+  
+  bb.temporals.adm1.strat.u5.allsurveys.bench <- getDiag(bb.adm1.strat.u5.allsurveys.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm1.strat.u5.allsurveys.bench <- bb.fit.adm1.strat.u5.allsurveys.bench$fit$summary.hyperpar
+  bb.fixed.adm1.strat.u5.allsurveys.bench <- bb.fit.adm1.strat.u5.allsurveys.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm1_strat_u5_allsurveys_bench.txt'))
+  summary(bb.fit.adm1.strat.u5.allsurveys.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm1.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_temporals_adm1_strat_u5_allsurveys_bench.rda'))
+  save(bb.hyperpar.adm1.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_adm1_strat_u5_allsurveys_bench.rda'))
+  save(bb.fixed.adm1.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm1_strat_u5_allsurveys_bench.rda'))
+  # save results
+  save(bb.res.adm1.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm1_strat_u5_allsurveys_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/U5MR/',country,'_adm1_strat_u5_allsurveys_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm1.strat.u5.allsurveys.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm1.strat.u5.allsurveys.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm1.strat.u5.allsurveys.bench$draws.est.overall[[i]]$region,", ", bb.res.adm1.strat.u5.allsurveys.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+  
+  #### Admin2 Unstrat, Benchmarked ----------------------------------------------
+  bb.adm2.strat.u5.allsurveys.bench <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
+                                               Amat=admin2.mat, admin.level='Admin2',
+                                               stratified=F, weight.strata=NULL,
+                                               outcome='u5mr',
+                                               time.model='ar1', st.time.model='ar1',
+                                               adj.frame=adj.frame, adj.varnames=adj.varnames,
+                                               weight.region = weight.adm2.u1,
+                                               igme.ests = igme.ests.u5,
+                                               int.priors.prec.bench = 10, # parameter to play around with if getting very low acceptance
+                                               doBenchmark=T, nsim = 1000)
+  
+  bb.fit.adm2.strat.u5.allsurveys.bench <- bb.adm2.strat.u5.allsurveys.bench[[1]]
+  bb.res.adm2.strat.u5.allsurveys.bench <- bb.adm2.strat.u5.allsurveys.bench[[2]]
+  
+  bb.temporals.adm2.strat.u5.allsurveys.bench <- getDiag(bb.adm2.strat.u5.allsurveys.bench$fit,field = "time",year_label=beg.year:end.proj.year)
+  bb.hyperpar.adm2.strat.u5.allsurveys.bench <- bb.fit.adm2.strat.u5.allsurveys.bench$fit$summary.hyperpar
+  bb.fixed.adm2.strat.u5.allsurveys.bench <- bb.fit.adm2.strat.u5.allsurveys.bench$fit$summary.fixed
+  
+  # save summary of fit to a txt file
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_adm2_strat_u5_allsurveys_bench.txt'))
+  summary(bb.fit.adm2.strat.u5.allsurveys.bench)
+  sink(file=NULL)
+  # save smaller components of fit
+  save(bb.temporals.adm2.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_temporals_adm2_strat_u5_allsurveys_bench.rda'))
+  save(bb.hyperpar.adm2.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_adm2_strat_u5_allsurveys_bench.rda'))
+  save(bb.fixed.adm2.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_fixed_adm2_strat_u5_allsurveys_bench.rda'))
+  # save results
+  save(bb.res.adm2.strat.u5.allsurveys.bench,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_strat_u5_allsurveys_bench.rda'))
+  
+  # save traceplots from benchmarking for 12 random combinations of admin area and year
+  pdf(file = paste0('Betabinomial/U5MR/',country,'_adm2_strat_u5_allsurveys_bench_trace.pdf'))
+  par(mfrow=c(4,3),mar=c(3,2,2,1) + 0.1)
+  ind <- sort(sample(1:length(bb.res.adm2.strat.u5.allsurveys.bench$draws.est.overall),12))
+  for(i in ind){
+    bb.draws.tmp <- bb.res.adm2.strat.u5.allsurveys.bench$draws.est.overall[[i]]$draws
+    plot(bb.draws.tmp,type='l', ylab=' ',xlab='',
+         main=paste0(bb.res.adm2.strat.u5.allsurveys.bench$draws.est.overall[[i]]$region,", ", bb.res.adm2.strat.u5.allsurveys.bench$draws.est.overall[[i]]$years))
+  }
+  dev.off()
+  
