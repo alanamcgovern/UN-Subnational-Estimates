@@ -2,7 +2,7 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Malawi'
+country <- 'Lesotho'
 
 ## Setup -----------------------------------------------
 #### Load libraries and info ----------------------------------------------------------
@@ -12,6 +12,7 @@ options(gsubfn.engine = "R")
 library(rgdal)
 library(Rfast)
 library(tidyverse)
+library(RColorBrewer)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -66,7 +67,7 @@ load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
   igme.ests.u5 <- data.frame(t(igme.ests.u5[,10:ncol(igme.ests.u5)]))
   names(igme.ests.u5) <- c('LOWER_BOUND','OBS_VALUE','UPPER_BOUND')
   igme.ests.u5$year <-  as.numeric(stringr::str_remove(row.names(igme.ests.u5),'X')) - 0.5
-  igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% beg.year:end.proj.year,]
+  igme.ests.u5 <- igme.ests.u5[igme.ests.u5$year %in% 2000:2021,]
   rownames(igme.ests.u5) <- NULL
   igme.ests.u5$OBS_VALUE <- igme.ests.u5$OBS_VALUE/1000
   igme.ests.u5$SD <- (igme.ests.u5$UPPER_BOUND - igme.ests.u5$LOWER_BOUND)/(2*1.645*1000)
@@ -79,7 +80,7 @@ load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
   igme.ests.nmr <- data.frame(t(igme.ests.nmr[,10:ncol(igme.ests.nmr)]))
   names(igme.ests.nmr) <- c('LOWER_BOUND','OBS_VALUE','UPPER_BOUND')
   igme.ests.nmr$year <-  as.numeric(stringr::str_remove(row.names(igme.ests.nmr),'X')) - 0.5
-  igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% beg.year:end.proj.year,]
+  igme.ests.nmr <- igme.ests.nmr[igme.ests.nmr$year %in% 2000:2021,]
   rownames(igme.ests.nmr) <- NULL
   igme.ests.nmr$OBS_VALUE <- igme.ests.nmr$OBS_VALUE/1000
   igme.ests.nmr$SD <- (igme.ests.nmr$UPPER_BOUND - igme.ests.nmr$LOWER_BOUND)/(2*1.645*1000)
@@ -127,7 +128,8 @@ if(end.year>end.year.1frame & end.year>2018){
   beg.proj.years <- seq(end.year+1,2020,3)
 }
 end.proj.years <- beg.proj.years+2
-pane.years <- c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2)
+pane.years <- (c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2))
+pane.years <- pane.years[pane.years<=end.proj.year]
 est.period.idx <- 1:length(beg.period.years)
 pred.period.idx <- (length(beg.period.years)+1):(length(beg.period.years)+length(beg.proj.years))
 
@@ -247,9 +249,9 @@ setwd(res.dir)
   load(file = paste0('Direct/U5MR/', country, '_res_admin1_',time.model,'_u5_SmoothedDirect.rda'))  
   admin1.sd.u5 <- res.admin1.u5
   
-  sd.adm1.to.natl.frame = matrix(NA, nrow = max(pred.period.idx), ncol =  6)
+  sd.adm1.to.natl.frame = matrix(NA, nrow = length(pane.years), ncol =  6)
   
-  for (i in 1:max(pred.period.idx)){
+  for (i in 1:length(pane.years)){
     year = round((pane.years)[i])
     
     adm1.pop.nmr <- weight.adm1.u1[weight.adm1.u1$years==year,]
@@ -273,6 +275,7 @@ setwd(res.dir)
   colnames(sd.adm1.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
   sd.adm1.to.natl.frame$method <- "aggre.sd.adm1"
   sd.adm1.to.natl.frame$years = pane.years
+  sd.adm1.to.natl.frame <- sd.adm1.to.natl.frame[sd.adm1.to.natl.frame$years<=2021,]
 }
   ### smooth direct admin1 yearly
 {
@@ -406,9 +409,9 @@ if(exists('poly.adm2')){
     load(file = paste0('Direct/U5MR/', country, '_res_admin2_',time.model,'_u5_SmoothedDirect.rda'))  
     admin2.sd.u5 <- res.admin2.u5
     
-    sd.adm2.to.natl.frame = matrix(NA, nrow = max(pred.period.idx), ncol =  6)
+    sd.adm2.to.natl.frame = matrix(NA, nrow = length(pane.years), ncol =  6)
     
-    for (i in 1:max(pred.period.idx)){
+    for (i in 1:length(pane.years)){
       year = round((pane.years)[i])
       
       adm2.pop.nmr <- weight.adm2.u1[weight.adm2.u1$years==year,]
@@ -432,6 +435,7 @@ if(exists('poly.adm2')){
     colnames(sd.adm2.to.natl.frame) = c("lower_nmr", "median_nmr", "upper_nmr","lower_u5", "median_u5", "upper_u5")
     sd.adm2.to.natl.frame$method <- "aggre.sd.adm2"
     sd.adm2.to.natl.frame$years = pane.years
+    sd.adm2.to.natl.frame <- sd.adm2.to.natl.frame[sd.adm2.to.natl.frame$years<=2021,]
   }
   
   ### smooth direct admin2 yearly
@@ -593,50 +597,139 @@ if(exists('poly.adm2')){
   }
   
   natl.all$years <- as.numeric(natl.all$years)
+  cols <- brewer.pal(n = length(methods.include), name = "Paired")
+  
+  #fix y axis
+  y_limits_nmr <- c(min(natl.all$median_nmr,na.rm = T)*1000-1,max(natl.all$median_nmr,na.rm = T)*1000+1)
+  y_limits_u5 <- c(min(natl.all$median_u5,na.rm = T)*1000-1,max(natl.all$median_u5,na.rm = T)*1000+1)
   
   ## Compare smoothed direct estimates ---------------
-  natl.to.plot <- natl.all
   # USE THIS ARGUMENT TO PICK METHODS TO PLOT -- may have to change this line
-  natl.to.plot <- natl.all %>% filter((method %in% c("natl.sd.yearly","aggre.sd.adm1","aggre.sd.yearly.adm1","aggre.sd.adm2","aggre.sd.yearly.adm2","igme")))
+  methods.use <- c("natl.sd.yearly","aggre.sd.adm1","aggre.sd.yearly.adm1","aggre.sd.adm2","aggre.sd.yearly.adm2","igme")[c(1:3,6)]
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
- pdf(paste0(res.dir, "/Figures/Summary/NMR/",
+  pdf(paste0(res.dir, "/Figures/Summary/NMR/",
              country, "_comparison_nmr_sd_",time.model, ".pdf"),height = 6,width = 6)
- {
-  g <- natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
-    ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-    scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
-    print(g)
- }
+  {
+  
+  plot(NA, xlim=c(min(plot.years),max(plot.years)), ylim=y_limits_nmr,
+       xlab='Year', ylab='Median NMR deaths per 1000 live births',
+       las=2, xaxp=c(min(plot.years),max(plot.years),n_years-1))
+  
+  #plot methods
+  for(method in methods.use){
+    tmp<- natl.all[natl.all$method==method,]
+    if(method %in% c("aggre.sd.adm1","aggre.sd.adm2","natl.sd")){
+      lines(pane.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],lwd=1.5)
+      points(pane.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+    }else{
+    lines(plot.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],lwd=1.5)
+    points(plot.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+    }
+  }
+  
+  #plot credible intervals for IGME and natl.smoothed.yearly
+  polygon(x=c(plot.years, rev(plot.years)),
+            y=c(natl.all[natl.all$method=="igme",]$lower_nmr*1000, rev(natl.all[natl.all$method=="igme",]$upper_nmr*1000)),
+            col=alpha(cols[methods.use=="igme"],0.25), border=F)
+  polygon(x=c(plot.years, rev(plot.years)),
+          y=c(natl.all[natl.all$method=="natl.sd.yearly",]$lower_nmr*1000, rev(natl.all[natl.all$method=="natl.sd.yearly",]$upper_nmr*1000)),
+          col=alpha(cols[methods.use=="natl.sd.yearly"],0.25), border=F)
+  
+  #add grid
+  suppressWarnings(grid())
+  #add legend
+  legend('topright', bty = 'n',
+         pch = c(rep(20, length(methods.use))),
+         lty = c(rep(1, length(methods.use))),
+         col = cols[1:length(methods.use)],
+         legend = methods.use)
+  }
   dev.off()
+ 
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
              country, "_comparison_u5_sd_",time.model, ".pdf"),height = 6,width = 6)
-  { 
-   g <- natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
-    ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
-    theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-    scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
-    print(g)
-  }
+    {
+      
+      plot(NA, xlim=c(min(plot.years),max(plot.years)), ylim=y_limits_u5,
+           xlab='Year', ylab='Median U5MR deaths per 1000 live births',
+           las=2, xaxp=c(min(plot.years),max(plot.years),n_years-1))
+      
+      #plot methods
+      for(method in methods.use){
+        tmp<- natl.all[natl.all$method==method,]
+        if(method %in% c("aggre.sd.adm1","aggre.sd.adm2","natl.sd")){
+          lines(pane.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],lwd=1.5)
+          points(pane.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+        }else{
+          lines(plot.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],lwd=1.5)
+          points(plot.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+        }
+      }
+      
+      #plot credible intervals for IGME and natl.smoothed.yearly
+      polygon(x=c(plot.years, rev(plot.years)),
+              y=c(natl.all[natl.all$method=="igme",]$lower_u5*1000, rev(natl.all[natl.all$method=="igme",]$upper_u5*1000)),
+              col=alpha(cols[methods.use=="igme"],0.25), border=F)
+      polygon(x=c(plot.years, rev(plot.years)),
+              y=c(natl.all[natl.all$method=="natl.sd.yearly",]$lower_u5*1000, rev(natl.all[natl.all$method=="natl.sd.yearly",]$upper_u5*1000)),
+              col=alpha(cols[methods.use=="natl.sd.yearly"],0.25), border=F)
+      
+      #add grid
+      suppressWarnings(grid())
+      #add legend
+      legend('topright', bty = 'n',
+             pch = c(rep(20, length(methods.use))),
+             lty = c(rep(1, length(methods.use))),
+             col = cols[1:length(methods.use)],
+             legend = methods.use)
+    }
   dev.off()
   
   ## Compare betabinomial estimates ---------------
-  natl.to.plot <- natl.all
+ 
   # USE THIS ARGUMENT TO PICK METHODS TO PLOT -- may have to change this line
-  natl.to.plot <- natl.all %>% filter((method %in% c("natl.bb.unstrat","natl.bb.strat","aggre.adm1.unstrat.BB8","aggre.adm1.strat.BB8","aggre.adm2.unstrat.BB8","aggre.adm2.strat.BB8","igme")))
+  methods.use <- c("natl.sd.yearly","natl.bb.unstrat","natl.bb.strat","aggre.adm1.unstrat.BB8","aggre.adm1.strat.BB8","aggre.adm2.unstrat.BB8","aggre.adm2.strat.BB8","igme")[c(1:5,8)]
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the  PDF!
   pdf(paste0(res.dir, "/Figures/Summary/NMR/",
              country, "_comparison_nmr_bb8.pdf"),height = 6,width = 6)
   {
-    g <- natl.to.plot %>% ggplot(aes(x=years,y=median_nmr*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
-      ylab('Median NMR deaths per 1000 live births') + xlab('Year') +
-      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-      scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
-    print(g)
+    
+    plot(NA, xlim=c(min(plot.years),max(plot.years)), ylim=y_limits_nmr,
+         xlab='Year', ylab='Median NMR deaths per 1000 live births',
+         las=2, xaxp=c(min(plot.years),max(plot.years),n_years-1))
+    
+    #plot methods
+    for(method in methods.use){
+      tmp<- natl.all[natl.all$method==method,]
+      if(method %in% c("aggre.sd.adm1","aggre.sd.adm2","natl.sd")){
+        lines(pane.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],lwd=1.5)
+        points(pane.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+      }else{
+        lines(plot.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],lwd=1.5)
+        points(plot.years,tmp$median_nmr*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+      }
+    }
+    
+    #plot credible intervals for IGME and natl.smoothed.yearly
+    polygon(x=c(plot.years, rev(plot.years)),
+            y=c(natl.all[natl.all$method=="igme",]$lower_nmr*1000, rev(natl.all[natl.all$method=="igme",]$upper_nmr*1000)),
+            col=alpha(cols[methods.use=="igme"],0.25), border=F)
+    polygon(x=c(plot.years, rev(plot.years)),
+            y=c(natl.all[natl.all$method=="natl.sd.yearly",]$lower_nmr*1000, rev(natl.all[natl.all$method=="natl.sd.yearly",]$upper_nmr*1000)),
+            col=alpha(cols[methods.use=="natl.sd.yearly"],0.25), border=F)
+    
+    #add grid
+    suppressWarnings(grid())
+    #add legend
+    legend('topright', bty = 'n',
+           pch = c(rep(20, length(methods.use))),
+           lty = c(rep(1, length(methods.use))),
+           col = cols[1:length(methods.use)],
+           legend = methods.use)
   }
   dev.off()
   
@@ -644,12 +737,46 @@ if(exists('poly.adm2')){
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
              country, "_comparison_u5_bb8.pdf"),height = 6,width = 6)
   { 
-    g <- natl.to.plot %>% ggplot(aes(x=years,y=median_u5*1000,group=method,color=method)) + geom_line() +geom_point(alpha=0.3) + 
-      ylab('Median U5MR deaths per 1000 live births') + xlab('Year') +
-      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, hjust=1)) +
-      scale_x_continuous(breaks=beg.year:end.proj.year,labels=beg.year:end.proj.year)
-    print(g)
+    {
+      
+      plot(NA, xlim=c(min(plot.years),max(plot.years)), ylim=y_limits_u5,
+           xlab='Year', ylab='Median U5MR deaths per 1000 live births',
+           las=2, xaxp=c(min(plot.years),max(plot.years),n_years-1))
+      
+      #plot methods
+      for(method in methods.use){
+        tmp<- natl.all[natl.all$method==method,]
+        if(method %in% c("aggre.sd.adm1","aggre.sd.adm2","natl.sd")){
+          lines(pane.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],lwd=1.5)
+          points(pane.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+        }else{
+          lines(plot.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],lwd=1.5)
+          points(plot.years,tmp$median_u5*1000,col=cols[which(method==methods.use)],pch=20,cex=1)
+        }
+      }
+      
+      #plot credible intervals for IGME and natl.smoothed.yearly
+      polygon(x=c(plot.years, rev(plot.years)),
+              y=c(natl.all[natl.all$method=="igme",]$lower_u5*1000, rev(natl.all[natl.all$method=="igme",]$upper_u5*1000)),
+              col=alpha(cols[methods.use=="igme"],0.25), border=F)
+      polygon(x=c(plot.years, rev(plot.years)),
+              y=c(natl.all[natl.all$method=="natl.sd.yearly",]$lower_u5*1000, rev(natl.all[natl.all$method=="natl.sd.yearly",]$upper_u5*1000)),
+              col=alpha(cols[methods.use=="natl.sd.yearly"],0.25), border=F)
+      
+      #add grid
+      suppressWarnings(grid())
+      #add legend
+      legend('topright', bty = 'n',
+             pch = c(rep(20, length(methods.use))),
+             lty = c(rep(1, length(methods.use))),
+             col = cols[1:length(methods.use)],
+             legend = methods.use)
+    }
   }
   dev.off()
+  
+  
+  
+  
   
   
