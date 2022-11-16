@@ -21,14 +21,12 @@ poly.path <- paste0("shapeFiles")
 
 
 ##### explain how these may need to be changed
-poly.layer.adm0 <- paste('gadm36', gadm.abbrev,
-                         '0', sep = "_") # specify the name of the national shape file
-poly.layer.adm1 <- paste('gadm36', gadm.abbrev,
-                         '1', sep = "_") # specify the name of the admin1 shape file
+poly.layer.adm0 <- paste('gadm36', gadm.abbrev,'0', sep = "_") # specify the name of the national shape file
+poly.layer.adm1 <- paste('uga_admbnda_adm2_2020') # specify the name of the admin1 shape file
 poly.layer.adm2 <- paste('uga_admbnda_adm2_2020') # specify the name of the admin2 shape file
 
 
-poly.label.adm1 <- "poly.adm1@data$NAME_1"
+poly.label.adm1 <- "poly.adm1@data$ADM1_EN"
 poly.label.adm2 <- "poly.adm2@data$ADM2_EN"
 
 ##################################################################
