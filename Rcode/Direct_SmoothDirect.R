@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Uganda'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -47,7 +47,7 @@ load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
 load(paste0(country,'_cluster_dat.rda'),
      envir = .GlobalEnv)
-survey_years <- unique(mod.dat$survey)
+survey_years <- sort(unique(mod.dat$survey))
 
 # Define periods for 3-year estimates ------------------------------------------------------
 #### adjusted slightly when number of years is not divisible by 3
@@ -592,10 +592,11 @@ if(exists("poly.layer.adm2")){
 
 # Smoothed direct estimates  ------------------------------------------------------
 
-  time.model <- c('rw2','ar1')[2]
+  time.model <- c('rw2','ar1')[1]
   
 ## load in appropriate direct estimates  ------------------------------------------------------
-if(doHIVAdj){
+  setwd(paste0(res.dir,'/Direct'))
+  if(doHIVAdj){
   load(paste0('U5MR/',country, '_directHIV_natl_u5.rda'))
   load(paste0('U5MR/',country, '_directHIV_natl_yearly_u5.rda'))
   load(paste0('U5MR/',country, '_directHIV_admin1_u5.rda'))
