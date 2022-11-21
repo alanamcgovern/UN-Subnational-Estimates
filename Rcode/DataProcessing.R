@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Tanzania'
+country <- 'Uganda'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -14,6 +14,7 @@ library(stringr)
 library(tidyverse)
 #devtools::install_github("ropensci/rdhs")
 library(rdhs)
+library(maptools)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -53,6 +54,21 @@ if(exists("poly.adm2")){
   proj4string(poly.adm0) <- proj4string(poly.adm1)  <- proj4string(poly.adm2)
 }else{
   proj4string(poly.adm0) <- proj4string(poly.adm1)
+}
+
+if(country=='Uganda'){
+  poly.adm1.poly <- SpatialPolygons(poly.adm1@polygons)
+  poly.adm1 <- unionSpatialPolygons(poly.adm1.poly,
+                                    IDs = match(poly.adm1@data$ADM1_EN,
+                                                unique(poly.adm1@data$ADM1_EN)))
+  proj4string(poly.adm1) <- proj4string(poly.adm2)
+  merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
+              ADM1_PCODE = unique(ADM1_PCODE))
+  poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
+  
+  a <- tolower(poly.adm2@data$ADM2_EN)
+  substr(a, 1,1) <- toupper(substr(a,1,1))
+  poly.adm2@data$ADM2_EN <- a
 }
 
 # Create Adjacency Matrix ----------------------------------------------------------
@@ -429,6 +445,9 @@ if(country=='Malawi'){
   mod.dat[mod.dat$admin1.name=='Northern' & mod.dat$admin2.name=='Kasungu',]$admin1.name <- 'Central'
   mod.dat[mod.dat$admin1.name=='Central' & mod.dat$admin2.name=='Kasungu',]$admin1.char <- 'admin1_2'
   mod.dat[mod.dat$admin1.name=='Central' & mod.dat$admin2.name=='Kasungu',]$admin1 <- 2
+}
+if(country=='Guinea'){
+  mod.dat <- mod.dat[!(mod.dat$years==2018),]
 }
 
 # Save processed data  ----------------------------------------------------------
