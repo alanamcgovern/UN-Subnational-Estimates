@@ -709,6 +709,35 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   mod.dat$years <- as.numeric(as.character(mod.dat$years))
   mod.dat$country <- as.character(country)
   survey_years <- unique(mod.dat$survey)
+
+## Load HIV Adjustment info -----------------------------------------------
+  
+  if(doHIVAdj){
+    load(paste0(home.dir,'/Data/HIV/',
+                'HIVAdjustments.rda'),
+         envir = .GlobalEnv)
+    hiv.adj <- hiv.adj[hiv.adj$country == country,]
+    if(unique(hiv.adj$area)[1] == country){
+      natl.unaids <- T
+    }else{
+      natl.unaids <- F}
+    
+    if(natl.unaids){
+      adj.frame <- hiv.adj
+      adj.varnames <- c("country", "survey", "years")
+    }else{ adj.frame <- hiv.adj
+    mod.dat$area <- mod.dat$admin1.name
+    if(country=='Mozambique'){
+      mod.dat[mod.dat$area=='Maputo City',]$area <- 'Maputo'
+    }
+    adj.varnames <- c("country", "area","survey", "years")
+    }
+    adj.frame <- adj.frame[adj.frame$survey %in% survey_years,c(adj.varnames,"ratio")]
+  }else{
+    adj.frame <- expand.grid(years = beg.year:end.proj.year,country = country)
+    adj.frame$ratio <- 1
+    adj.varnames <- c("country", "years")
+  }
   
 ### NMR -----------------------------------------------
   setwd(paste0(res.dir))
