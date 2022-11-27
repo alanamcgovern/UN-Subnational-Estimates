@@ -42,6 +42,18 @@ if(exists("poly.adm2")){
   proj4string(poly.adm0) <- proj4string(poly.adm1)
 }
 
+if(country=='Uganda'){
+  poly.adm1.poly <- SpatialPolygons(poly.adm1@polygons)
+  poly.adm1 <- unionSpatialPolygons(poly.adm1.poly,
+                                    IDs = match(poly.adm1@data$ADM1_EN,
+                                                unique(poly.adm1@data$ADM1_EN)))
+  proj4string(poly.adm1) <- proj4string(poly.adm2)
+  merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
+                                                                  ADM1_PCODE = unique(ADM1_PCODE))
+  poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
+  
+}
+
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
@@ -294,7 +306,7 @@ if(exists("poly.layer.adm2")){
     direct.admin2.nmr$region_num <- direct.admin2.nmr$region
     
   }
-  # compute yearly direct estimates for at admin2 level. But this may fail due to the data sparsity at admin2 level.
+  # compute yearly direct estimates for at admin2 level.
   if(length(births.list) != 1){
   direct.admin2.yearly.u5 <- SUMMER::getDirectList(births.list, beg.year:end.year,
                                                    regionVar = "admin2.char",
