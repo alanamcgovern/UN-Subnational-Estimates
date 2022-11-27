@@ -24,20 +24,8 @@ load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 source(file=paste0(home.dir, '/Rcode/getBB8.R'))
 source(file=paste0(home.dir, '/Rcode/smoothCluster_mod.R'))
 
-## Load polygon files -----------------------------------------------
+## Load admin names -----------------------------------------------
 setwd(data.dir)
-
-poly.adm0 <- readOGR(dsn = poly.path,
-                     layer = as.character(poly.layer.adm0)) # load the national shape file
-poly.adm1 <- readOGR(dsn = poly.path,
-                     layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
-if(exists('poly.layer.adm2')){
-  poly.adm2 <- readOGR(dsn = poly.path,
-                       layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
-  proj4string(poly.adm0) <- proj4string(poly.adm1) <- proj4string(poly.adm2)
-}else{
-  proj4string(poly.adm0) <- proj4string(poly.adm1)
-}
 
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
@@ -86,7 +74,7 @@ end.proj.year <- 2021
 
 load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
-if(exists('poly.adm2')){
+if(exists('poly.layer.adm2')){
 load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
 }
@@ -166,7 +154,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
   weight.strata.natl.u1$rural <- 1-weight.strata.natl.u1$urban
   weight.strata.adm1.u1 <- readRDS(paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
   
-  if(exists('poly.adm2')){
+  if(exists('poly.layer.adm2')){
   weight.strata.adm2.u5 <- readRDS(paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
   weight.strata.adm2.u1 <- readRDS(paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
   }
@@ -191,7 +179,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
                                               years=sort(rep(2021:end.proj.year,nrow(admin1.names))),
                                               urban=rep(weight.strata.adm1.u5[weight.strata.adm1.u5$years==2020,]$urban,end.proj.year-2020),
                                               rural=1-rep(weight.strata.adm1.u5[weight.strata.adm1.u5$years==2020,]$urban,end.proj.year-2020)))
-    if(exists('poly.adm2')){
+    if(exists('poly.layer.adm2')){
     weight.strata.adm2.u1 <- rbind(weight.strata.adm2.u1,
                                    data.frame(region=rep(admin2.names$Internal,end.proj.year-2020),
                                               years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
@@ -208,7 +196,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
     weight.strata.natl.u5 <- weight.strata.natl.u5[weight.strata.natl.u5$years<=end.proj.year,]
     weight.strata.adm1.u1 <- weight.strata.adm1.u1[weight.strata.adm1.u1$years<=end.proj.year,]
     weight.strata.adm1.u5 <- weight.strata.adm1.u5[weight.strata.adm1.u5$years<=end.proj.year,]
-    if(exists('poly.adm2')){
+    if(exists('poly.layer.adm2')){
     weight.strata.adm2.u1 <- weight.strata.adm2.u1[weight.strata.adm2.u1$years<=end.proj.year,]
     weight.strata.adm2.u5 <- weight.strata.adm2.u5[weight.strata.adm2.u5$years<=end.proj.year,]
     }

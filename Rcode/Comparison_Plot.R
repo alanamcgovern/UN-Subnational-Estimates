@@ -32,26 +32,8 @@ if(!dir.exists(paste0(res.dir,  '/Figures/Summary/U5MR'))){
 if(!dir.exists(paste0(res.dir,'/Figures/Summary/NMR'))){
   dir.create(paste0(res.dir, '/Figures/Summary/NMR'))}
 
-#### Load polygon files  ------------------------------------------------------
+#### Load admin names  ------------------------------------------------------
 setwd(data.dir)
-
-poly.adm0 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
-                     layer = as.character(poly.layer.adm0)) # load the national shape file
-# use encoding to read special characters
-poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
-                     layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
-
-if(exists('poly.layer.adm2')){
-  poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
-                       layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
-}
-
-# set coordinate reference system to be equal
-if(exists("poly.adm2")){
-  proj4string(poly.adm0) <- proj4string(poly.adm1)  <- proj4string(poly.adm2)
-}else{
-  proj4string(poly.adm0) <- proj4string(poly.adm1)
-}
 
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
@@ -91,7 +73,7 @@ load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 #### load admin1 and admin2 weights ####
 load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
 load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
-if(exists('poly.adm2')){
+if(exists('poly.layer.adm2')){
   load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
   load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
 }
@@ -463,7 +445,7 @@ setwd(res.dir)
 }
 
 #### prepare admin2 level models ####
-if(exists('poly.adm2')){
+if(exists('poly.layer.adm2')){
   ### smooth direct admin2 3-year window
   {
     load(file = paste0('Direct/NMR/', country, '_res_admin2_',time.model,'_nmr_SmoothedDirect.rda'))
