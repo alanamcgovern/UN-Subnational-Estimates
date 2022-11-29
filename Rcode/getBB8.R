@@ -21,20 +21,20 @@
 ## nsim: if doBenchmark=F, nsim is the number of posterior draws to be taken; if doBenchmark=T, nsim is the target number of posterior draws to be accepted
 
 ### useful for troubleshooting ----------------------------------------------
-       # end.year=end.proj.year
-       #        Amat=admin1.mat
-       #        admin.level='Admin1'
-       #        stratified=T
-       #        weight.strata=weight.strata.adm1.u5
-       #        outcome='u5mr'
-       #        time.model='ar1'
-       #        st.time.model='ar1'
-       #        weight.region = weight.adm1.u1
-       #        igme.ests = igme.ests.nmr
-       #        int.priors.bench = int.priors.bench
-       #        int.priors.prec.bench = 10
-       #        doBenchmark=T
-       #        nsim=1000
+        # end.year=end.proj.year
+        #        Amat=admin1.mat
+        #        admin.level='Admin1'
+        #        stratified=T
+        #        weight.strata=weight.strata.adm1.u5
+        #        outcome='u5mr'
+        #        time.model='ar1'
+        #        st.time.model='ar1'
+        #        weight.region = weight.adm1.u1
+        #        igme.ests = igme.ests.u5
+        #        int.priors.bench = int.priors.bench
+        #        int.priors.prec.bench = 10
+        #        doBenchmark=T
+        #        nsim=1000
 
 ##################################################################
 ###### Define BB8 function
@@ -123,12 +123,12 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
     }else if(outcome=='u5mr'){
       if(!stratified){
         int.adj = list(
-          mean=list(`age.intercept0:1`=logit((sum(mod.dat[mod.dat$age=='0',]$Y))/(sum(mod.dat$Y))*mean(igme.ests$OBS_VALUE)),
-                    `age.intercept1-11:1`=logit((sum(mod.dat[mod.dat$age=='1-11',]$Y))/(sum(mod.dat$Y))*mean(igme.ests$OBS_VALUE)), 
-                    `age.intercept12-23:1`=logit((sum(mod.dat[mod.dat$age=='12-23',]$Y))/(sum(mod.dat$Y))*mean(igme.ests$OBS_VALUE)),
-                    `age.intercept24-35:1`=logit((sum(mod.dat[mod.dat$age=='24-35',]$Y))/(sum(mod.dat$Y))*mean(igme.ests$OBS_VALUE)),
-                    `age.intercept36-47:1`=logit((sum(mod.dat[mod.dat$age=='36-47',]$Y))/(sum(mod.dat$Y))*mean(igme.ests$OBS_VALUE)),
-                    `age.intercept48-59:1`=logit((sum(mod.dat[mod.dat$age=='48-59',]$Y))/(sum(mod.dat$Y))*mean(igme.ests$OBS_VALUE))),
+          mean=list(`age.intercept0:1`=logit(int.priors.bench[1]*mean(igme.ests$OBS_VALUE)),
+                    `age.intercept1-11:1`=logit(int.priors.bench[2]*mean(igme.ests$OBS_VALUE)), 
+                    `age.intercept12-23:1`=logit(int.priors.bench[3]*mean(igme.ests$OBS_VALUE)),
+                    `age.intercept24-35:1`=logit(int.priors.bench[4]*mean(igme.ests$OBS_VALUE)),
+                    `age.intercept36-47:1`=logit(int.priors.bench[5]*mean(igme.ests$OBS_VALUE)),
+                    `age.intercept48-59:1`=logit(int.priors.bench[6]*mean(igme.ests$OBS_VALUE))),
           prec=list(`age.intercept0:1`=int.priors.prec.bench,
                     `age.intercept1-11:1`=int.priors.prec.bench, 
                     `age.intercept12-23:1`=int.priors.prec.bench,
@@ -305,11 +305,13 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
         for (i in 1:length(tmp$draws.est.overall)) {
           bb.res.tmp$draws.est.overall[[i]]$draws <- c(bb.res.tmp$draws.est.overall[[i]]$draws, tmp$draws.est.overall[[i]]$draws)
         }
+        bb.res.tmp$nsim <- length(bb.res.tmp$draws)
         
         # run benchmarking again
         bb.res.bench <- Benchmark(bb.res.tmp,igme.ests,weight.region = weight.region,
                                   estVar = 'OBS_VALUE',sdVar = 'SD',timeVar = 'year',method = 'MH')
       })
+      
       
       # add accepted draws to tot_accepted_draws
       tot_accepted_draws <- round(bb.res.bench$accept.ratio*length(bb.res.bench$draws))
