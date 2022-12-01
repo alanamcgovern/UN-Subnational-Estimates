@@ -21,20 +21,20 @@
 ## nsim: if doBenchmark=F, nsim is the number of posterior draws to be taken; if doBenchmark=T, nsim is the target number of posterior draws to be accepted
 
 ### useful for troubleshooting ----------------------------------------------
-        # end.year=end.proj.year
-        #        Amat=admin1.mat
-        #        admin.level='Admin1'
-        #        stratified=T
-        #        weight.strata=weight.strata.adm1.u5
-        #        outcome='u5mr'
-        #        time.model='ar1'
-        #        st.time.model='ar1'
-        #        weight.region = weight.adm1.u1
-        #        igme.ests = igme.ests.u5
-        #        int.priors.bench = int.priors.bench
-        #        int.priors.prec.bench = 10
-        #        doBenchmark=T
-        #        nsim=1000
+        #  end.year=end.proj.year
+        #         Amat=admin1.mat
+        #         admin.level='Admin1'
+        #         stratified=T
+        # #        weight.strata=weight.strata.adm1.u5
+        #         outcome='nmr'
+        #         time.model='ar1'
+        #         st.time.model='ar1'
+        # #        weight.region = weight.adm1.u5
+        # #        igme.ests = igme.ests.u5
+        # #        int.priors.bench = int.priors.bench
+        # #        int.priors.prec.bench = 10
+        # #        doBenchmark=T
+        # #        nsim=1000
 
 ##################################################################
 ###### Define BB8 function
@@ -175,7 +175,6 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                     Amat = Amat, 
                                     year_label = c(beg.year:end.year),
                                     time.model = time.model,
-                                    pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
                                     type.st = 1,
                                     spat.fixed=T,
                                     bias.adj = adj.frame, bias.adj.by = adj.varnames,
@@ -227,7 +226,6 @@ getBB8 <- function(mod.dat, country, beg.year, end.year, Amat,
                                         year_label = c(beg.year:end.year),
                                         time.model = time.model, 
                                         spat.fixed = T,
-                                        pc.st.slope.u = 1,  pc.st.slope.alpha = 0.01,
                                         type.st = 1,
                                         bias.adj = adj.frame, bias.adj.by = adj.varnames,
                                         survey.effect = TRUE,
