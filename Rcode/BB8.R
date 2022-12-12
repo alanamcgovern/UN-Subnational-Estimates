@@ -44,7 +44,7 @@ end.proj.year <- 2021
   setwd(paste0(home.dir,'/Data/IGME'))
   
   ## U5MR
-  igme.ests.u5.raw <- read.csv('igme2022_u5.csv')
+  igme.ests.u5.raw <- read.csv('igme2022_u5_nocrisis.csv')
   igme.ests.u5 <- igme.ests.u5.raw[igme.ests.u5.raw$ISO.Code==gadm.abbrev,]
   igme.ests.u5 <- data.frame(t(igme.ests.u5[,10:ncol(igme.ests.u5)]))
   names(igme.ests.u5) <- c('LOWER_BOUND','OBS_VALUE','UPPER_BOUND')
@@ -57,7 +57,7 @@ end.proj.year <- 2021
   igme.ests.u5$UPPER_BOUND <- igme.ests.u5$OBS_VALUE + 1.96*igme.ests.u5$SD
   
   ## NMR
-  igme.ests.nmr.raw <- read.csv('igme2022_nmr.csv')
+  igme.ests.nmr.raw <- read.csv('igme2022_nmr_nocrisis.csv')
   igme.ests.nmr <- igme.ests.nmr.raw[igme.ests.nmr.raw$iso==gadm.abbrev,]
   igme.ests.nmr <- data.frame(t(igme.ests.nmr[,10:ncol(igme.ests.nmr)]))
   names(igme.ests.nmr) <- c('LOWER_BOUND','OBS_VALUE','UPPER_BOUND')
