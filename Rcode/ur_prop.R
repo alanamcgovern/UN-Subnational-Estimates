@@ -15,7 +15,7 @@ code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- paste0("R://Project/STAB/",country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/', info.name, sep='')) # load the country info
@@ -30,7 +30,8 @@ load(paste0(poly.path,'/',  country, '_Amat_Names.rda'))  # load names of admin1
 
 # read the excel file containing urban population fraction at admin1 level.
 
-frame <- readr::read_csv(paste0(home.dir,'/Data/urban_frames/', country.abbrev,'_',frame_year, '_frame_urb_prop.csv'))
+frame <- readr::read_csv(paste0(home.dir,'/Data/urban_frames/'
+                                , country.abbrev,'_',frame_year, '_frame_urb_prop.csv'))
 frame <- data.frame(frame)
 
 

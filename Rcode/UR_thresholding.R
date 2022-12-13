@@ -439,6 +439,8 @@ urb_dat$pop_den<-raster::extract(worldpop,urb_dat[c('x','y')])
 points.frame <- as.data.frame(urb_dat[,c("x", "y")])
 points.frame <- SpatialPoints(points.frame)
 poly.over.adm1 <- SpatialPolygons(poly.adm1@polygons)
+proj4string(points.frame) <- proj4string(poly.over.adm1) <-
+  proj4string(poly.adm1)
 admin1.key <- over(points.frame, poly.over.adm1)
 urb_dat$admin1<-admin1.key
 urb_dat$admin1.char <- paste0("admin1_", admin1.key)
@@ -452,7 +454,7 @@ save(urb_dat,file='prepared_dat/natl_grid.rda')
 urb_dat$index <- c(1:nrow(urb_dat))
 adm1_dat <- split( urb_dat , f = urb_dat$admin1 )
 
-urb_list<-lapply(adm1_dat, FUN=thresh_urb,ref_tab=ref.tab)
+urb_list<-lapply(adm1_dat, FUN=thresh_urb, ref_tab=ref.tab)
 
 urb_class <- do.call("rbind", urb_list)
 
@@ -501,6 +503,9 @@ confmatrix_crc<-caret::confusionMatrix(
 )
 
 confmatrix_crc
+if(!dir.exists("Threshold/")){
+  dir.create("Threshold/")
+}
 save(confmatrix_crc,file='Threshold/confmatrix_crc.rda')
 
 confmatrix_uncrc<-caret::confusionMatrix(
@@ -554,6 +559,14 @@ if(end.proj.year>2020){
 }
 
 setwd(paste0(res.dir,'/UR'))
+
+if(!dir.exists("U1_fraction")){
+  dir.create("U1_fraction")
+}
+if(!dir.exists("U5_fraction")){
+  dir.create("U5_fraction")
+}
+
 saveRDS(natl.u1.urb.weights,paste0('U1_fraction/natl_u1_urban_weights.rds'))
 saveRDS(natl.u5.urb.weights,paste0('U5_fraction/natl_u5_urban_weights.rds'))
 
