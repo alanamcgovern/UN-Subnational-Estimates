@@ -76,16 +76,15 @@ factors$survey <- as.double(factors$survey)
 factors$years <- as.numeric(factors$years)
 factors$year <- as.numeric(factors$year)
 
-hiv.adj.new <- full_join(factors,hiv.adj,by = c('country','area','survey','years','year'))
-hiv.adj.new[is.na(hiv.adj.new$ratio.x),]$ratio.x <- hiv.adj.new[is.na(hiv.adj.new$ratio.x),]$ratio.y
-hiv.adj.new <- hiv.adj.new[,c('country','area','survey','years','ratio.x','year')]
-colnames(hiv.adj.new) <- c('country','area','survey','years','ratio','year')
-hiv.adj <- hiv.adj.new
+load('HIVAdjustments_Old.rda')
 
+hiv.adj.new <- left_join(factors,hiv.adj,by = c('country','area','survey','years','year'))
+colnames(hiv.adj.new) <- c('country','area','survey','years','ratio','year','old_ratio')
+hiv.adj <- hiv.adj.new
 
 sapply(unique(hiv.adj$country),function(x){unique(hiv.adj[hiv.adj$country==x,]$area)})
 
-hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mozambique' & area=='Mozambique'),!(country=='Zimbabwe' & area=='Zimbabwe'),!(country=='Zambia' & area=='Zambia'),country!='Cote dIvoire') %>%
+hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mozambique' & area=='Mozambique'),!(country=='Zimbabwe' & area=='Zimbabwe'),country!='Cote dIvoire') %>%
         dplyr::mutate(area=if_else(country=='Mozambique' & area=='Niassa','Nassa',
                                    if_else(country=='Mozambique' & area=='CaboDelgado',"Cabo Delgado",
                                     if_else(country=='Mozambique' & area=="Maputo Cidade","Maputo City",
@@ -100,8 +99,13 @@ hiv.adj <- hiv.adj %>% filter(!(country=='Kenya' & area!='Kenya'),!(country=='Mo
       dplyr::mutate(country=if_else(country=="United Republic of Tanzania",'Tanzania',country)) %>%
       dplyr::mutate(area=if_else(area=="United Republic of Tanzania",'Tanzania',area))
   
-hiv.adj <- hiv.adj[!duplicated((hiv.adj %>% dplyr::select(country,area,survey,years))),]
-
+# create plots to compare old and new adjustments
+pdf(file='HIV Adjustment Comparisons.pdf')
+hiv.adj.compare <- hiv.adj %>% filter(!is.na(old_ratio))
+for(country_t in unique(hiv.adj.compare$country)){
+  print(hiv.adj.compare %>% filter(country==country_t & years>1999) %>% ggplot(aes(x=old_ratio,y=ratio)) + geom_point() + geom_abline(slope = 1,intercept = 0) + facet_wrap(vars(survey)) + ggtitle(paste0(country_t)))
+}
+dev.off()
 # save
 save(hiv.adj, file = "HIVAdjustments.rda")
 

@@ -1,9 +1,11 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+
 country <- "Mauritania"
 survey_years <- 2020
 frame_year <- 2013
+
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -44,6 +46,18 @@ if(exists('poly.layer.adm2')){
   proj4string(poly.adm0) <- proj4string(poly.adm1)
 }
 
+if(country=='Uganda'){
+  poly.adm1.poly <- SpatialPolygons(poly.adm1@polygons)
+  poly.adm1 <- unionSpatialPolygons(poly.adm1.poly,
+                                    IDs = match(poly.adm1@data$ADM1_EN,
+                                                unique(poly.adm1@data$ADM1_EN)))
+  proj4string(poly.adm1) <- proj4string(poly.adm2)
+  merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
+                                                                  ADM1_PCODE = unique(ADM1_PCODE))
+  poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
+  
+}
+
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
@@ -63,12 +77,8 @@ cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
                                             'LONGNUM','LATNUM')]),]
 
 survey_years <- unique(mod.dat$survey)
+end.proj.year <- 2021
 
-if(max(survey_years)>2018){
-  end.proj.year <- 2022
-}else{
-  end.proj.year <- 2020
-}
 
 # Load worldpop  ----------------------------------------------------------
   ### automated downloading, if not working, try manually download
@@ -104,6 +114,8 @@ pop.abbrev <- tolower(gadm.abbrev)
   
   constr_prior <- function(obs,jitter_r,prob_r,poly_admin,pop_ras){
     
+    tryCatch({
+      
     # for the cluster, find its coordinates and admin1 area
     if(exists("poly.adm2")){
       admin1_index<-obs$admin2
@@ -143,9 +155,6 @@ pop.abbrev <- tolower(gadm.abbrev)
     ## prepare sample frame
     
     temp_val<-values(temp_pop_admin)
-    
-    ## only try correction if there are viable options in admin area
-    if(sum(is.na(temp_val)) != length(temp_val)){
       pop_index<-which(!is.na(temp_val))
       
       temp_frame<-as.data.frame(coordinates(temp_pop_admin))
@@ -159,11 +168,15 @@ pop.abbrev <- tolower(gadm.abbrev)
       
       pixel_candidate$unn_w<-pixel_candidate$pop_den*
         1/(2*pi * 2 * pixel_candidate$dist)*normc*prob_r 
-    }else{
-      pixel_candidate <- data.frame(x=NA,y=NA,unn_w=NA)
-    }
+      
+      pixel_candidate$normc<-normc
     
-    pixel_candidate$normc<-normc
+    
+    },error=function(e){ })
+    
+    if(!exists('pixel_candidate')){
+      pixel_candidate <- data.frame(x=NA,y=NA,unn_w=NA,normc=1)
+    }
     return(pixel_candidate[,c("x","y",'normc','unn_w')])
     #return(pixel_candidate)
     
@@ -531,6 +544,14 @@ pop.abbrev <- tolower(gadm.abbrev)
   natl.u1.urb.weights <- data.frame(years= years, urban=natl.u1.urb)
   natl.u5.urb.weights <- data.frame(years= years, urban=natl.u5.urb)
   
+  if(end.proj.year>2020){
+    natl.u5.urb.weights <- rbind(natl.u5.urb.weights,
+                                   data.frame(years=2021:end.proj.year,
+                                              urban=rep(natl.u5.urb.weights[natl.u5.urb.weights$years==2020,]$urban,(end.proj.year-2020))))
+    natl.u1.urb.weights <- rbind(natl.u1.urb.weights,
+                                 data.frame(years=2021:end.proj.year,
+                                            urban=rep(natl.u1.urb.weights[natl.u1.urb.weights$years==2020,]$urban,(end.proj.year-2020))))
+  }
   
   setwd(paste0(res.dir,'/UR'))
   saveRDS(natl.u1.urb.weights,paste0('U1_fraction/natl_u1_urban_weights.rds'))
@@ -614,11 +635,23 @@ pop.abbrev <- tolower(gadm.abbrev)
   # process admin 1 urban rural weights data frame
   adm1.u1.weight.frame <- adm1.u1.weight.frame[,c('adm_idx','years','urb_frac')]
   colnames(adm1.u1.weight.frame) <- c('region','years','urban')
+  if(end.proj.year > 2020){
+    adm1.u1.weight.frame <- rbind(adm1.u1.weight.frame,
+                                  data.frame(region=rep(admin1.names$Internal,end.proj.year-2020),
+                                             years=sort(rep(2021:end.proj.year,nrow(admin1.names))),
+                                             urban=rep(adm1.u1.weight.frame[adm1.u1.weight.frame$years==2020,]$urban,end.proj.year-2020)))
+  }
   adm1.u1.weight.frame$rural <- 1 - adm1.u1.weight.frame$urban
   saveRDS(adm1.u1.weight.frame,paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
   
   adm1.u5.weight.frame <- adm1.u5.weight.frame[,c('adm_idx','years','urb_frac')]
   colnames(adm1.u5.weight.frame) <- c('region','years','urban')
+  if(end.proj.year > 2020){
+    adm1.u5.weight.frame <- rbind(adm1.u5.weight.frame,
+                                  data.frame(region=rep(admin1.names$Internal,end.proj.year-2020),
+                                             years=sort(rep(2021:end.proj.year,nrow(admin1.names))),
+                                             urban=rep(adm1.u5.weight.frame[adm1.u5.weight.frame$years==2020,]$urban,end.proj.year-2020)))
+  }
   adm1.u5.weight.frame$rural <- 1 - adm1.u5.weight.frame$urban
   saveRDS(adm1.u5.weight.frame,paste0('U5_fraction/','admin1_u5_urban_weights.rds'))
   
@@ -626,11 +659,23 @@ pop.abbrev <- tolower(gadm.abbrev)
   # process admin 2 urban rural weights data frame
   adm2.u1.weight.frame <- adm2.u1.weight.frame[,c('adm_idx','years','urb_frac')]
   colnames(adm2.u1.weight.frame) <- c('region','years','urban')
+  if(end.proj.year > 2020){
+    adm2.u1.weight.frame <- rbind(adm2.u1.weight.frame,
+                                  data.frame(region=rep(admin2.names$Internal,end.proj.year-2020),
+                                             years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
+                                             urban=rep(adm2.u1.weight.frame[adm2.u1.weight.frame$years==2020,]$urban,end.proj.year-2020)))
+  }
   adm2.u1.weight.frame$rural <- 1 - adm2.u1.weight.frame$urban
   saveRDS(adm2.u1.weight.frame,paste0('U1_fraction/','admin2_u1_urban_weights.rds'))
   
   adm2.u5.weight.frame <- adm2.u5.weight.frame[,c('adm_idx','years','urb_frac')]
   colnames(adm2.u5.weight.frame) <- c('region','years','urban')
+  if(end.proj.year > 2020){
+    adm2.u5.weight.frame <- rbind(adm2.u5.weight.frame,
+                                  data.frame(region=rep(admin2.names$Internal,end.proj.year-2020),
+                                             years=sort(rep(2021:end.proj.year,nrow(admin2.names))),
+                                             urban=rep(adm2.u5.weight.frame[adm2.u5.weight.frame$years==2020,]$urban,end.proj.year-2020)))
+  }
   adm2.u5.weight.frame$rural <- 1 - adm2.u5.weight.frame$urban
   saveRDS(adm2.u5.weight.frame,paste0('U5_fraction/','admin2_u5_urban_weights.rds'))
   }

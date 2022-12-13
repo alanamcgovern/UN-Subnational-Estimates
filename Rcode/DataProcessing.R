@@ -3,6 +3,7 @@ rm(list = ls())
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- "Mauritania"
 
+
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
 library(rgdal)
@@ -14,6 +15,7 @@ library(stringr)
 library(tidyverse)
 #devtools::install_github("ropensci/rdhs")
 library(rdhs)
+library(maptools)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
@@ -54,6 +56,18 @@ if(exists("poly.adm2")){
   proj4string(poly.adm0) <- proj4string(poly.adm1)  <- proj4string(poly.adm2)
 }else{
   proj4string(poly.adm0) <- proj4string(poly.adm1)
+}
+
+if(country=='Uganda'){
+  poly.adm1.poly <- SpatialPolygons(poly.adm1@polygons)
+  poly.adm1 <- unionSpatialPolygons(poly.adm1.poly,
+                                    IDs = match(poly.adm1@data$ADM1_EN,
+                                                unique(poly.adm1@data$ADM1_EN)))
+  proj4string(poly.adm1) <- proj4string(poly.adm2)
+  merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
+              ADM1_PCODE = unique(ADM1_PCODE))
+  poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
+ 
 }
 
 # Create Adjacency Matrix ----------------------------------------------------------
@@ -453,24 +467,25 @@ mod.dat$survey.id<- unlist(sapply(1:nrow(mod.dat),
                                     }))
 
 # Use raw data to calculate age band intercept priors for benchmarking ----------------------------------------------------------
-raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5==0,])/nrow(raw.dat)
-int.priors.bench <- 
-  c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5==0,])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
-    nrow(raw.dat[(raw.dat$b7 %in% 1:11) &
-                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=1 |
-                                                   raw.dat$b5==1,])*(1/raw.u5mr), #1-11 months  
-    nrow(raw.dat[(raw.dat$b7 %in% 12:23) &
-                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=12 | 
-                                                   raw.dat$b5==1,])*(1/raw.u5mr), #12-23 months  
-    nrow(raw.dat[(raw.dat$b7 %in% 24:35) & 
-                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=24 |
-                                                   raw.dat$b5==1,])*(1/raw.u5mr), #24-35 months  
-    nrow(raw.dat[(raw.dat$b7 %in% 36:47) & 
-                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=36 | 
-                                                   raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
-    nrow(raw.dat[(raw.dat$b7 %in% 48:59) & 
-                   raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=48 | 
-                                                   raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
+
+
+if(is.factor(raw.dat$b5)) {
+  raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat)
+  int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
+                        nrow(raw.dat[(raw.dat$b7 %in% 1:11) & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5==1,])*(1/raw.u5mr), #1-11 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 12:23) & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat[raw.dat$b7>=12 | raw.dat$b5==1,])*(1/raw.u5mr), #12-23 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 24:35) & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat[raw.dat$b7>=24 | raw.dat$b5==1,])*(1/raw.u5mr), #24-35 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 36:47) & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 48:59) & tolower(as.character(raw.dat$b5))=="no",])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
+} else {
+  raw.u5mr <- nrow(raw.dat[raw.dat$b7<60 & raw.dat$b5==0,])/nrow(raw.dat)
+  int.priors.bench <- c(nrow(raw.dat[raw.dat$b7==0 & raw.dat$b5==0,])/nrow(raw.dat)*(1/raw.u5mr), #<1 month
+                        nrow(raw.dat[(raw.dat$b7 %in% 1:11) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=1 | raw.dat$b5==1,])*(1/raw.u5mr), #1-11 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 12:23) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=12 | raw.dat$b5==1,])*(1/raw.u5mr), #12-23 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 24:35) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=24 | raw.dat$b5==1,])*(1/raw.u5mr), #24-35 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 36:47) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=36 | raw.dat$b5==1,])*(1/raw.u5mr), #36-47 months  
+                        nrow(raw.dat[(raw.dat$b7 %in% 48:59) & raw.dat$b5==0,])/nrow(raw.dat[raw.dat$b7>=48 | raw.dat$b5==1,])*(1/raw.u5mr)) #48-59 months
+}
 
 # Fix any special cases ----------------------------------------------------------
 if(country=='Malawi'){
@@ -480,6 +495,9 @@ if(country=='Malawi'){
             mod.dat$admin2.name=='Kasungu',]$admin1.char <- 'admin1_2'
   mod.dat[mod.dat$admin1.name=='Central' & 
             mod.dat$admin2.name=='Kasungu',]$admin1 <- 2
+}
+if(country=='Guinea'){
+  mod.dat <- mod.dat[!(mod.dat$years==2018),]
 }
 
 # Save processed data  ----------------------------------------------------------

@@ -17,19 +17,16 @@ gadm.abbrev <- "TGO"
 doHIVAdj <- F
 
 ### please fill in the path to country shape files ####
-poly.path <- paste0("shapeFiles")
+poly.path <- paste0("shapeFiles/gadm41_TGO_shp")
 
 
 ##### explain how these may need to be changed
-poly.layer.adm0 <- paste('gadm36', gadm.abbrev,
+poly.layer.adm0 <- paste('gadm41', gadm.abbrev,
                          '0', sep = "_") # specify the name of the national shape file
-poly.layer.adm1 <- paste('gadm36', gadm.abbrev,
-                         '1', sep = "_") # specify the name of the admin1 shape file
-poly.layer.adm2 <- paste('LIMITE_PREFECTURE') # specify the name of the admin2 shape file
-
+poly.layer.adm1 <- paste('gadm41', gadm.abbrev,
+                         '1', sep = "_") # specify the name of the admin2 shape file
 
 poly.label.adm1 <- "poly.adm1@data$NAME_1"
-poly.label.adm2 <- "poly.adm2@data$PREF"
 
 ##################################################################
 ##################################################################

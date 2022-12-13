@@ -1,7 +1,9 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+
 country <- "Mauritania"
+
 
 # Load libraries and info ----------------------------------------------------------
 
@@ -42,6 +44,18 @@ if(exists('poly.layer.adm2')){
   proj4string(poly.adm0) <- proj4string(poly.adm1)
 }
 
+if(country=='Uganda'){
+  poly.adm1.poly <- SpatialPolygons(poly.adm1@polygons)
+  poly.adm1 <- unionSpatialPolygons(poly.adm1.poly,
+                                    IDs = match(poly.adm1@data$ADM1_EN,
+                                                unique(poly.adm1@data$ADM1_EN)))
+  proj4string(poly.adm1) <- proj4string(poly.adm2)
+  merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
+                                                                  ADM1_PCODE = unique(ADM1_PCODE))
+  poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
+  
+}
+
 load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
@@ -55,12 +69,8 @@ cluster_list<-mod.dat[!duplicated(mod.dat[c('cluster','survey',
                                             'LONGNUM','LATNUM')]),]
 
 survey_years <- unique(mod.dat$survey)
+end.proj.year <- 2021
 
-if(max(survey_years)>2018){
-  end.proj.year <- 2022
-}else{
-  end.proj.year <- 2020
-}
 
 # function that calculates population in each admin area ----------------------------------------------------------
 pop_adm<-function(adm.shp, wp,admin_pop_dat){
@@ -97,14 +107,32 @@ setwd(paste0(data.dir,'/worldpop'))
 
 pop.year <- beg.year:2020
 pop.abbrev <- tolower(gadm.abbrev)
-options(timeout = 1000) # adjust this time, should be longer than each download
+
+options(timeout = 2000) # adjust this time, should be longer than each download
+rigorousFileTest = TRUE # set to TRUE after files have been downloaded to test 
+# if files were downloaded correctly, i.e. if they can be loaded into R
+
 for(year in pop.year){
   print(year)
   # includes ages 0-1 years and 1-5 years
   for(age in c(0, 1)){
     for(sex in c("f", "m")){
       file <- paste0(pop.abbrev,'_', sex, '_', age, '_', year,'.tif')
-      if(!file.exists(file)){
+      
+      # check if the raster file exists. If rigorousFileTest == TRUE, also check 
+      # if the file can be successfully loaded
+      goodFile = file.exists(file)
+      if(goodFile && rigorousFileTest) {
+        goodFile = tryCatch(
+          {
+            test = raster(file)
+            TRUE
+          }, 
+          error = function(e) {FALSE}
+        )
+      }
+      
+      if(!goodFile){
         url <- paste0("https://data.worldpop.org/GIS/AgeSex_structures/Global_2000_2020/", 
                       year, "/", toupper(pop.abbrev), "/", pop.abbrev, "_", 
                       sex, "_", age, "_", year, ".tif")
@@ -204,7 +232,7 @@ for (year in 2019){
 }
 
 
-# calculate weights ----------------------------------------------------------
+# Calculate weights ----------------------------------------------------------
 
 for(year in pop.year){
   
@@ -309,3 +337,79 @@ save(weight.adm2.u1,file=paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
 save(weight.adm2.u5,file=paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
 }
 
+# Get map plots of population weights ----------------------------------------------------------
+
+load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
+load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
+if(exists('poly.layer.adm2')){
+  load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
+  load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
+}
+
+pdf(paste0(data.dir,'/worldpop/admin1_u1_weights.pdf'))
+{
+  weight.adm1.u1$regionPlot <- admin1.names$GADM[match(weight.adm1.u1$region,admin1.names$Internal)]
+print(SUMMER::mapPlot(data = weight.adm1.u1,
+                      is.long = T, 
+                      variables = "years", 
+                      values = "proportion",
+                      direction = -1,
+                      geo = poly.adm1,
+                      ncol = 5,
+                      legend.label = "Population weight",
+                      per1000 = FALSE,
+                      by.data = "regionPlot",
+                      by.geo = sub(".*data[$]","",poly.label.adm1)))
+}
+dev.off()
+
+pdf(paste0(data.dir,'/worldpop/admin1_u5_weights.pdf'))
+{
+  weight.adm1.u5$regionPlot <- admin1.names$GADM[match(weight.adm1.u1$region,admin1.names$Internal)]
+  print(SUMMER::mapPlot(data = weight.adm1.u5,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "proportion",
+                        direction = -1,
+                        geo = poly.adm1,
+                        ncol = 5,
+                        legend.label = "Population weight",
+                        per1000 = FALSE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm1)))
+}
+dev.off()
+
+pdf(paste0(data.dir,'/worldpop/admin2_u1_weights.pdf'))
+{
+  weight.adm2.u1$regionPlot <- admin2.names$GADM[match(weight.adm2.u1$region,admin2.names$Internal)]
+  print(SUMMER::mapPlot(data = weight.adm2.u1,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "proportion",
+                        direction = -1,
+                        geo = poly.adm2,
+                        ncol = 5,
+                        legend.label = "Population weight",
+                        per1000 = FALSE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
+}
+dev.off()
+
+pdf(paste0(data.dir,'/worldpop/admin2_u5_weights.pdf'))
+{
+  weight.adm2.u5$regionPlot <- admin2.names$GADM[match(weight.adm2.u1$region,admin2.names$Internal)]
+  print(SUMMER::mapPlot(data = weight.adm2.u5,
+                        is.long = T, 
+                        variables = "years", 
+                        values = "proportion",
+                        direction = -1,
+                        geo = poly.adm2,
+                        ncol = 5,
+                        legend.label = "Population weight",
+                        per1000 = FALSE,
+                        by.data = "regionPlot",
+                        by.geo = sub(".*data[$]","",poly.label.adm2)))
+}
+dev.off()

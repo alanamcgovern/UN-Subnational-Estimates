@@ -345,3 +345,39 @@ dat.tmp$survey <- 2017
 
 save(dat.tmp,file='Data/MICS/Nigeria/nga.2017.tmp.rda')
 
+
+# Togo 2017 -------------------------------------
+bh <- read_sav('Data/MICS/Togo/tgo_2017_bh.sav')
+sapply(bh,attr,'label')
+
+bh <- bh %>% dplyr::select(c(HH1,BH4C,BH5,BH9C,HH6,HH7,WDOI,wmweight)) %>%
+  #put some variables in proper format for getBirths
+  mutate(urban=ifelse(HH6==1,'urban',
+                      ifelse(HH6==2,'rural',NA)),
+         alive=ifelse(BH5==1,'yes',
+                      ifelse(BH5==2,'no',NA))) %>%
+  filter(!is.na(BH4C), !is.na(alive))
+
+bh$admin1.name <- ''
+for(i in 1:length(names(attr(bh$HH7,'labels')))){
+  bh$admin1.name[bh$HH7==attr(bh$HH7,'labels')[i]] <- names(attr(bh$HH7,'labels'))[i]
+}
+
+bh[bh$admin1.name %in% c('LOME COMMUNE',"GOLFE URBAIN"),]$admin1.name <- 'MARITIME'
+bh[bh$admin1.name == 'CENTRALE',]$admin1.name <- 'CENTRE'
+bh$admin1.name <- str_to_title(bh$admin1.name)
+
+dat.tmp <- getBirths(data=bh, surveyyear = 2017, variables = c('HH1','BH4C','BH9C','WDOI','alive','wmweight','urban','admin1.name'),
+                     strata = c('urban','admin1.name'),dob = 'BH4C',alive = 'alive',age = 'BH9C',date.interview = 'WDOI',
+                     age.truncate = 24,year.cut = seq(2000, 2020 + 1, 1),compact.by = c("HH1", 'wmweight','urban','admin1.name'),compact=T)
+
+#put in correct order
+dat.tmp <- dat.tmp[,c('HH1','age','time','total','died','wmweight','urban','admin1.name')]
+
+colnames(dat.tmp) <- c("cluster", "age", "years", "total",
+                       "Y", "v005", 'urban', "admin1.name")
+
+dat.tmp <- dat.tmp %>% dplyr::select(c(cluster,age,years,total,Y,v005,urban,admin1.name))
+dat.tmp$survey <- 2017
+
+save(dat.tmp,file='Data/MICS/Togo/tgo.2017.tmp.rda')

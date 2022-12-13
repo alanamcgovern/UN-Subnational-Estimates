@@ -36,13 +36,17 @@ Run the 'DataProcessing.R' script from the 'Rcode' folder. *Make sure to specify
 
 Run Direct_SmoothDirect.R. This script will calculate direct and smoothed direct NMR and U5MR estimates and generate figures. *Make sure to specify the country of interest where it is requested at the top of the script*
 
-NOTE: *If the yearly smoothed direct models at the smallest admin level run without error*, we do NOT need to address stratification or fit Betabinomial models, so steps 6 and 7 should be skipped.
+NOTE: It is normal for some of these models to not run due to data sparsity. These estimates are just to be used for comparison to the Beta-binomial estimates (which will take care of the sparsity issue)
 
 #### Step 5: Obtain Admin-level aggregation weights
 
 Run Admin_Weights.R. This script will download population surfaces for each year and use them to calculate admin-level weights to use in benchmarking and plotting.  Note that downloading the population surfaces could take a signficant amount of time depending on internet connection and the size of the country.  *Make sure to specify the country of interest where it is requested at the top of the script*
 
-#### Step 6: Addressing Stratification
+#### Step 6: Checking Preliminary Results
+
+Run Comparison_Plot.R, ignoring any sections that refer to the Beta-binomial (BB8) model. This script will aggregate admin-level estimates up to the national level using the weights from Step 5 so that we can compare models before moving on to the Beta-binomial models. 
+
+#### Step 7: Addressing Stratification
 
 -   In the Country Info Sheet, check the 'census frame' column to determine the frame year that will be used for stratification.
 
@@ -54,6 +58,14 @@ Run Admin_Weights.R. This script will download population surfaces for each year
 
 -   Run UR_thresholding.R to obtain urban/rural sampling weights to be used in the Beta-binomial model. At the top of the script, make sure to specify (1) the country, (2) the frame year being used, and (3) the survey years that used this census frame (also available in the Country Info Sheet)
 
-#### Step 7: Beta-Binomial Estimates
+#### Step 8: Beta-Binomial Estimates
 
-Run BB8.R and, again,make sure to specify (1) the country, (2) the frame year being used, and (3) the survey years that used this census frame. This will fit U5MR and NMR models at the National, Admin-1, Admin-2 levels and draw benchmarked and un-benchmarked posterior estimates.
+Run BB8.R and, again, make sure to specify (1) the country, (2) the frame year being used, and (3) the survey years that used this census frame. This will fit U5MR and NMR models at the National, Admin-1, Admin-2 levels and draw un-benchmarked posterior estimates. For now, do not run the benchmarked models.
+
+#### Step 9: Checking Beta-binomial Results
+
+Run Comparison_Plot.R again, this time generating a figure comparing the Beta-binomial estimates. This script will aggregate admin-level estimates up to the national level using the weights from Step 5 so that we can compare models before moving on to benchmarking. 
+
+#### Step 10: Benchmarking Final Estimates
+
+Go back to the BB8.R script and now run the benchmarked models that were skipped over before.
