@@ -24,7 +24,7 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 # retrieve directories
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
                   collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- paste0("R://Project/STAB/",country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
