@@ -381,3 +381,55 @@ dat.tmp <- dat.tmp %>% dplyr::select(c(cluster,age,years,total,Y,v005,urban,admi
 dat.tmp$survey <- 2017
 
 save(dat.tmp,file='Data/MICS/Togo/tgo.2017.tmp.rda')
+
+#Laos 2017 -------------------------------------
+
+bh <- read_sav('Data/MICS/Laos/lao_2017_bh.sav')
+bh <- bh %>% dplyr::select(c(HH1,BH4C,BH5,BH9C,HH6,HH7,WDOI,wmweight)) %>%
+  #put some variables in proper format for getBirths
+  mutate(urban=ifelse(HH6==1,'urban',
+                      ifelse(HH6 %in% c(2,3),'rural',NA)),
+         alive=ifelse(BH5==1,'yes',
+                      ifelse(BH5==2,'no',NA))) %>%
+  filter(!is.na(BH4C), !is.na(alive))
+
+bh$admin1.name <- ''
+for(i in 1:length(names(attr(bh$HH7,'labels')))){
+  bh$admin1.name[bh$HH7==attr(bh$HH7,'labels')[i]] <- names(attr(bh$HH7,'labels'))[i]
+}
+
+bh$admin1.name <- str_to_title(bh$admin1.name)
+
+dat.tmp <- getBirths(data=bh, surveyyear = 2017, variables = c('HH1','BH4C','BH9C','WDOI','alive','wmweight','urban','admin1.name'),
+                     strata = c('urban','admin1.name'),dob = 'BH4C',alive = 'alive',age = 'BH9C',date.interview = 'WDOI',
+                     age.truncate = 24,year.cut = seq(2000, 2020 + 1, 1),compact.by = c("HH1", 'wmweight','urban','admin1.name'),compact=T)
+
+#put in correct order
+dat.tmp <- dat.tmp[,c('HH1','age','time','total','died','wmweight','urban','admin1.name')]
+
+#after loading in gadm names,make key to change admin names
+admin1.names.gadm <- c(poly.adm1$NAME_1[1:12],poly.adm1$NAME_1[17],poly.adm1$NAME_1[13:16],poly.adm1$NAME_1[18])
+admin1.names.key <- data.frame(admin1.name=sort(unique(bh$admin1.name)),admin1.names.gadm)
+admin1.names.key$admin1.char <- paste0("admin1_", 1:nrow(admin1.names.key))
+admin1.names.key$admin1 <- 1:nrow(admin1.names.key)
+
+dat.tmp <- merge(dat.tmp,admin1.names.key,'admin1.name') %>% dplyr::select(-c(admin1.name)) %>% rename(admin1.name=admin1.names.gadm)
+
+
+dat.tmp$strata <- sapply(1:nrow(dat.tmp),function(i){paste0(dat.tmp$admin1[i],':',dat.tmp$urban[i])})
+dat.tmp$LATNUM <- dat.tmp$LONGNUM <- NA
+dat.tmp$survey.type <- 'MICS'
+dat.tmp$survey <- 2017
+colnames(dat.tmp) <- c("cluster",'age','years','total','Y','v005','urban','admin1.name',
+                      'admin1.char','admin1','strata',"LONGNUM","LATNUM",'survey.type','survey')
+
+#this is the only survey being used so can use as analytic data set
+mod.dat <- dat.tmp
+
+save(mod.dat,file='Data/MICS/Laos/Laos_cluster_dat.rda')
+
+
+
+
+
+
