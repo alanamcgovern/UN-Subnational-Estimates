@@ -1,0 +1,40 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        rw2
+  Spatial effect:             bym2
+  Interaction temporal model: rw2
+  Interaction type:           4
+  Interaction random slopes:  yes
+  Number of age groups: 1
+  Stratification: yes
+  Number of age group fixed effect per stratum: 1
+  Number of age-specific trends per stratum: 1
+  Strata-specific temporal trends: yes
+  Survey effect: no, only one survey
+----------------------------------
+Fixed Effects
+                       mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+age.intercept0:urban -3.657 0.090     -3.835   -3.657     -3.477 -3.657   0
+age.intercept0:rural -3.670 0.089     -3.849   -3.669     -3.496 -3.668   0
+----------------------------------
+Random Effects
+           Name          Model
+1   time.struct      RW2 model
+2 time.unstruct      IID model
+3 region.struct     BYM2 model
+4     time.area Generic0 model
+5   st.slope.id      IID model
+----------------------------------
+Model hyperparameters
+                                                     mean        sd 0.025quant 0.5quant 0.975quant   mode
+overdispersion for the betabinomial observations    0.043     0.009      0.028    0.043      0.062  0.042
+Precision for time.struct                        3136.011 19295.960     33.633  568.343  21186.446 71.809
+Precision for time.unstruct                      1959.950  9302.321     43.892  465.206  12917.619 98.927
+Precision for region.struct                        16.783    10.045      4.903   14.383     42.867 10.610
+Phi for region.struct                               0.271     0.219      0.016    0.208      0.801  0.041
+Precision for time.area                          1672.532  6245.803     39.584  475.248  10727.978 91.741
+Precision for st.slope.id                        1379.759 22587.468      2.867   85.996   8298.580  5.002
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -3918.628
+log marginal-likelihood (Gaussian)    -3913.977

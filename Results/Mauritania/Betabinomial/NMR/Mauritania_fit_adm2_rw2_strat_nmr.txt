@@ -1,0 +1,40 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        rw2
+  Spatial effect:             bym2
+  Interaction temporal model: rw2
+  Interaction type:           4
+  Interaction random slopes:  yes
+  Number of age groups: 1
+  Stratification: yes
+  Number of age group fixed effect per stratum: 1
+  Number of age-specific trends per stratum: 1
+  Strata-specific temporal trends: yes
+  Survey effect: no, only one survey
+----------------------------------
+Fixed Effects
+                       mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+age.intercept0:urban -3.705 0.086     -3.875   -3.704     -3.538 -3.702   0
+age.intercept0:rural -3.713 0.074     -3.862   -3.712     -3.570 -3.710   0
+----------------------------------
+Random Effects
+           Name          Model
+1   time.struct      RW2 model
+2 time.unstruct      IID model
+3 region.struct     BYM2 model
+4     time.area Generic0 model
+5   st.slope.id      IID model
+----------------------------------
+Model hyperparameters
+                                                     mean        sd 0.025quant 0.5quant 0.975quant    mode
+overdispersion for the betabinomial observations    0.042     0.009      0.027    0.041      0.061   0.040
+Precision for time.struct                        3045.153 13416.306     36.734  718.076  20346.438  74.597
+Precision for time.unstruct                      1925.858  8271.107     52.166  500.115  12506.081 117.406
+Precision for region.struct                        10.542     4.474      4.577    9.630     21.814   8.084
+Phi for region.struct                               0.230     0.188      0.014    0.176      0.705   0.038
+Precision for time.area                          1990.629  9800.560     32.638  447.627  13283.851  73.723
+Precision for st.slope.id                         981.874 14362.917      2.679   70.225   6047.499   4.936
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -5033.832
+log marginal-likelihood (Gaussian)    -5029.256
