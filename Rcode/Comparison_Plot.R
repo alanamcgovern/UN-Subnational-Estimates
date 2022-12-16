@@ -33,7 +33,7 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 # retrieve directories
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
 #data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-data.dir <- paste0("R:/Project/STAB/", country)
+data.dir <- paste0("R://Project/STAB/", country)
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
@@ -94,7 +94,7 @@ if(exists('poly.layer.adm2')){
 #### Parameters ####
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
-time.model <- c('rw2','ar1')[1]
+time.model <- c('rw2','ar1')[2]
 
 load(paste0(data.dir, '/', country, '_cluster_dat_1frame.rda'), envir = .GlobalEnv)
 end.year.1frame <- max(mod.dat$survey)
