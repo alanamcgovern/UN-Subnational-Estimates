@@ -146,11 +146,11 @@ if(doHIVAdj){
 ## Load UR proportions -----------------------------------------------
 if(dir.exists(paths = paste0(res.dir,'/UR/'))){
   setwd(paste0(res.dir,'/UR'))
-  weight.strata.natl.u5 <- readRDS(paste0('U5_fraction/','natl_u5_urban_weights.rds'))
+  weight.strata.natl.u5 <- readRDS(paste0('U5_fraction/','natl_', time_mod, '_u5_urban_weights.rds'))
   weight.strata.natl.u5$rural <- 1-weight.strata.natl.u5$urban
   weight.strata.adm1.u5 <- readRDS(paste0('U5_fraction/','admin1_u5_urban_weights.rds'))
 
-  weight.strata.natl.u1 <- readRDS(paste0('U1_fraction/','natl_u1_urban_weights.rds'))
+  weight.strata.natl.u1 <- readRDS(paste0('U1_fraction/','natl_', time_mod, '_u1_urban_weights.rds'))
   weight.strata.natl.u1$rural <- 1-weight.strata.natl.u1$urban
   weight.strata.adm1.u1 <- readRDS(paste0('U1_fraction/','admin1_u1_urban_weights.rds'))
   
@@ -206,6 +206,8 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
 ## Fit BB8 models w surveys from same sampling frame  -----------------------------------------------
 setwd(paste0(res.dir))
 
+time_mod <- c("rw2", "ar1")[1]
+
 if(!dir.exists("Betabinomial/")){
   dir.create("Betabinomial/")
   dir.create("Betabinomial/NMR/")
@@ -218,7 +220,7 @@ if(!dir.exists("Betabinomial/")){
 bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                               Amat=NULL, admin.level='National',
                               stratified=F, weight.strata=NULL,
-                              outcome='nmr', time.model='ar1',
+                              outcome='nmr', time.model=time_mod,
                               adj.frame=adj.frame, adj.varnames=adj.varnames,
                               doBenchmark=F,nsim = 1000)
 
@@ -230,21 +232,21 @@ bb.hyperpar.natl.unstrat.nmr <- bb.fit.natl.unstrat.nmr$fit$summary.hyperpar
 bb.fixed.natl.unstrat.nmr <- bb.fit.natl.unstrat.nmr$fit$summary.fixed
 
 # save summary of fit to a txt file
-sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr.txt'))
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_', time_mod, '_unstrat_nmr.txt'))
 summary(bb.fit.natl.unstrat.nmr)
 sink(file=NULL)
 # save smaller components of fit
-save(bb.temporals.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_unstrat_nmr.rda'))
-save(bb.hyperpar.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_unstrat_nmr.rda'))
-save(bb.fixed.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_unstrat_nmr.rda'))
+save(bb.temporals.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_', time_mod, '_unstrat_nmr.rda'))
+save(bb.hyperpar.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_', time_mod, '_unstrat_nmr.rda'))
+save(bb.fixed.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_', time_mod, '_unstrat_nmr.rda'))
 # save results
-save(bb.res.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_unstrat_nmr.rda'))
+save(bb.res.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_', time_mod, '_unstrat_nmr.rda'))
 
   #### National Strat -----------------------------------------------
 bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                             Amat=NULL, admin.level='National',
                             stratified=T, weight.strata=weight.strata.natl.u1,
-                            outcome='nmr', time.model='ar1',
+                            outcome='nmr', time.model=time_mod,
                             adj.frame=adj.frame, adj.varnames=adj.varnames,
                             doBenchmark=F,nsim = 1000)
 bb.fit.natl.strat.nmr <- bb.natl.strat.nmr[[1]]
@@ -255,22 +257,22 @@ bb.hyperpar.natl.strat.nmr <- bb.fit.natl.strat.nmr$fit$summary.hyperpar
 bb.fixed.natl.strat.nmr <- bb.fit.natl.strat.nmr$fit$summary.fixed
 
 # save summary of fit to a txt file
-sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_strat_nmr.txt'))
+sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_', time_mod, '_strat_nmr.txt'))
 summary(bb.fit.natl.strat.nmr)
 sink(file=NULL)
 # save smaller components of fit
-save(bb.temporals.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_strat_nmr.rda'))
-save(bb.hyperpar.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_strat_nmr.rda'))
-save(bb.fixed.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_strat_nmr.rda'))
+save(bb.temporals.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_', time_mod, '_strat_nmr.rda'))
+save(bb.hyperpar.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_', time_mod, '_strat_nmr.rda'))
+save(bb.fixed.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_', time_mod, '_strat_nmr.rda'))
 # save results
-save(bb.res.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_strat_nmr.rda'))
+save(bb.res.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_', time_mod, '_strat_nmr.rda'))
 
   #### Admin1 Unstrat ----------------------------------------------
 bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                               Amat=admin1.mat, admin.level='Admin1',
                               stratified=F, weight.strata=NULL,
                               outcome='nmr',
-                              time.model='ar1', st.time.model='ar1',
+                              time.model=time_mod, st.time.model=time_mod,
                               adj.frame=adj.frame, adj.varnames=adj.varnames,
                               doBenchmark=F,nsim = 1000)
 
@@ -297,7 +299,7 @@ bb.adm1.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                             Amat=admin1.mat, admin.level='Admin1',
                             stratified=T, weight.strata=weight.strata.adm1.u1,
                             outcome='nmr',
-                            time.model='ar1', st.time.model='ar1',
+                            time.model=time_mod, st.time.model=time_mod,
                             adj.frame=adj.frame, adj.varnames=adj.varnames,
                             doBenchmark=F,nsim = 1000)
 bb.fit.adm1.strat.nmr <- bb.adm1.strat.nmr[[1]]
@@ -323,7 +325,7 @@ bb.adm2.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.
                               Amat=admin2.mat, admin.level='Admin2',
                               stratified=F, weight.strata=NULL,
                               outcome='nmr',
-                              time.model='ar1', st.time.model='ar1',
+                              time.model=time_mod, st.time.model=time_mod,
                               adj.frame=adj.frame, adj.varnames=adj.varnames,
                               doBenchmark=F,nsim = 1000)
 
@@ -350,7 +352,7 @@ bb.adm2.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pr
                             Amat=admin2.mat, admin.level='Admin2',
                             stratified=T, weight.strata=weight.strata.adm2.u1,
                             outcome='nmr',
-                            time.model='ar1', st.time.model='ar1',
+                            time.model=time_mod, st.time.model=time_mod,
                             adj.frame=adj.frame, adj.varnames=adj.varnames,
                             doBenchmark=F,nsim = 1000)
 bb.fit.adm2.strat.nmr <- bb.adm2.strat.nmr[[1]]
@@ -376,7 +378,7 @@ save(bb.res.adm2.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_adm2_st
 bb.natl.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=NULL, admin.level='National',
                              stratified=F, weight.strata=NULL,
-                             outcome='u5mr', time.model='ar1',
+                             outcome='u5mr', time.model=time_mod,
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,nsim=1000)
 bb.fit.natl.unstrat.u5 <- bb.natl.unstrat.u5[[1]]
@@ -387,22 +389,22 @@ bb.hyperpar.natl.unstrat.u5 <- bb.fit.natl.unstrat.u5$fit$summary.hyperpar
 bb.fixed.natl.unstrat.u5 <- bb.fit.natl.unstrat.u5$fit$summary.fixed
 
 # save summary of fit to a txt file
-sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5.txt'))
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_', time_mod, '_unstrat_u5.txt'))
 summary(bb.fit.natl.unstrat.u5)
 sink(file=NULL)
 # save smaller components of fit
-save(bb.temporals.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_unstrat_u5.rda'))
-save(bb.hyperpar.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_unstrat_u5.rda'))
-save(bb.fixed.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_unstrat_u5.rda'))
+save(bb.temporals.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_', time_mod, '_unstrat_u5.rda'))
+save(bb.hyperpar.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_', time_mod, '_unstrat_u5.rda'))
+save(bb.fixed.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_', time_mod, '_unstrat_u5.rda'))
 # save results
-save(bb.res.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_unstrat_u5.rda'))
+save(bb.res.natl.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_', time_mod, '_unstrat_u5.rda'))
 
 
   #### National Strat -----------------------------------------------
 bb.natl.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                            Amat=NULL, admin.level='National',
                            stratified=T, weight.strata=weight.strata.natl.u5,
-                           outcome='u5mr', time.model='ar1',
+                           outcome='u5mr', time.model=time_mod,
                            adj.frame=adj.frame, adj.varnames=adj.varnames,
                            doBenchmark=F,nsim=1000)
 bb.fit.natl.strat.u5 <- bb.natl.strat.u5[[1]]
@@ -413,22 +415,22 @@ bb.hyperpar.natl.strat.u5 <- bb.fit.natl.strat.u5$fit$summary.hyperpar
 bb.fixed.natl.strat.u5 <- bb.fit.natl.strat.u5$fit$summary.fixed
 
 # save summary of fit to a txt file
-sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_strat_u5.txt'))
+sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_', time_mod, '_strat_u5.txt'))
 summary(bb.fit.natl.strat.u5)
 sink(file=NULL)
 # save smaller components of fit
-save(bb.temporals.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_strat_u5.rda'))
-save(bb.hyperpar.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_strat_u5.rda'))
-save(bb.fixed.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_strat_u5.rda'))
+save(bb.temporals.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_', time_mod, '_strat_u5.rda'))
+save(bb.hyperpar.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_', time_mod, '_strat_u5.rda'))
+save(bb.fixed.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_', time_mod, '_strat_u5.rda'))
 # save results
-save(bb.res.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_strat_u5.rda'))
+save(bb.res.natl.strat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_natl_', time_mod, '_strat_u5.rda'))
 
   #### Admin1 Unstrat ----------------------------------------------
 bb.adm1.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                              Amat=admin1.mat, admin.level='Admin1',
                              stratified=F, weight.strata=NULL,
                              outcome='u5mr',
-                             time.model='ar1', st.time.model='ar1',
+                             time.model=time_mod, st.time.model=time_mod,
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,nsim = 1000)
 bb.fit.adm1.unstrat.u5 <- bb.adm1.unstrat.u5[[1]]
@@ -455,7 +457,7 @@ bb.adm1.strat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.pro
                            Amat=admin1.mat, admin.level='Admin1',
                            stratified=T, weight.strata=weight.strata.adm1.u5,
                            outcome='u5mr',
-                           time.model='ar1', st.time.model='ar1',
+                           time.model=time_mod, st.time.model=time_mod,
                            adj.frame=adj.frame, adj.varnames=adj.varnames,
                            doBenchmark=F,nsim=1000)
 bb.fit.adm1.strat.u5 <- bb.adm1.strat.u5[[1]]
@@ -481,7 +483,7 @@ bb.adm2.unstrat.u5 <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.p
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=F, weight.strata=NULL,
                              outcome='u5mr',
-                             time.model='ar1', st.time.model='ar1',
+                             time.model=time_mod, st.time.model=time_mod,
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,nsim = 1000)
 bb.fit.adm2.unstrat.u5 <- bb.adm2.unstrat.u5[[1]]
@@ -507,7 +509,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                              Amat=admin2.mat, admin.level='Admin2',
                              stratified=T, weight.strata=weight.strata.adm2.u5,
                              outcome='u5mr',
-                             time.model='ar1', st.time.model='ar1',
+                             time.model=time_mod, st.time.model=time_mod,
                              adj.frame=adj.frame, adj.varnames=adj.varnames,
                              doBenchmark=F,nsim = 1000)
   bb.fit.adm2.strat.u5 <- bb.adm2.strat.u5[[1]]
@@ -535,7 +537,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                     Amat=admin1.mat, admin.level='Admin1',
                                     stratified=T, weight.strata=weight.strata.adm1.u1,
                                     outcome='nmr',
-                                    time.model='ar1', st.time.model='ar1',
+                                    time.model=time_mod, st.time.model=time_mod,
                                     adj.frame=adj.frame, adj.varnames=adj.varnames,
                                     weight.region = weight.adm1.u1,
                                     igme.ests = igme.ests.nmr,
@@ -576,7 +578,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                     Amat=admin2.mat, admin.level='Admin2',
                                     stratified=T, weight.strata=weight.strata.adm2.u1,
                                     outcome='nmr',
-                                    time.model='ar1', st.time.model='ar1',
+                                    time.model=time_mod, st.time.model=time_mod,
                                     adj.frame=adj.frame, adj.varnames=adj.varnames,
                                     weight.region = weight.adm2.u1, 
                                     igme.ests = igme.ests.nmr,
@@ -618,7 +620,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                    Amat=admin1.mat, admin.level='Admin1',
                                    stratified=T, weight.strata=weight.strata.adm1.u5,
                                    outcome='u5mr',
-                                   time.model='ar1', st.time.model='ar1',
+                                   time.model=time_mod, st.time.model=time_mod,
                                    adj.frame=adj.frame, adj.varnames=adj.varnames,
                                    weight.region = weight.adm1.u5, 
                                    igme.ests = igme.ests.u5,
@@ -659,7 +661,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                    Amat=admin2.mat, admin.level='Admin2',
                                    stratified=T, weight.strata=weight.strata.adm2.u5,
                                    outcome='u5mr',
-                                   time.model='ar1', st.time.model='ar1',
+                                   time.model=time_mod, st.time.model=time_mod,
                                    adj.frame=adj.frame, adj.varnames=adj.varnames,
                                    weight.region = weight.adm2.u5, 
                                    igme.ests = igme.ests.u5,
@@ -739,7 +741,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   bb.natl.unstrat.nmr.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                                 Amat=NULL, admin.level='National',
                                 stratified=F, weight.strata=NULL,
-                                outcome='nmr', time.model='ar1',
+                                outcome='nmr', time.model=time_mod,
                                 adj.frame=adj.frame, adj.varnames=adj.varnames,
                                 doBenchmark=F,nsim = 1000)
   
@@ -751,22 +753,22 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   bb.fixed.natl.unstrat.nmr.allsurveys <- bb.fit.natl.unstrat.nmr.allsurveys$fit$summary.fixed
   
   # save summary of fit to a txt file
-  sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_unstrat_nmr_allsurveys.txt'))
+  sink(file=paste0('Betabinomial/NMR/',country,'_fit_natl_', time_mod, '_unstrat_nmr_allsurveys.txt'))
   summary(bb.fit.natl.unstrat.nmr.allsurveys)
   sink(file=NULL)
   # save smaller components of fit
-  save(bb.temporals.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_unstrat_nmr_allsurveys.rda'))
-  save(bb.hyperpar.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_unstrat_nmr_allsurveys.rda'))
-  save(bb.fixed.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_unstrat_nmr_allsurveys.rda'))
+  save(bb.temporals.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_temporals_natl_', time_mod, '_unstrat_nmr_allsurveys.rda'))
+  save(bb.hyperpar.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_hyperpar_natl_', time_mod, '_unstrat_nmr_allsurveys.rda'))
+  save(bb.fixed.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_fixed_natl_', time_mod, '_unstrat_nmr_allsurveys.rda'))
   # save results
-  save(bb.res.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_res_natl_unstrat_nmr_allsurveys.rda'))
+  save(bb.res.natl.unstrat.nmr.allsurveys,file=paste0('Betabinomial/NMR/',country,'_res_natl_', time_mod, '_unstrat_nmr_allsurveys.rda'))
   
   #### Admin1 Unstrat ----------------------------------------------
   bb.adm1.unstrat.nmr.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                                 Amat=admin1.mat, admin.level='Admin1',
                                 stratified=F, weight.strata=NULL,
                                 outcome='nmr',
-                                time.model='ar1', st.time.model='ar1',
+                                time.model=time_mod, st.time.model=time_mod,
                                 adj.frame=adj.frame, adj.varnames=adj.varnames,
                                 doBenchmark=F,nsim = 1000)
   
@@ -793,7 +795,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                            Amat=admin2.mat, admin.level='Admin2',
                                            stratified=F, weight.strata=NULL,
                                            outcome='nmr',
-                                           time.model='ar1', st.time.model='ar1',
+                                           time.model=time_mod, st.time.model=time_mod,
                                            adj.frame=adj.frame, adj.varnames=adj.varnames,
                                            doBenchmark=F,nsim = 1000)
   
@@ -821,7 +823,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   bb.natl.unstrat.u5.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                                            Amat=NULL, admin.level='National',
                                            stratified=F, weight.strata=NULL,
-                                           outcome='u5mr', time.model='ar1',
+                                           outcome='u5mr', time.model=time_mod,
                                            adj.frame=adj.frame, adj.varnames=adj.varnames,
                                            doBenchmark=F,nsim = 1000)
   
@@ -833,22 +835,22 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   bb.fixed.natl.unstrat.u5.allsurveys <- bb.fit.natl.unstrat.u5.allsurveys$fit$summary.fixed
   
   # save summary of fit to a txt file
-  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_unstrat_u5_allsurveys.txt'))
+  sink(file=paste0('Betabinomial/U5MR/',country,'_fit_natl_', time_mod, '_unstrat_u5_allsurveys.txt'))
   summary(bb.fit.natl.unstrat.u5.allsurveys)
   sink(file=NULL)
   # save smaller components of fit
-  save(bb.temporals.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_unstrat_u5_allsurveys.rda'))
-  save(bb.hyperpar.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_unstrat_u5_allsurveys.rda'))
-  save(bb.fixed.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_unstrat_u5_allsurveys.rda'))
+  save(bb.temporals.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_temporals_natl_', time_mod, '_unstrat_u5_allsurveys.rda'))
+  save(bb.hyperpar.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_hyperpar_natl_', time_mod, '_unstrat_u5_allsurveys.rda'))
+  save(bb.fixed.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_fixed_natl_', time_mod, '_unstrat_u5_allsurveys.rda'))
   # save results
-  save(bb.res.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_res_natl_unstrat_u5_allsurveys.rda'))
+  save(bb.res.natl.unstrat.u5.allsurveys,file=paste0('Betabinomial/U5MR/',country,'_res_natl_', time_mod, '_unstrat_u5_allsurveys.rda'))
   
   #### Admin1 Unstrat ----------------------------------------------
   bb.adm1.unstrat.u5.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                                            Amat=admin1.mat, admin.level='Admin1',
                                            stratified=F, weight.strata=NULL,
                                            outcome='u5mr',
-                                           time.model='ar1', st.time.model='ar1',
+                                           time.model=time_mod, st.time.model=time_mod,
                                            adj.frame=adj.frame, adj.varnames=adj.varnames,
                                            doBenchmark=F,nsim = 1000)
   
@@ -875,7 +877,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                           Amat=admin2.mat, admin.level='Admin2',
                                           stratified=F, weight.strata=NULL,
                                           outcome='u5mr',
-                                          time.model='ar1', st.time.model='ar1',
+                                          time.model=time_mod, st.time.model=time_mod,
                                           adj.frame=adj.frame, adj.varnames=adj.varnames,
                                           doBenchmark=F,nsim = 1000)
   
@@ -903,7 +905,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                     Amat=admin1.mat, admin.level='Admin1',
                                     stratified=F, weight.strata=NULL,
                                     outcome='nmr',
-                                    time.model='ar1', st.time.model='ar1',
+                                    time.model=time_mod, st.time.model=time_mod,
                                     adj.frame=adj.frame, adj.varnames=adj.varnames,
                                     weight.region = weight.adm1.u1,
                                     igme.ests = igme.ests.nmr,
@@ -944,7 +946,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                                Amat=admin2.mat, admin.level='Admin2',
                                                stratified=F, weight.strata=NULL,
                                                outcome='nmr',
-                                               time.model='ar1', st.time.model='ar1',
+                                               time.model=time_mod, st.time.model=time_mod,
                                                adj.frame=adj.frame, adj.varnames=adj.varnames,
                                                weight.region = weight.adm2.u1,
                                                igme.ests = igme.ests.nmr,
@@ -985,7 +987,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                                Amat=admin1.mat, admin.level='Admin1',
                                                stratified=F, weight.strata=NULL,
                                                outcome='u5mr',
-                                               time.model='ar1', st.time.model='ar1',
+                                               time.model=time_mod, st.time.model=time_mod,
                                                adj.frame=adj.frame, adj.varnames=adj.varnames,
                                                weight.region = weight.adm1.u1,
                                                igme.ests = igme.ests.u5,
@@ -1026,7 +1028,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                                Amat=admin2.mat, admin.level='Admin2',
                                                stratified=F, weight.strata=NULL,
                                                outcome='u5mr',
-                                               time.model='ar1', st.time.model='ar1',
+                                               time.model=time_mod, st.time.model=time_mod,
                                                adj.frame=adj.frame, adj.varnames=adj.varnames,
                                                weight.region = weight.adm2.u1,
                                                igme.ests = igme.ests.u5,
