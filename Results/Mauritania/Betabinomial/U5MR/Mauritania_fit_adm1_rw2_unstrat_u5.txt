@@ -1,0 +1,41 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        rw2
+  Spatial effect:             bym2
+  Interaction temporal model: rw2
+  Interaction type:           4
+  Interaction random slopes:  yes
+  Number of age groups: 6
+  Stratification: no, strata variable not in the input
+  Survey effect: no, only one survey
+----------------------------------
+Fixed Effects
+                      mean    sd 0.025quant 0.5quant 0.975quant   mode kld
+age.intercept0:     -3.631 0.077     -3.783   -3.631     -3.478 -3.631   0
+age.intercept1-11:  -6.695 0.084     -6.862   -6.695     -6.528 -6.695   0
+age.intercept12-23: -8.005 0.114     -8.230   -8.005     -7.780 -8.005   0
+age.intercept24-35: -7.782 0.109     -7.997   -7.782     -7.566 -7.782   0
+age.intercept36-47: -8.637 0.151     -8.934   -8.637     -8.341 -8.638   0
+age.intercept48-59: -8.941 0.177     -9.288   -8.941     -8.595 -8.941   0
+----------------------------------
+Random Effects
+           Name          Model
+1   time.struct      RW2 model
+2 time.unstruct      IID model
+3 region.struct     BYM2 model
+4     time.area Generic0 model
+5   st.slope.id      IID model
+----------------------------------
+Model hyperparameters
+                                                      mean         sd 0.025quant 0.5quant 0.975quant    mode
+overdispersion for the betabinomial observations     0.001      0.001      0.000    0.001      0.003   0.001
+Precision for time.struct                          313.275    484.312     22.746  171.532   1489.924  58.467
+Precision for time.unstruct                       1352.022   4149.030     61.235  464.179   8188.977 137.803
+Precision for region.struct                         17.248      8.844      5.820   15.381     39.672  12.173
+Phi for region.struct                                0.248      0.201      0.015    0.191      0.744   0.038
+Precision for time.area                          16116.825 128308.242    152.449 2302.865 107501.018 329.305
+Precision for st.slope.id                         1411.819  24857.249      3.012   78.846   8212.089   5.620
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -8473.357
+log marginal-likelihood (Gaussian)    -8468.724
