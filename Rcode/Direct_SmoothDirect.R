@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Uganda'
+country <- 'Burundi'
 
 # Setup
 # Load libraries and info ----------------------------------------------------------
@@ -387,10 +387,13 @@ if(exists("poly.layer.adm2")){
         tmp.adj[ ,  match(colnames(direct.natl.yearly.u5),
                           colnames(tmp.adj))]
       
-      adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]
-      adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
-      
       # adjustment for 3-year period u5mr
+      if(survey==beg.year){
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      }else{
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]}
+      adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
+    
       tmp.adj <- SUMMER::getAdjusted(direct.natl.u5[direct.natl.u5$surveyYears == survey,],
                                      ratio = adj.frame.tmp, 
                                      logit.lower = NULL,
@@ -412,10 +415,13 @@ if(exists("poly.layer.adm2")){
         tmp.adj[ ,  match(colnames(direct.natl.yearly.nmr),
                           colnames(tmp.adj))]
       
-      adj.frame.tmp <- adj.frame[adj.frame$years  %in%  (beg.period.years + 1), ]
+      # adjustment for 3-year period nmr
+      if(survey==beg.year){
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      }else{
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]}
       adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
       
-      # adjustment for 3-year period nmr
       tmp.adj <- SUMMER::getAdjusted(direct.natl.nmr[direct.natl.nmr$surveyYears == survey,],
                                      ratio = adj.frame.tmp, 
                                      logit.lower = NULL,
@@ -439,8 +445,10 @@ if(exists("poly.layer.adm2")){
       
       for(area in admin1.names$GADM){
         if(natl.unaids){
-          adj.frame.tmp <- adj.frame[adj.frame$years %in% 
-                                       (beg.period.years+1), ]
+          if(survey==beg.year){
+            adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+          }else{
+            adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]}
           adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
           adj.frame.tmp.yearly <- adj.frame
           
@@ -448,10 +456,13 @@ if(exists("poly.layer.adm2")){
           if(country == "Zambia" & area == "North-Western"){
             adj.frame$area[adj.frame$area == "Northwestern"] <- area
           }
-          adj.frame.tmp <- adj.frame[adj.frame$area == area &
-                                       adj.frame$years %in%
-                                       (beg.period.years+1), ]
-          adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years+1)]
+          if(survey==beg.year){
+            adj.frame.tmp <- adj.frame[adj.frame$area == area & adj.frame$years %in% beg.period.years, ]
+            adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years)]
+          }else{
+            adj.frame.tmp <- adj.frame[adj.frame$area == area & adj.frame$years %in% (beg.period.years + 1), ]
+            adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years+1)]
+          }
           adj.frame.tmp.yearly <- adj.frame[adj.frame$area == area, ]
         }
         
@@ -604,7 +615,7 @@ if(exists("poly.layer.adm2")){
 
 # Smoothed direct estimates  ------------------------------------------------------
 
-  time.model <- c('rw2','ar1')[1]
+  time.model <- c('rw2','ar1')[2]
   
 ## load in appropriate direct estimates  ------------------------------------------------------
   setwd(paste0(res.dir,'/Direct'))
