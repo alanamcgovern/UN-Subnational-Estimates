@@ -64,8 +64,8 @@ Run BB8.R and, again, make sure to specify (1) the country, (2) the frame year b
 
 #### Step 9: Checking Beta-binomial Results
 
-Run Comparison_Plot.R again, this time generating a figure comparing the Beta-binomial estimates. This script will aggregate admin-level estimates up to the national level using the weights from Step 5 so that we can compare models before moving on to benchmarking. 
+Run Comparison_Plot.R again, this time generating a figure comparing the Beta-binomial estimates. This script will aggregate admin-level estimates up to the national level using the weights from Step 5 so that we can compare models before moving on to benchmarking. Then run Diagnostic_Plots.R to get some diagnostic plots will be helpful to assess before moving on to benchmarking
 
-#### Step 10: Benchmarking Final Estimates
+#### Step 10: Benchmarking Final Estimates (not yet!)
 
 Go back to the BB8.R script and now run the benchmarked models that were skipped over before.

@@ -1,0 +1,42 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        ar1
+  Additional linear trends:   stratum-age-specific
+  Interaction random slopes:  yes
+  Number of age groups: 6
+  Stratification: no, strata variable not in the input
+  Survey effect: yes
+----------------------------------
+Fixed Effects
+                     mean    sd 0.025quant 0.5quant 0.975quant mode kld
+time.slope.group1  -0.287 0.113     -0.508   -0.288     -0.061   NA   0
+time.slope.group2  -1.634 0.122     -1.866   -1.636     -1.386   NA   0
+time.slope.group3  -1.749 0.119     -1.983   -1.749     -1.513   NA   0
+age.intercept0     -3.512 0.029     -3.569   -3.512     -3.453   NA   0
+age.intercept1-11  -6.098 0.032     -6.159   -6.098     -6.035   NA   0
+age.intercept12-23 -6.952 0.034     -7.019   -6.952     -6.884   NA   0
+age.intercept24-35 -7.134 0.036     -7.204   -7.134     -7.063   NA   0
+age.intercept36-47 -7.504 0.039     -7.580   -7.504     -7.427   NA   0
+age.intercept48-59 -8.024 0.046     -8.113   -8.024     -7.933   NA   0
+
+Slope fixed effect index:
+time.slope.group1: 0
+time.slope.group2: 1-11
+time.slope.group3: 12-23, 24-35, 36-47, 48-59
+----------------------------------
+Random Effects
+           Name       Model
+1   time.struct AR(p) model
+2 time.unstruct   IID model
+3     survey.id   IID model
+----------------------------------
+Model hyperparameters
+                                                    mean      sd 0.025quant 0.5quant 0.975quant mode
+overdispersion for the betabinomial observations   0.001   0.000      0.001    0.001      0.001   NA
+Precision for time.struct                        353.691 209.014    113.105  301.901    900.860   NA
+PACF1 for time.struct                             -0.126   0.376     -0.755   -0.155      0.637   NA
+Precision for time.unstruct                      126.057  62.321     45.237  112.919    284.076   NA
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -69973.58
+log marginal-likelihood (Gaussian)    -69971.46

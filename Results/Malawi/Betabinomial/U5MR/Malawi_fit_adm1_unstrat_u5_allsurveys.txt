@@ -1,0 +1,34 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        ar1
+  Additional linear trends:   stratum-age-specific
+  Spatial effect:             bym2
+  Interaction temporal model: ar1
+  Interaction type:           1
+  Interaction random slopes:  no
+  Number of age groups: 6
+  Stratification: no, strata variable not in the input
+  Survey effect: yes
+----------------------------------
+Fixed Effects
+NULL
+
+Slope fixed effect index:
+time.slope.group1: 0
+time.slope.group2: 1-11
+time.slope.group3: 12-23, 24-35, 36-47, 48-59
+----------------------------------
+Random Effects
+           Name       Model
+1   time.struct AR(p) model
+2 time.unstruct   IID model
+3 region.struct   IID model
+4     time.area   IID model
+5     survey.id   IID model
+----------------------------------
+Model hyperparameters
+NULL
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -69888.06
+log marginal-likelihood (Gaussian)    -69885.17
