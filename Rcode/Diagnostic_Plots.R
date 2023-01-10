@@ -16,6 +16,7 @@ models<- c('natl_unstrat_nmr','adm1_unstrat_nmr','adm2_unstrat_nmr',
 # Libraries
 options(gsubfn.engine = "R")
 library(tidyverse)
+library(SUMMER)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
