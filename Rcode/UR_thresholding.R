@@ -248,7 +248,8 @@ pop.abbrev <- tolower(gadm.abbrev)
   }
   
 # Correct urban clusters ----------------------------------------------------------
-  
+
+if('DHS' %in% mod.dat$survey.type){  
   # The codes below fulfills the process defined in the constr_prior function by assigning the possibly misclassified urban clusters to the nearest most densely populated areas.
   # It's generally true that the urban areas tend to have a higher population density so this process can alleviate the side effect
   # of jittering.
@@ -281,7 +282,10 @@ pop.abbrev <- tolower(gadm.abbrev)
   }
 
   prep_dat<-rbind(urban_clus,rural_clus,cluster_list[is.na(cluster_list$LATNUM),])
-  
+
+}else{
+  prep_dat <- cluster_list
+}  
   # create directory to store cluster data
   setwd(paste0(data.dir))
 
