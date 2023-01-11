@@ -475,6 +475,7 @@ if('DHS' %in% mod.dat$survey.type){
  
 # Check classification accuracy based on clusters ----------------------------------------------------------
 
+if('DHS' %in% mod.dat$survey.type){
   ### remove rows with missing covariates, could also build model with missing data
   crc_dat<-crc_dat_final[complete.cases(crc_dat_final), ]
   uncrc_dat<-uncrc_dat_final[complete.cases(uncrc_dat_final), ]
@@ -511,7 +512,7 @@ if('DHS' %in% mod.dat$survey.type){
   
   confmatrix_uncrc
   save(confmatrix_uncrc,file='Threshold/confmatrix_uncrc.rda')
-  
+}  
   
 # Save national U1 and U5 urban proportions ----------------------------------------------------------  
   setwd(paste0(data.dir,'/Population'))
