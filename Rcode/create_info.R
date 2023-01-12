@@ -10,7 +10,7 @@ rm(list = ls())
 ################################################################
 
 # Files info (For those lines with ### xxx ### above, please fill in as commented)
-country <- 'Guinea'
+country <- "Senegal"
 
 ### please fill in the country abbreviation in all upper case of gadm files ### (e.g. fill in SEN for gadm36_SEN_3.shp)
 gadm.abbrev <- "GIN"

@@ -94,7 +94,7 @@ if(exists('poly.layer.adm2')){
 #### Parameters ####
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
-time.model <- c('rw2','ar1')[2]
+time.model <- c('rw2','ar1')[1]
 
 load(paste0(data.dir, '/', country, '_cluster_dat_1frame.rda'), envir = .GlobalEnv)
 end.year.1frame <- max(mod.dat$survey)
@@ -197,18 +197,21 @@ setwd(res.dir)
 
   ### national betabinomial models
 {
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_natl_unstrat_nmr.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_natl_unstrat_nmr.rda'))}
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_natl_strat_nmr.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_natl_strat_nmr.rda'))}
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_natl_unstrat_nmr_allsurveys.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_natl_unstrat_nmr_allsurveys.rda'))}
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_natl_unstrat_u5.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_unstrat_u5.rda'))}  
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_natl_strat_u5.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_strat_u5.rda'))}  
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_natl_unstrat_u5_allsurveys.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_unstrat_u5_allsurveys.rda'))}  
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_natl_', time.model, 
+                        '_unstrat_nmr.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_natl_', 
+                       time.model, '_unstrat_nmr.rda'))
+    }
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_natl_', time.model, '_strat_nmr.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_natl_', time.model, '_strat_nmr.rda'))}
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_natl_', time.model, '_unstrat_nmr_allsurveys.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_natl_', time.model, '_unstrat_nmr_allsurveys.rda'))}
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_natl_', time.model, '_unstrat_u5.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_', time.model, '_unstrat_u5.rda'))}  
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_natl_', time.model, '_strat_u5.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_', time.model, '_strat_u5.rda'))}  
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_natl_', time.model, '_unstrat_u5_allsurveys.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_natl_', time.model, '_unstrat_u5_allsurveys.rda'))}  
   
   if(exists('bb.res.natl.unstrat.nmr') & exists('bb.res.natl.unstrat.u5')){
     natl.bb.unstrat.frame <- data.frame(lower_nmr = bb.res.natl.unstrat.nmr$overall$lower, median_nmr = bb.res.natl.unstrat.nmr$overall$median, upper_nmr = bb.res.natl.unstrat.nmr$overall$upper,
@@ -327,12 +330,12 @@ setwd(res.dir)
   ### BB8 admin1 unstratified
   {
   
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr.rda'))
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_unstrat_nmr.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_unstrat_nmr.rda'))
     res.unstrat.admin1.nmr <- bb.res.adm1.unstrat.nmr
     admin1.unstrat.nmr.BB8<-res.unstrat.admin1.nmr$overall}
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5.rda'))
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_unstrat_u5.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_unstrat_u5.rda'))
     res.unstrat.admin1.u5 <- bb.res.adm1.unstrat.u5
     admin1.unstrat.u5.BB8<-res.unstrat.admin1.u5$overall} 
   
@@ -371,12 +374,12 @@ setwd(res.dir)
   ### BB8 admin1 unstratified, all surveys
   {
   
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr_allsurveys.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr_allsurveys.rda'))
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_unstrat_nmr_allsurveys.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_unstrat_nmr_allsurveys.rda'))
     res.unstrat.admin1.nmr.allsurveys <- bb.res.adm1.unstrat.nmr.allsurveys
     admin1.unstrat.nmr.allsurveys.BB8<-res.unstrat.admin1.nmr.allsurveys$overall}
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5_allsurveys.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5_allsurveys.rda'))
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_unstrat_u5_allsurveys.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_unstrat_u5_allsurveys.rda'))
     res.unstrat.admin1.u5.allsurveys <- bb.res.adm1.unstrat.u5.allsurveys
     admin1.unstrat.u5.allsurveys.BB8<-res.unstrat.admin1.u5.allsurveys$overall} 
   
@@ -415,12 +418,12 @@ setwd(res.dir)
   ### BB8 admin1 unstratified, all surveys, benchmarked
   {
   
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr_allsurveys_bench.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_unstrat_nmr_allsurveys_bench.rda'))
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_unstrat_nmr_allsurveys_bench.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_unstrat_nmr_allsurveys_bench.rda'))
     res.unstrat.admin1.nmr.allsurveys.bench <- bb.res.adm1.unstrat.nmr.allsurveys.bench
     admin1.unstrat.nmr.allsurveys.BB8.bench<-res.unstrat.admin1.nmr.allsurveys.bench$overall}
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5_allsurveys_bench.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_unstrat_u5_allsurveys_bench.rda'))
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_unstrat_u5_allsurveys_bench.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_unstrat_u5_allsurveys_bench.rda'))
     res.unstrat.admin1.u5.allsurveys.bench <- bb.res.adm1.unstrat.u5.allsurveys.bench
     admin1.unstrat.u5.allsurveys.BB8.bench<-res.unstrat.admin1.u5.allsurveys.bench$overall} 
   
@@ -460,12 +463,12 @@ setwd(res.dir)
   ### BB8 admin1 stratified
   {
   
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_strat_nmr.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_strat_nmr.rda'))
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_strat_nmr.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_strat_nmr.rda'))
     res.strat.admin1.nmr <- bb.res.adm1.strat.nmr
     admin1.strat.nmr.BB8<-res.strat.admin1.nmr$overall}
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_strat_u5.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_strat_u5.rda'))
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_strat_u5.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_strat_u5.rda'))
     res.strat.admin1.u5 <- bb.res.adm1.strat.u5
     admin1.strat.u5.BB8<-res.strat.admin1.u5$overall} 
   
@@ -504,12 +507,12 @@ setwd(res.dir)
   ### BB8 admin1 stratified, benchmarked
   {
   
-  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_strat_nmr_bench.rda'))){
-    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_strat_nmr_bench.rda'))
+  if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_strat_nmr_bench.rda'))){
+    load(file = paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, '_strat_nmr_bench.rda'))
     res.strat.admin1.nmr.bench <- bb.res.adm1.strat.nmr.bench
     admin1.strat.nmr.BB8.bench<-res.strat.admin1.nmr.bench$overall}
-  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_strat_u5_bench.rda'))){
-    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_strat_u5_bench.rda'))
+  if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_strat_u5_bench.rda'))){
+    load(file = paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, '_strat_u5_bench.rda'))
     res.strat.admin1.u5.bench <- bb.res.adm1.strat.u5.bench
     admin1.strat.u5.BB8.bench<-res.strat.admin1.u5.bench$overall} 
   
@@ -630,12 +633,12 @@ if(exists('poly.layer.adm2')){
   ### BB8 admin2 unstratified
   {
     
-    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr.rda'))){
-      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr.rda'))
+    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_unstrat_nmr.rda'))){
+      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_unstrat_nmr.rda'))
       res.unstrat.admin2.nmr <- bb.res.adm2.unstrat.nmr
       admin2.unstrat.nmr.BB8<-res.unstrat.admin2.nmr$overall}
-    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5.rda'))){
-      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5.rda'))
+    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_unstrat_u5.rda'))){
+      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_unstrat_u5.rda'))
       res.unstrat.admin2.u5 <- bb.res.adm2.unstrat.u5
       admin2.unstrat.u5.BB8<-res.unstrat.admin2.u5$overall} 
     
@@ -674,12 +677,12 @@ if(exists('poly.layer.adm2')){
   ### BB8 admin2 unstratified, all surveys
   {
     
-    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr_allsurveys.rda'))){
-      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr_allsurveys.rda'))
+    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_unstrat_nmr_allsurveys.rda'))){
+      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_unstrat_nmr_allsurveys.rda'))
       res.unstrat.admin2.nmr.allsurveys <- bb.res.adm2.unstrat.nmr.allsurveys
       admin2.unstrat.nmr.allsurveys.BB8<-res.unstrat.admin2.nmr.allsurveys$overall}
-    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5_allsurveys.rda'))){
-      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5_allsurveys.rda'))
+    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_unstrat_u5_allsurveys.rda'))){
+      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_unstrat_u5_allsurveys.rda'))
       res.unstrat.admin2.u5.allsurveys <- bb.res.adm2.unstrat.u5.allsurveys
       admin2.unstrat.u5.allsurveys.BB8<-res.unstrat.admin2.u5.allsurveys$overall} 
     
@@ -718,12 +721,12 @@ if(exists('poly.layer.adm2')){
   ### BB8 admin2 unstratified, all surveys, benchmarked
   {
     
-    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr_allsurveys_bench.rda'))){
-      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_unstrat_nmr_allsurveys_bench.rda'))
+    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_unstrat_nmr_allsurveys_bench.rda'))){
+      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_unstrat_nmr_allsurveys_bench.rda'))
       res.unstrat.admin2.nmr.allsurveys.bench <- bb.res.adm2.unstrat.nmr.allsurveys.bench
       admin2.unstrat.nmr.allsurveys.BB8.bench<-res.unstrat.admin2.nmr.allsurveys.bench$overall}
-    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5_allsurveys_bench.rda'))){
-      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_unstrat_u5_allsurveys_bench.rda'))
+    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_unstrat_u5_allsurveys_bench.rda'))){
+      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_unstrat_u5_allsurveys_bench.rda'))
       res.unstrat.admin2.u5.allsurveys.bench <- bb.res.adm2.unstrat.u5.allsurveys.bench
       admin2.unstrat.u5.allsurveys.BB8.bench<-res.unstrat.admin2.u5.allsurveys.bench$overall} 
     
@@ -763,12 +766,12 @@ if(exists('poly.layer.adm2')){
   ### BB8 admin2 stratified
   {
     
-    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_strat_nmr.rda'))){
-      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_strat_nmr.rda'))
+    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_strat_nmr.rda'))){
+      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_strat_nmr.rda'))
       res.strat.admin2.nmr <- bb.res.adm2.strat.nmr
       admin2.strat.nmr.BB8<-res.strat.admin2.nmr$overall}
-    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_strat_u5.rda'))){
-      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_strat_u5.rda'))
+    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_strat_u5.rda'))){
+      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_strat_u5.rda'))
       res.strat.admin2.u5 <- bb.res.adm2.strat.u5
       admin2.strat.u5.BB8<-res.strat.admin2.u5$overall} 
     
@@ -807,12 +810,12 @@ if(exists('poly.layer.adm2')){
   ### BB8 admin2 stratified, benchmarked
   {
     
-    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_strat_nmr_bench.rda'))){
-      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_strat_nmr_bench.rda'))
+    if(file.exists(paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_strat_nmr_bench.rda'))){
+      load(file = paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, '_strat_nmr_bench.rda'))
       res.strat.admin2.nmr.bench <- bb.res.adm2.strat.nmr.bench
       admin2.strat.nmr.BB8.bench<-res.strat.admin2.nmr.bench$overall}
-    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_strat_u5_bench.rda'))){
-      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_strat_u5_bench.rda'))
+    if(file.exists(paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_strat_u5_bench.rda'))){
+      load(file = paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, '_strat_u5_bench.rda'))
       res.strat.admin2.u5.bench <- bb.res.adm2.strat.u5.bench
       admin2.strat.u5.BB8.bench<-res.strat.admin2.u5.bench$overall} 
     
@@ -977,11 +980,12 @@ if(exists('poly.layer.adm2')){
   methods.use <- c("natl.sd.yearly","natl.bb.unstrat","natl.bb.strat","natl.bb.unstrat.allsurveys",
                    "aggre.adm1.unstrat.BB8","aggre.adm1.strat.BB8","aggre.adm1.unstrat.allsurveys.BB8",
                    "aggre.adm2.unstrat.BB8","aggre.adm2.strat.BB8", "aggre.adm2.unstrat.allsurveys.BB8",
-                   "igme")[c(1,3,4,6,7,9:11)]
+                   "igme")[c(1,3,6,9,11)]
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the  PDF!
   pdf(paste0(res.dir, "/Figures/Summary/NMR/",
-             country, "_comparison_nmr_bb8.pdf"),height = 6,width = 6)
+             country, "_comparison_nmr_bb8_",
+             time.model, ".pdf"),height = 6,width = 6)
   {
     
     plot(NA, xlim=c(min(plot.years),max(plot.years)), ylim=y_limits_nmr,
@@ -1021,7 +1025,8 @@ if(exists('poly.layer.adm2')){
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
   pdf(paste0(res.dir, "/Figures/Summary/U5MR/",
-             country, "_comparison_u5_bb8.pdf"),height = 6,width = 6)
+             country, "_comparison_u5_bb8_",
+             time.model, ".pdf"),height = 6,width = 6)
   { 
     {
       

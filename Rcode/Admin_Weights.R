@@ -2,7 +2,7 @@ rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 
-country <- "Mauritania"
+country <- "Senegal"
 
 
 # Load libraries and info ----------------------------------------------------------
@@ -23,7 +23,7 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
                   collapse = "/")
 #data.dir <- paste0(home.dir,'/Data/',country)
-data.dir <- "R:/Project/STAB/Mauritania"# set the directory to store the data
+data.dir <- "R:/Project/STAB/Senegal"# set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info

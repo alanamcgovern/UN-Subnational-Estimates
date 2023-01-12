@@ -2,7 +2,7 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Mauritania'
 # Please specify which model(s) to get diagnostic plots for
 models<- c('natl_unstrat_nmr','adm1_unstrat_nmr','adm2_unstrat_nmr',
             'natl_strat_nmr','adm1_strat_nmr','adm2_strat_nmr',
@@ -10,6 +10,11 @@ models<- c('natl_unstrat_nmr','adm1_unstrat_nmr','adm2_unstrat_nmr',
             'natl_unstrat_u5','adm1_unstrat_u5','adm2_unstrat_u5',
             'natl_strat_u5','adm1_strat_u5','adm2_strat_u5',
             'natl_unstrat_u5_allsurveys','adm1_unstrat_u5_allsurveys','adm2_unstrat_u5_allsurveys')[c(4,13,16)]
+
+time.model <- c("rw2", "ar1")[1]
+
+models <- gsub("natl_strat", paste0("natl_", time.model, "_strat"), models)
+models <- gsub("natl_unstrat", paste0("natl_", time.model, "_unstrat"), models)
 
 #### Load libraries and info ----------------------------------------------------------
 
@@ -23,7 +28,8 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 
 # retrieve directories
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- paste0("R://Project/STAB/", country)
 res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
@@ -45,8 +51,9 @@ n_years <- end.proj.year - beg.year + 1
 # get info about each model
 models.dat <- data.frame(label=models,
                          admin_level = sapply(1:length(models),function(i){str_split(models,'_')[[i]][1]}),
-                         strat = sapply(1:length(models),function(i){str_split(models,'_')[[i]][2]}),
-                         outcome = sapply(1:length(models),function(i){str_split(models,'_')[[i]][3]}))
+                         time = sapply(1:length(models),function(i){str_split(models,'_')[[i]][2]}),
+                         strat = sapply(1:length(models),function(i){str_split(models,'_')[[i]][3]}),
+                         outcome = sapply(1:length(models),function(i){str_split(models,'_')[[i]][4]}))
 
 #### Load admin names  ------------------------------------------------------
 setwd(data.dir)
@@ -79,7 +86,9 @@ for(model.id in 1:length(models)){
     stop(paste0(model, ' cannot be found.'))
   }
   
-  sampAll <- eval(str2lang(paste0('bb.res.', str_replace_all(models[model.id],'_','.'))))$draws
+  model_string <- gsub(paste0("_", time.model), "", models[model.id])
+  model_string <- paste0('bb.res.', str_replace_all(model_string,'_','.'))
+  sampAll <- eval(str2lang(model_string))$draws
   
   re <- grep("time.struct", rownames(sampAll[[1]]$latent)) # random effect
   
