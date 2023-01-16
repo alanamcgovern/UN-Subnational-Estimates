@@ -8,6 +8,8 @@
 - Compute admin1 and admin2 crisis-related probabilities of death from excess deaths and population
 - Final crisis-adjusted admin1 and admin2 mortality rates are the sum of benchmarked and crisis-specific probabilities
 
+## Crisis details
+
 1. Ebola 2014-2016
 
 **Countries:** Liberia, Sierra Leone, Guinea
