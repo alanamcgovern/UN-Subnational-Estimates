@@ -3,7 +3,7 @@ rm(list = ls())
 
 # Please capitalize the first letter of the country name and replace " " 
 # in the country name to "_" if there is.
-country <- "Mauritania"
+country <- "Senegal"
 
 
 # Setup
@@ -643,7 +643,7 @@ if(doHIVAdj){
         }
       }
     }
-  }
+  s
   
   save(direct.natl.u5, 
        file = paste0('U5MR/',country, '_directHIV_natl_u5.rda'))
@@ -673,12 +673,12 @@ if(doHIVAdj){
     save(direct.admin2.yearly.nmr, 
          file = paste0('NMR/',country, '_directHIV_admin2_yearly_nmr.rda'))
   }
-  
+  }
 
 
 # Smoothed direct estimates  ------------------------------------------------------
 
-time.model <- c('rw2','ar1')[2]
+time.model <- c('rw2','ar1')[1]
 
 ## load in appropriate direct estimates  ------------------------------------------------------
   setwd(paste0(res.dir,'/Direct'))
