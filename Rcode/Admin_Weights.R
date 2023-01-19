@@ -144,9 +144,10 @@ for(year in pop.year){
 
 # Prepare U1 and U5 Populations ----------------------------------------------------------
 
-
+pop.year <- beg.year:2020
+pop.abbrev <- tolower(gadm.abbrev)
 # aggregate the under-five population spatial surface to resolution of 1km*1km
-for (year in 2019){
+for (year in pop.year){
   print(year)
   
   # load worldpop
