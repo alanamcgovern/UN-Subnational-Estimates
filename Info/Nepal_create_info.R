@@ -10,22 +10,24 @@ rm(list = ls())
 ################################################################
 
 # Files info (For those lines with ### xxx ### above, please fill in as commented)
-country <- 'Ghana'
+country <- 'Nepal'
 
 ### please fill in the country abbreviation in all upper case of gadm files ### (e.g. fill in SEN for gadm36_SEN_3.shp)
-gadm.abbrev <- "GHA"
+gadm.abbrev <- "NPL"
 doHIVAdj <- F
 
 ### please fill in the path to country shape files ####
-poly.path <- paste0("shapeFiles/gadm40_GHA_shp")
+poly.path <- "shapeFiles"
 
 ##### explain how these may need to be changed
-poly.layer.adm0 <- paste('gadm40', gadm.abbrev,
+poly.layer.adm0 <- paste('gadm41', gadm.abbrev,
                          '0', sep = "_") # specify the name of the national shape file
-poly.layer.adm1 <- paste('gadm40', gadm.abbrev,
-                         '1', sep = "_") # specify the name of the admin2 shape file
+poly.layer.adm1 <- 'npl_admbnda_adm1_nd_20180806'# specify the name of the admin2 shape file
+poly.layer.adm2 <- 'npl_admbnda_districts_nd_20180806' # specify the name of the admin2 shape file
 
-poly.label.adm1 <- "poly.adm1@data$NAME_1"
+
+poly.label.adm1 <- "poly.adm1@data$ADM1_EN"
+poly.label.adm2 <- "poly.adm2@data$DIST_EN"
 
 ##################################################################
 ##################################################################
