@@ -2,8 +2,8 @@ rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR INCLUDED IN SAME SAMPLING FRAME  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 
-country <- "Mauritania"
-survey_years <- 2020
+country <- "Senegal"
+survey_years <- 2015:2019
 frame_year <- 2013
 
 
@@ -282,7 +282,6 @@ for( i in 1:dim(urban_clus)[1]){
   urban_clus[i,]$x_adj<-p_mode$x
   urban_clus[i,]$y_adj<-p_mode$y
 }
-
 prep_dat<-rbind(urban_clus,rural_clus,cluster_list[is.na(cluster_list$LATNUM),])
 
 # create directory to store cluster data
