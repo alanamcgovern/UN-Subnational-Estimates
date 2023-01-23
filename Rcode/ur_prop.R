@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST AND YEAR OF SAMPLING FRAME (must be in frame_years)  -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- "Mauritania"
+country <- "Senegal"
 frame_year <- 2013
 
 # Load libraries and Info -----------------------------------------------
