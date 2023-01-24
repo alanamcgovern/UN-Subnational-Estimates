@@ -1,0 +1,51 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        rw2
+  Spatial effect:             bym2
+  Interaction temporal model: rw2
+  Interaction type:           4
+  Interaction random slopes:  yes
+  Number of age groups: 6
+  Stratification: yes
+  Number of age group fixed effect per stratum: 6
+  Number of age-specific trends per stratum: 3
+  Strata-specific temporal trends: yes
+  Survey effect: yes
+----------------------------------
+Fixed Effects
+                           mean    sd 0.025quant 0.5quant 0.975quant mode kld
+age.intercept0:urban     -3.751 0.046     -3.841   -3.751     -3.663   NA   0
+age.intercept1-11:urban  -6.684 0.058     -6.800   -6.683     -6.571   NA   0
+age.intercept12-23:urban -7.825 0.085     -7.992   -7.825     -7.658   NA   0
+age.intercept24-35:urban -8.050 0.095     -8.236   -8.050     -7.864   NA   0
+age.intercept36-47:urban -8.178 0.103     -8.380   -8.178     -7.977   NA   0
+age.intercept48-59:urban -8.425 0.118     -8.656   -8.425     -8.194   NA   0
+age.intercept0:rural     -3.578 0.033     -3.641   -3.578     -3.512   NA   0
+age.intercept1-11:rural  -6.329 0.037     -6.402   -6.329     -6.256   NA   0
+age.intercept12-23:rural -7.025 0.044     -7.113   -7.025     -6.940   NA   0
+age.intercept24-35:rural -7.360 0.050     -7.459   -7.360     -7.264   NA   0
+age.intercept36-47:rural -7.584 0.055     -7.693   -7.584     -7.477   NA   0
+age.intercept48-59:rural -8.067 0.069     -8.202   -8.067     -7.932   NA   0
+----------------------------------
+Random Effects
+           Name          Model
+1   time.struct      RW2 model
+2 time.unstruct      IID model
+3 region.struct     BYM2 model
+4     time.area Generic0 model
+5   st.slope.id      IID model
+6     survey.id      IID model
+----------------------------------
+Model hyperparameters
+                                                     mean        sd 0.025quant 0.5quant 0.975quant mode
+overdispersion for the betabinomial observations    0.001     0.000      0.000    0.001      0.001   NA
+Precision for time.struct                        4374.023 14990.482    163.149 1366.597  27157.815   NA
+Precision for time.unstruct                      5107.714 15006.355    284.218 1826.714  30359.434   NA
+Precision for region.struct                        19.016     6.077      9.686   18.155     33.374   NA
+Phi for region.struct                               0.859     0.142      0.463    0.907      0.994   NA
+Precision for time.area                           256.106   256.078     53.759  179.846    926.301   NA
+Precision for st.slope.id                        1558.114 30687.077      2.862   72.898   8614.600   NA
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -29802.18
+log marginal-likelihood (Gaussian)    -29797.54

@@ -208,7 +208,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
 ## Fit BB8 models w surveys from same sampling frame  -----------------------------------------------
 setwd(paste0(res.dir))
 
-time_mod <- c("rw2", "ar1")[2]
+time_mod <- c("rw2", "ar1")[1]
 
 if(!dir.exists("Betabinomial/")){
   dir.create("Betabinomial/")

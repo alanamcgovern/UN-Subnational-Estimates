@@ -1,0 +1,49 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        ar1
+  Additional linear trends:   stratum-age-specific
+  Interaction random slopes:  yes
+  Number of age groups: 6
+  Stratification: yes
+  Number of age group fixed effect per stratum: 6
+  Number of age-specific trends per stratum: 3
+  Strata-specific temporal trends: yes
+  Survey effect: yes
+----------------------------------
+Fixed Effects
+                           mean    sd 0.025quant 0.5quant 0.975quant mode kld
+time.slope.group1        -0.469 0.157     -0.777   -0.469     -0.162   NA   0
+time.slope.group2        -1.283 0.196     -1.668   -1.283     -0.899   NA   0
+time.slope.group3        -2.087 0.196     -2.472   -2.087     -1.702   NA   0
+time.slope.group4        -0.414 0.101     -0.611   -0.414     -0.216   NA   0
+time.slope.group5        -1.405 0.114     -1.629   -1.405     -1.181   NA   0
+time.slope.group6        -2.141 0.103     -2.346   -2.141     -1.942   NA   0
+age.intercept0:urban     -3.736 0.038     -3.810   -3.736     -3.662   NA   0
+age.intercept1-11:urban  -6.642 0.050     -6.740   -6.642     -6.545   NA   0
+age.intercept12-23:urban -7.774 0.079     -7.929   -7.774     -7.618   NA   0
+age.intercept24-35:urban -7.999 0.090     -8.174   -7.999     -7.823   NA   0
+age.intercept36-47:urban -8.129 0.098     -8.321   -8.129     -7.937   NA   0
+age.intercept48-59:urban -8.377 0.114     -8.601   -8.377     -8.154   NA   0
+age.intercept0:rural     -3.515 0.024     -3.562   -3.515     -3.469   NA   0
+age.intercept1-11:rural  -6.227 0.028     -6.282   -6.227     -6.171   NA   0
+age.intercept12-23:rural -6.897 0.036     -6.968   -6.897     -6.826   NA   0
+age.intercept24-35:rural -7.235 0.043     -7.319   -7.235     -7.151   NA   0
+age.intercept36-47:rural -7.462 0.049     -7.559   -7.462     -7.365   NA   0
+age.intercept48-59:rural -7.945 0.064     -8.071   -7.945     -7.819   NA   0
+----------------------------------
+Random Effects
+           Name       Model
+1   time.struct AR(p) model
+2 time.unstruct   IID model
+3     survey.id   IID model
+----------------------------------
+Model hyperparameters
+                                                     mean       sd 0.025quant 0.5quant 0.975quant mode
+overdispersion for the betabinomial observations    0.001    0.000      0.001    0.001      0.001   NA
+Precision for time.struct                         951.537 1147.170    106.318  608.723   3910.735   NA
+PACF1 for time.struct                              -0.179    0.327     -0.739   -0.201      0.493   NA
+Precision for time.unstruct                      2299.093 3468.100    188.652 1284.142  10755.798   NA
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -28073.82
+log marginal-likelihood (Gaussian)    -28071.83
