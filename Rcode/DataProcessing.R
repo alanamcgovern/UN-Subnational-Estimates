@@ -1,7 +1,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Pakistan'
+country <- 'Nepal'
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -210,6 +210,8 @@ for(survey_year in dhs_survey_years){
     
     if(country=='Ethiopia'){
       cmc.adjust <- 92
+    }else if(country=='Nepal'){
+      cmc.adjust <- -681
     }else{cmc.adjust <- 0}
     
     if(country=='Pakistan' & survey_year==2017){
