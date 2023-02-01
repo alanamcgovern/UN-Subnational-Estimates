@@ -208,7 +208,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
 ## Fit BB8 models w surveys from same sampling frame  -----------------------------------------------
 setwd(paste0(res.dir))
 
-time_mod <- c("rw2", "ar1")[1]
+time_mod <- c("rw2", "ar1")[2]
 
 if(!dir.exists("Betabinomial/")){
   dir.create("Betabinomial/")
@@ -222,7 +222,7 @@ if(!dir.exists("Betabinomial/")){
 bb.natl.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                               Amat=NULL, admin.level='National',
                               stratified=F, weight.strata=NULL,
-                              outcome='nmr', =time_mod,
+                              outcome='nmr', time.model =time_mod,
                               adj.frame=adj.frame, adj.varnames=adj.varnames,
                               doBenchmark=F,nsim = 1000)
 

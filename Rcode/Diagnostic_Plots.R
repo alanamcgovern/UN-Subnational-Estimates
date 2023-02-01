@@ -2,16 +2,16 @@ rm(list=ls())
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Mauritania'
+country <- 'Senegal'
 # Please specify which model(s) to get diagnostic plots for
 models<- c('natl_unstrat_nmr','adm1_unstrat_nmr','adm2_unstrat_nmr',
             'natl_strat_nmr','adm1_strat_nmr','adm2_strat_nmr',
             'natl_unstrat_nmr_allsurveys','adm1_unstrat_nmr_allsurveys','adm2_unstrat_nmr_allsurveys',
             'natl_unstrat_u5','adm1_unstrat_u5','adm2_unstrat_u5',
             'natl_strat_u5','adm1_strat_u5','adm2_strat_u5',
-            'natl_unstrat_u5_allsurveys','adm1_unstrat_u5_allsurveys','adm2_unstrat_u5_allsurveys')[c(4,13,16)]
+            'natl_unstrat_u5_allsurveys','adm1_unstrat_u5_allsurveys','adm2_unstrat_u5_allsurveys')[c(1, 4, 10, 13)]
 
-time.model <- c("rw2", "ar1")[1]
+time.model <- c("rw2", "ar1")[2]
 
 models <- gsub("natl_strat", paste0("natl_", time.model, "_strat"), models)
 models <- gsub("natl_unstrat", paste0("natl_", time.model, "_unstrat"), models)
@@ -106,7 +106,14 @@ for(model.id in 1:length(models)){
       #assign ids
       age <- ages[sapply(ages,grepl,age.strata)]
       age.idx <- which(age==ages)
-      age.strata.idx <- grep(age.strata,rownames(sampAll[[1]]$latent)[fe.int])
+      if(grepl("nmr", models[model.id]) &
+         grepl("unstrat", models[model.id])){
+        age.strata.idx <- grep("Intercept", 
+                               rownames(sampAll[[1]]$latent)[fe.int])
+      }else{
+        age.strata.idx <- grep(age.strata,
+                               rownames(sampAll[[1]]$latent)[fe.int])
+      }
       if(age.strata.idx %in% c(1,2) ){
         age.strata.bin.idx <- age.strata.idx
       }else if(age.strata.idx %in% c(3,4,5,6)){

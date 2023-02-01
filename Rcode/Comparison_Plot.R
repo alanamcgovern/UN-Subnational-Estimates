@@ -9,7 +9,7 @@ logit <- function(x){
 
 # ENTER COUNTRY OF INTEREST AND FINAL ESTIMATE INFO -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- "Mauritania"
+country <- "Senegal"
 
 
 ## Setup -----------------------------------------------
@@ -891,7 +891,7 @@ if(exists('poly.layer.adm2')){
   
   ## Compare smoothed direct estimates ---------------
   # USE THIS ARGUMENT TO PICK METHODS TO PLOT -- may have to change this line
-  methods.use <- c("natl.sd.yearly","aggre.sd.adm1","aggre.sd.yearly.adm1","aggre.sd.adm2","aggre.sd.yearly.adm2","igme")[c(1:6)]
+  methods.use <- c("natl.sd.yearly","aggre.sd.adm1","aggre.sd.yearly.adm1","aggre.sd.adm2","aggre.sd.yearly.adm2","igme")[c(1:3,6)]
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the PDF!
   pdf(paste0(res.dir, "/Figures/Summary/NMR/",
@@ -980,7 +980,7 @@ if(exists('poly.layer.adm2')){
   methods.use <- c("natl.sd.yearly","natl.bb.unstrat","natl.bb.strat","natl.bb.unstrat.allsurveys",
                    "aggre.adm1.unstrat.BB8","aggre.adm1.strat.BB8","aggre.adm1.unstrat.allsurveys.BB8",
                    "aggre.adm2.unstrat.BB8","aggre.adm2.strat.BB8", "aggre.adm2.unstrat.allsurveys.BB8",
-                   "igme")[c(1:3,5,6,8,9,11)]
+                   "igme")[c(1:3,5,6,8, 9,11)]
   
   ##IF you have made a comparison plot before that you don't want to overwrite, make sure to change the name of the  PDF!
   pdf(paste0(res.dir, "/Figures/Summary/NMR/",
