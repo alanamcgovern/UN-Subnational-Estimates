@@ -1,0 +1,62 @@
+----------------------------------
+Cluster-level model
+  Main temporal model:        rw2
+  Interaction random slopes:  yes
+  Number of age groups: 6
+  Stratification: yes
+  Number of age group fixed effect per stratum: 6
+  Number of age-specific trends per stratum: 3
+  Strata-specific temporal trends: yes
+  Survey effect: yes
+----------------------------------
+Fixed Effects
+                           mean    sd 0.025quant 0.5quant 0.975quant
+age.intercept0:urban     -3.751 0.042     -3.834   -3.750     -3.668
+age.intercept1-11:urban  -6.683 0.056     -6.794   -6.682     -6.574
+age.intercept12-23:urban -7.825 0.084     -7.989   -7.825     -7.661
+age.intercept24-35:urban -8.050 0.093     -8.233   -8.050     -7.867
+age.intercept36-47:urban -8.180 0.101     -8.379   -8.180     -7.981
+age.intercept48-59:urban -8.429 0.117     -8.658   -8.429     -8.199
+age.intercept0:rural     -3.508 0.028     -3.562   -3.508     -3.451
+age.intercept1-11:rural  -6.259 0.033     -6.324   -6.259     -6.193
+age.intercept12-23:rural -6.957 0.041     -7.039   -6.956     -6.877
+age.intercept24-35:rural -7.295 0.047     -7.389   -7.294     -7.203
+age.intercept36-47:rural -7.522 0.053     -7.627   -7.521     -7.419
+age.intercept48-59:rural -8.005 0.067     -8.137   -8.005     -7.874
+                           mode kld
+age.intercept0:urban     -3.750   0
+age.intercept1-11:urban  -6.681   0
+age.intercept12-23:urban -7.825   0
+age.intercept24-35:urban -8.050   0
+age.intercept36-47:urban -8.180   0
+age.intercept48-59:urban -8.429   0
+age.intercept0:rural     -3.509   0
+age.intercept1-11:rural  -6.259   0
+age.intercept12-23:rural -6.955   0
+age.intercept24-35:rural -7.294   0
+age.intercept36-47:rural -7.521   0
+age.intercept48-59:rural -8.004   0
+----------------------------------
+Random Effects
+           Name     Model
+1   time.struct RW2 model
+2 time.unstruct IID model
+3     survey.id IID model
+----------------------------------
+Model hyperparameters
+                                                      mean        sd
+overdispersion for the betabinomial observations     0.001     0.000
+Precision for time.struct                        35280.169 58100.080
+Precision for time.unstruct                       2778.642  5172.557
+                                                 0.025quant  0.5quant
+overdispersion for the betabinomial observations      0.001     0.001
+Precision for time.struct                          2848.197 18693.723
+Precision for time.unstruct                         209.427  1361.638
+                                                 0.975quant     mode
+overdispersion for the betabinomial observations      0.001    0.001
+Precision for time.struct                        171679.699 7003.824
+Precision for time.unstruct                       14249.083  498.896
+NULL
+                                           [,1]
+log marginal-likelihood (integration) -28072.43
+log marginal-likelihood (Gaussian)    -28071.22

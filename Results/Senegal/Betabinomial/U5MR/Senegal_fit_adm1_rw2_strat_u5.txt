@@ -13,19 +13,32 @@ Cluster-level model
   Survey effect: yes
 ----------------------------------
 Fixed Effects
-                           mean    sd 0.025quant 0.5quant 0.975quant mode kld
-age.intercept0:urban     -3.730 0.057     -3.844   -3.730     -3.617   NA   0
-age.intercept1-11:urban  -6.662 0.068     -6.797   -6.662     -6.530   NA   0
-age.intercept12-23:urban -7.802 0.092     -7.983   -7.802     -7.623   NA   0
-age.intercept24-35:urban -8.028 0.101     -8.226   -8.028     -7.831   NA   0
-age.intercept36-47:urban -8.157 0.108     -8.370   -8.157     -7.945   NA   0
-age.intercept48-59:urban -8.403 0.123     -8.644   -8.403     -8.163   NA   0
-age.intercept0:rural     -3.568 0.048     -3.664   -3.568     -3.471   NA   0
-age.intercept1-11:rural  -6.319 0.051     -6.421   -6.319     -6.218   NA   0
-age.intercept12-23:rural -7.016 0.056     -7.128   -7.016     -6.906   NA   0
-age.intercept24-35:rural -7.352 0.061     -7.472   -7.351     -7.232   NA   0
-age.intercept36-47:rural -7.576 0.065     -7.705   -7.575     -7.448   NA   0
-age.intercept48-59:rural -8.058 0.077     -8.210   -8.058     -7.907   NA   0
+                           mean    sd 0.025quant 0.5quant 0.975quant
+age.intercept0:urban     -3.730 0.057     -3.844   -3.730     -3.617
+age.intercept1-11:urban  -6.662 0.068     -6.797   -6.662     -6.529
+age.intercept12-23:urban -7.802 0.092     -7.983   -7.802     -7.622
+age.intercept24-35:urban -8.028 0.101     -8.226   -8.028     -7.830
+age.intercept36-47:urban -8.157 0.108     -8.370   -8.157     -7.945
+age.intercept48-59:urban -8.403 0.123     -8.644   -8.403     -8.162
+age.intercept0:rural     -3.568 0.048     -3.664   -3.568     -3.471
+age.intercept1-11:rural  -6.319 0.051     -6.421   -6.319     -6.218
+age.intercept12-23:rural -7.016 0.056     -7.128   -7.016     -6.905
+age.intercept24-35:rural -7.351 0.061     -7.472   -7.351     -7.232
+age.intercept36-47:rural -7.575 0.065     -7.705   -7.575     -7.447
+age.intercept48-59:rural -8.058 0.077     -8.210   -8.058     -7.907
+                           mode kld
+age.intercept0:urban     -3.729   0
+age.intercept1-11:urban  -6.661   0
+age.intercept12-23:urban -7.802   0
+age.intercept24-35:urban -8.028   0
+age.intercept36-47:urban -8.157   0
+age.intercept48-59:urban -8.403   0
+age.intercept0:rural     -3.568   0
+age.intercept1-11:rural  -6.319   0
+age.intercept12-23:rural -7.015   0
+age.intercept24-35:rural -7.351   0
+age.intercept36-47:rural -7.575   0
+age.intercept48-59:rural -8.057   0
 ----------------------------------
 Random Effects
            Name          Model
@@ -37,15 +50,31 @@ Random Effects
 6     survey.id      IID model
 ----------------------------------
 Model hyperparameters
-                                                     mean        sd 0.025quant 0.5quant 0.975quant mode
-overdispersion for the betabinomial observations    0.001     0.000      0.000    0.001      0.001   NA
-Precision for time.struct                        3902.207 11817.723    159.638 1339.753  23619.422   NA
-Precision for time.unstruct                      5452.941 16202.767    290.459 1931.353  32564.951   NA
-Precision for region.struct                        24.258    10.379      9.644   22.405     49.767   NA
-Phi for region.struct                               0.602     0.274      0.081    0.640      0.982   NA
-Precision for time.area                           434.064   470.190     78.689  293.791   1652.010   NA
-Precision for st.slope.id                        1406.543 25158.600      2.847   76.861   8138.277   NA
+                                                     mean        sd
+overdispersion for the betabinomial observations    0.001     0.000
+Precision for time.struct                        3750.221 10908.892
+Precision for time.unstruct                      5420.325 15990.428
+Precision for region.struct                        24.371    10.229
+Phi for region.struct                               0.593     0.272
+Precision for time.area                           461.407   479.874
+Precision for st.slope.id                        1644.349 29993.691
+                                                 0.025quant 0.5quant
+overdispersion for the betabinomial observations      0.000    0.001
+Precision for time.struct                           158.329 1326.413
+Precision for time.unstruct                         290.130 1930.485
+Precision for region.struct                           9.580   22.673
+Phi for region.struct                                 0.082    0.626
+Precision for time.area                              78.703  319.194
+Precision for st.slope.id                             3.232   87.760
+                                                 0.975quant    mode
+overdispersion for the betabinomial observations      0.001   0.001
+Precision for time.struct                         22476.075 369.061
+Precision for time.unstruct                       32319.080 625.814
+Precision for region.struct                          49.149  19.422
+Phi for region.struct                                 0.980   0.963
+Precision for time.area                            1717.791 176.572
+Precision for st.slope.id                          9480.724   5.948
 NULL
                                            [,1]
-log marginal-likelihood (integration) -28475.40
-log marginal-likelihood (Gaussian)    -28470.73
+log marginal-likelihood (integration) -28475.27
+log marginal-likelihood (Gaussian)    -28470.64

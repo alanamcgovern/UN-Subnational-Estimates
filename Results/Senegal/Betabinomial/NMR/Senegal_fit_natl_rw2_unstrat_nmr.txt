@@ -7,8 +7,8 @@ Cluster-level model
   Survey effect: yes
 ----------------------------------
 Fixed Effects
-              mean   sd 0.025quant 0.5quant 0.975quant mode kld
-(Intercept) -3.588 0.03     -3.647   -3.589     -3.528   NA   0
+              mean   sd 0.025quant 0.5quant 0.975quant   mode kld
+(Intercept) -3.588 0.03     -3.647   -3.588     -3.527 -3.589   0
 ----------------------------------
 Random Effects
            Name     Model
@@ -17,11 +17,19 @@ Random Effects
 3     survey.id IID model
 ----------------------------------
 Model hyperparameters
-                                                      mean         sd 0.025quant 0.5quant 0.975quant mode
-overdispersion for the betabinomial observations     0.020      0.002      0.016    0.020      0.025   NA
-Precision for time.struct                        38774.509 185742.146    313.772 8208.817 263535.885   NA
-Precision for time.unstruct                       4247.213  18926.602    116.997 1071.551  27632.345   NA
+                                                      mean         sd
+overdispersion for the betabinomial observations     0.020      0.002
+Precision for time.struct                        58530.716 408767.640
+Precision for time.unstruct                       3286.814  11887.551
+                                                 0.025quant 0.5quant
+overdispersion for the betabinomial observations      0.016    0.020
+Precision for time.struct                           258.268 8719.334
+Precision for time.unstruct                         117.798  983.343
+                                                 0.975quant    mode
+overdispersion for the betabinomial observations      0.025   0.020
+Precision for time.struct                        402771.023 375.996
+Precision for time.unstruct                       20586.515 263.749
 NULL
                                            [,1]
-log marginal-likelihood (integration) -8883.042
-log marginal-likelihood (Gaussian)    -8881.839
+log marginal-likelihood (integration) -8883.287
+log marginal-likelihood (Gaussian)    -8882.078

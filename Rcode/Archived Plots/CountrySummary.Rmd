@@ -1,0 +1,264 @@
+---
+title: "Country Summary: Togo"
+header-includes:
+  - \usepackage{pdfpages}
+output: 
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(root.dir = "/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders")
+
+dir.path <- "/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders"
+
+logit <- function(x){
+  log(x/(1-x))
+}
+expit <- function(x){
+  exp(x)/(1 + exp(x))
+}
+
+```
+
+```{r params, echo = F}
+country <- "Togo"
+CountryList <- read.csv(paste0(dir.path,
+                               '/CountryList.csv'), header = T)
+folder.name <- CountryList$folderName[CountryList$Country == country]
+
+gadm.abbrev <- CountryList$gadmCode[CountryList$Country == country]
+n.survey <- CountryList$nSurvey[CountryList$Country == country]
+HIV.sheet <- read.csv(paste0(dir.path ,
+                             "/HIV.csv"), header = T)
+HIV.country <- as.data.frame(HIV.sheet[HIV.sheet$Country == country,])
+
+useHIVAdj <- (unique(HIV.country$MM.Adj.by.IGME) == "Y" &
+                unique(HIV.country$UNAIDS.data.) == "Y")
+SurveyInfo <- read.csv(paste0(dir.path,
+                              "/SurveyInfo.csv"), header = T)
+surveys <- SurveyInfo$Survey.Year[SurveyInfo$Country == country &
+                                    SurveyInfo$`GPS.` == "Y"]
+survey.legends <- SurveyInfo$`OfficialSurveyName`[SurveyInfo$Country == country &
+                                                    SurveyInfo$`GPS.` == "Y"]
+
+load(paste0(dir.path,'/',
+            folder.name,
+            '/shapeFiles_gadm/',
+            country,
+            '_Amat.rda'))
+load(paste0(dir.path,'/',
+            folder.name,
+            '/shapeFiles_gadm/',
+            country,
+            '_Amat_Names.rda'))
+
+```
+# Intro
+
+These estimates are created using the BB8 model with Admin 2 estimates using a RW1xICAR interaction model with area-specific random slopes. \par
+
+
+`r country` has `r nrow(admin1.names)` Admin 1 areas and `r nrow(admin2.names)` Admin 2 areas.\par
+
+
+All uncertainty intervals displayed in subsequent figures are 95\% intervals.
+
+\begin{figure}
+\centering
+\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/ShapeCheck/Togo_adm2_neighb.pdf}
+\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/ShapeCheck/Togo_Admin2Names.pdf}
+\caption{Top: The neighborhood structure of Admin 2 areas. Bottom: The names of Admin 2 areas.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+\centering
+\includegraphics[width=5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_median.pdf}
+\caption{Median estimates of U5MR (deaths per 1000 children) in 2019.}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K2_measuremap.pdf}
+\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K3_measuremap.pdf}
+\caption{Expression of uncertainty of U5MR (deaths per 1000 children) based on the average true classification probability (ATCP) in 2019.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+\centering
+\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_19902019_median.pdf}
+\caption{Median estimates for selected years.}
+\end{figure}
+\clearpage
+
+\clearpage
+
+\includepdf[pages={-}]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_spaghetti_allByMedian.pdf}
+
+\begin{figure}
+\centering
+\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/ridge/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_ridgeplot.pdf}
+\caption{Posterior distributions of U5MR (deaths per 1000 children) in 2019. Areas are ordered by median estimated U5MR in 2019.}
+\end{figure}
+\clearpage
+\begin{figure}
+\centering
+\includegraphics[height=10in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_median.pdf}
+\caption{Posterior medians of U5MR (deaths per 1000 births) by Admin 2 area and year.}
+\end{figure}
+\clearpage
+
+
+
+# National Survey Data
+```{r sumstat, echo = F,results='asis', warning=FALSE}
+library(xtable)
+load(paste0(dir.path, '/',
+            folder.name, '/',
+            country,
+            '_cluster_dat.rda'))
+levels(mod.dat$urban) <- tolower(levels(mod.dat$urban))
+clus.table <- aggregate(cluster ~ survey + urban,
+                        data = mod.dat,
+                        FUN = function(x){length(unique(x))})
+clus.xtable <- reshape(clus.table,
+                       v.names = "cluster",
+                       idvar = "survey",
+                       timevar = "urban",
+                       direction = "wide")
+clus.xtable$Total <- clus.xtable$cluster.urban + 
+  clus.xtable$cluster.rural
+row.names(clus.xtable) <- clus.xtable[,'survey']
+survey_names <- as.character(rev(survey.legends))
+survey_names <- sapply(survey_names, 
+                       function(x){substr(x, start=5, stop=nchar(x))})
+clus.xtable$survey <- survey_names
+colnames(clus.xtable) <- c("Survey", "Urban",
+                           "Rural", "Total")
+clus.printxtable <- xtable(clus.xtable, 
+                           digits = c(0,0,0,0,0),
+                           align = "ccccc",
+                           caption = paste0("Number of clusters by urban/rural designation by survey for ",
+                                            country, "."))
+print.xtable(clus.printxtable, 
+             comment = F, 
+             include.rownames = F)
+
+sum.table <- aggregate(cbind(Y, total) ~ survey + age,
+                       data = mod.dat,
+                       FUN = sum)
+sum.tableList <- list()
+idx <- 0
+for(i in 1:length(surveys)){
+  idx <- idx + 1
+  survey <- surveys[i]
+  sum.tableList[[idx]] <- sum.table[sum.table$survey == survey,-1]
+  names(sum.tableList[[idx]]) <- c("Age", 
+                                   "No. Deaths",
+                                   "No. Agemonths")
+  
+  sum.print <- xtable(sum.tableList[[idx]],
+                      digits = c(0,0,0,0),
+                      align = "cccc", 
+                      caption = paste0("Numbers of agemonths and deaths by age for ",
+                                       survey.legends[i], "."))
+  print.xtable(sum.print,
+               comment = F,
+               include.rownames = F,
+               table.placement = "!ht")
+}
+```
+
+\clearpage
+
+# Admin 2 Figures
+
+The following few pages have estimates by area across time with underlying data included. There are six admin areas per page.
+<!-- ,they are ordered by increasing median U5MR in the year 2019.  -->
+Colored lines with circular points and light grey uncertainty bands are 5-year survey-weighted estimates of U5MR for years 1990--1994 up to 2015--2019 depending on survey timing. For a survey that ends in the middle of a 5-year period, we plot the estimates at the mid-point of the years in that interval for which the survey provides data. Black lines and corresponding intervals represent posterior medians and 95\% uncertainty intervals respectively for the betabinomial model.
+<!-- IHME's estimates and corresponding intervals, where we can compare, are in aquamarine. -->
+
+\includepdf[pages=-]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_noStrata_spaghetti_6per.pdf}
+
+
+
+
+
+# National Figures and Results
+```{r, results ='asis', echo = FALSE}
+load(paste0(dir.path, '/',
+            folder.name, '/',
+            country,
+            '_rw2_natl_noStrata_fixed.rda'))
+coefs <- fixed.eff
+
+load(paste0(dir.path, '/',
+            folder.name, '/',
+            country,
+            '_rw2_natlBench_noStrata_fixed.rda'))
+coefs.bench <- fixed.eff
+
+coefs$tab <- paste0("(",
+                    round(expit(coefs$`0.025quant`)*1000,1),
+                    ",",
+                    round(expit(coefs$`0.975quant`)*1000,1),
+                    ")")
+coefs <- coefs[,c("0.5quant", "tab")]
+coefs$`0.5quant` <- round(expit(coefs$`0.5quant`)*1000,1)
+
+coefs.bench$tab <- paste0("(",
+                          round(expit(coefs.bench$`0.025quant`)*1000,1),
+                          ",",
+                          round(expit(coefs.bench$`0.975quant`)*1000,1),
+                          ")")
+coefs.bench <- coefs.bench[,c("0.5quant", "tab")]
+coefs.bench$`0.5quant` <- round(expit(coefs.bench$`0.5quant`)*1000,1)
+
+names(coefs) <- c("Median", "Interval")
+names(coefs.bench) <- c("Median- Bench", "Interval")
+
+row.names(coefs) <- row.names(coefs.bench) <- c("0", "1-11", "12-23",
+                                                "24-35", "36-47", "48-59")
+
+coefs.xtable <- xtable(cbind.data.frame(coefs, coefs.bench),
+                       align = c("l|cc|cc"),
+                       digits = c(0,2,0,2,0),
+                       caption = paste0("Monthly hazards in terms of 1000 children by age band for national, unstratified model for ", country, "."))
+print.xtable(coefs.xtable,
+             comment = F)
+```
+
+
+\begin{figure}
+\centering
+\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/National/Togo_rw2_natlBenchmarks.pdf}
+\caption{Benchmark offsets: $
+\mbox{BENCH}(t) = \mbox{U5MR}^\star(t)/\mbox{U5MR}(t)$
+where $\mbox{U5MR}^\star(t)$ is modeled estimate and  $\mbox{U5MR}(t)
+$ is UN-IGME estimate.}
+\end{figure}
+
+
+\begin{figure}
+\centering
+\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/National/Togo_rw2_natlBench_temporal.pdf}
+\caption{Monthly hazards of death in terms of U5MR (number deaths per 1000 children) by agebands.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+\centering
+\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/National/Togo_rw2_natlBench_noStrata_spaghetti.pdf}
+\caption{Benchmarked U5MR rates per 1000 live births. Top: DHS direct estimates with national trends from IHME GBD, UN-IGME, Smoothed Direct and Betabinomial estimates. Middle: 95\% uncertainty intervals for DHS data. Bottom: IHME GBD, UN-IGME, Smoothed Direct and Betabinomial estimates with for the unstratified model. 95\% uncertainty intervals}
+\end{figure}
+\clearpage
+
+
+
+# Admin 1 Figures
+
+\includepdf[pages=-]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin1/Togo_rw2main_randomSlopes_rw1xICAR_admin1Bench_noStrata_spaghetti_6per.pdf}
+

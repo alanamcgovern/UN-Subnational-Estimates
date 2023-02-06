@@ -10,13 +10,20 @@ Cluster-level model
   Survey effect: yes
 ----------------------------------
 Fixed Effects
-                      mean    sd 0.025quant 0.5quant 0.975quant mode kld
-age.intercept0:     -3.619 0.046     -3.713   -3.619     -3.525   NA   0
-age.intercept1-11:  -6.420 0.049     -6.521   -6.420     -6.322   NA   0
-age.intercept12-23: -7.205 0.055     -7.315   -7.204     -7.097   NA   0
-age.intercept24-35: -7.523 0.058     -7.640   -7.522     -7.408   NA   0
-age.intercept36-47: -7.730 0.062     -7.854   -7.730     -7.609   NA   0
-age.intercept48-59: -8.161 0.071     -8.302   -8.160     -8.022   NA   0
+                      mean    sd 0.025quant 0.5quant 0.975quant   mode
+age.intercept0:     -3.619 0.046     -3.713   -3.619     -3.525 -3.619
+age.intercept1-11:  -6.420 0.049     -6.521   -6.420     -6.322 -6.420
+age.intercept12-23: -7.205 0.055     -7.315   -7.204     -7.097 -7.203
+age.intercept24-35: -7.523 0.058     -7.640   -7.523     -7.408 -7.522
+age.intercept36-47: -7.731 0.062     -7.854   -7.730     -7.609 -7.730
+age.intercept48-59: -8.161 0.071     -8.302   -8.161     -8.022 -8.160
+                    kld
+age.intercept0:       0
+age.intercept1-11:    0
+age.intercept12-23:   0
+age.intercept24-35:   0
+age.intercept36-47:   0
+age.intercept48-59:   0
 ----------------------------------
 Random Effects
            Name          Model
@@ -28,15 +35,31 @@ Random Effects
 6     survey.id      IID model
 ----------------------------------
 Model hyperparameters
-                                                     mean        sd 0.025quant 0.5quant 0.975quant mode
-overdispersion for the betabinomial observations    0.001     0.000      0.001    0.001      0.001   NA
-Precision for time.struct                        7861.556 46242.188     84.457 1475.705  53067.263   NA
-Precision for time.unstruct                      5697.036 17794.011    275.599 1940.963  34553.382   NA
-Precision for region.struct                        20.049     8.237      7.964   18.737     39.843   NA
-Phi for region.struct                               0.658     0.258      0.117    0.712      0.987   NA
-Precision for time.area                           449.545   477.499     77.891  307.591   1693.600   NA
-Precision for st.slope.id                        1229.530 19187.831      3.099   81.227   7465.228   NA
+                                                     mean        sd
+overdispersion for the betabinomial observations    0.001     0.000
+Precision for time.struct                        6922.612 38920.661
+Precision for time.unstruct                      5415.569 16118.235
+Precision for region.struct                        20.089     8.249
+Phi for region.struct                               0.673     0.257
+Precision for time.area                           451.355   479.285
+Precision for st.slope.id                        1514.366 28754.107
+                                                 0.025quant 0.5quant
+overdispersion for the betabinomial observations      0.001    0.001
+Precision for time.struct                            81.906 1357.008
+Precision for time.unstruct                         285.770 1915.083
+Precision for region.struct                           7.951   18.788
+Phi for region.struct                                 0.121    0.735
+Precision for time.area                              77.944  308.877
+Precision for st.slope.id                             2.917   75.281
+                                                 0.975quant    mode
+overdispersion for the betabinomial observations      0.001   0.001
+Precision for time.struct                         46534.591 175.394
+Precision for time.unstruct                       32366.942 617.083
+Precision for region.struct                          39.869  16.235
+Phi for region.struct                                 0.989   0.983
+Precision for time.area                            1700.177 170.929
+Precision for st.slope.id                          8526.786   5.477
 NULL
                                            [,1]
-log marginal-likelihood (integration) -28464.44
-log marginal-likelihood (Gaussian)    -28459.81
+log marginal-likelihood (integration) -28464.65
+log marginal-likelihood (Gaussian)    -28460.04

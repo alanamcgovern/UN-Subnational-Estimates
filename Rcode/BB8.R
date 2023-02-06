@@ -208,7 +208,7 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
 ## Fit BB8 models w surveys from same sampling frame  -----------------------------------------------
 setwd(paste0(res.dir))
 
-time_mod <- c("rw2", "ar1")[2]
+time_mod <- c("rw2", "ar1")[1]
 
 if(!dir.exists("Betabinomial/")){
   dir.create("Betabinomial/")
@@ -244,7 +244,7 @@ save(bb.fixed.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_n
 # save results
 save(bb.res.natl.unstrat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_', time_mod, '_unstrat_nmr.rda'))
 
-  #### National Strat -----------------------------------------------
+#### National Strat -----------------------------------------------
 bb.natl.strat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                             Amat=NULL, admin.level='National',
                             stratified=T, weight.strata=weight.strata.natl.u1,
@@ -269,7 +269,7 @@ save(bb.fixed.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_fixed_nat
 # save results
 save(bb.res.natl.strat.nmr,file=paste0('Betabinomial/NMR/',country,'_res_natl_', time_mod, '_strat_nmr.rda'))
 
-  #### Admin1 Unstrat ----------------------------------------------
+#### Admin1 Unstrat ----------------------------------------------
 bb.adm1.unstrat.nmr <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                               Amat=admin1.mat, admin.level='Admin1',
                               stratified=F, weight.strata=NULL,
