@@ -1,5 +1,5 @@
 ---
-title: "Country Summary: Senegal"
+title: "Country Summary: Togo"
 header-includes:
   - \usepackage{pdfpages}
 output: 
@@ -8,78 +8,12 @@ output:
     number_sections: true
 ---
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(root.dir = "/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders")
 
-<!-- Setup -->
+dir.path <- "/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders"
 
-<!-- Libraries -->
-
-```{r libs}
-rm(list = ls())
-
-options(gsubfn.engine = "R")
-library(rgdal)
-library(Rfast)
-library(dplyr)
-library(tidyr)
-library(ggplot2)
-library(tidyverse)
-library(RColorBrewer)
-library(xtable)
-
-## knitr options
-knitr::opts_chunk$set(echo = FALSE)
-```
-
-<!-- User-defined Arguments -->
-```{r params}
-country <- "Senegal"
-
-
-## MIGHT NEED TO BE CHANGED depending on what you fit
-time.model <- c('rw2','ar1')[2]
-strat.model <- c("strat", "unstrat")[1]
-
-
-## Timing of projection
-
-end.proj.year <- 2021
-plot.years <- 2000:end.proj.year
-n_years <- length(plot.years)
-```
-
-
-<!-- Working Directory -->
-
-```{r setwd}
-
-# set the working directory (location of this file in /Rcode)
-
-# extract file location of this script
-code.path <- rstudioapi::getActiveDocumentContext()$path
-code.path.splitted <- strsplit(code.path, "/")[[1]]
-
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
-
-
-knitr::opts_chunk$set(root.dir = home.dir)
-
-if(debugging == TRUE){
-  setwd(home.dir)
-}
-
-# set the directory that stores the data
-
-# data.dir <- paste0(home.dir,'/Data/', country) 
-data.dir <- paste0("R://Project/STAB/", country)
-
-# set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
-
-res.dir <- paste0(home.dir, '/Results/', country)
-```
-
-
-<!-- ## Functions -->
-```{r fns}
 logit <- function(x){
   log(x/(1-x))
 }
@@ -87,130 +21,44 @@ expit <- function(x){
   exp(x)/(1 + exp(x))
 }
 
-##### function to organize posterior draws from BB8 ####
-
-draw_1y_adm<-function(admin_draws, year_num,admin_vec, nsim=1000){
-  
-  # year_num: year of comparison
-  # nsim: number of posterior draws
-  # admin_vec: vector of admin index
-  # admin_draws: posterior draws (as a list from SUMMER output)
-  
-  # prepare reference frame for draws 
-  # ID corresponds to specific year, region
-  draw_ID<-c(1:length(admin_draws))
-  draw_year<-vector()
-  draw_region<-vector()
-  
-  for( i in draw_ID){
-    tmp_d<-admin_draws[[i]]
-    draw_year[i]<-tmp_d$years
-    draw_region[i]<-tmp_d$region
-  }
-  
-  draw_ref<-data.frame(id=draw_ID,year=draw_year,
-                       region=draw_region)
-  
-  draw_frame<-matrix( nrow = nsim, ncol = length(admin_vec))
-  
-  for(i in 1:length(admin_vec)){
-    admin_i<-admin_vec[i]
-    id_draw_set<-draw_ref[draw_ref$year==year_num&
-                            draw_ref$region==admin_i,]$id 
-    
-    draw_set<-admin_draws[[id_draw_set]]$draws
-    
-    draw_frame[,i]<-draw_set
-    #print(mean(r_frame[,c(admin_i)]))
-  }
-  
-  colnames(draw_frame)<-admin_vec
-  
-  return(draw_frame)
-}
-
 ```
 
-<!-- #### Load admin names  ------------------------------------------------------ -->
+```{r params, echo = F}
+country <- "Togo"
+CountryList <- read.csv(paste0(dir.path,
+                               '/CountryList.csv'), header = T)
+folder.name <- CountryList$folderName[CountryList$Country == country]
 
-```{r load_adminnames}
-setwd(data.dir)
+gadm.abbrev <- CountryList$gadmCode[CountryList$Country == country]
+n.survey <- CountryList$nSurvey[CountryList$Country == country]
+HIV.sheet <- read.csv(paste0(dir.path ,
+                             "/HIV.csv"), header = T)
+HIV.country <- as.data.frame(HIV.sheet[HIV.sheet$Country == country,])
 
-load(paste0(poly.path,'/', country, '_Amat.rda'))
-load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
+useHIVAdj <- (unique(HIV.country$MM.Adj.by.IGME) == "Y" &
+                unique(HIV.country$UNAIDS.data.) == "Y")
+SurveyInfo <- read.csv(paste0(dir.path,
+                              "/SurveyInfo.csv"), header = T)
+surveys <- SurveyInfo$Survey.Year[SurveyInfo$Country == country &
+                                    SurveyInfo$`GPS.` == "Y"]
+survey.legends <- SurveyInfo$`OfficialSurveyName`[SurveyInfo$Country == country &
+                                                    SurveyInfo$`GPS.` == "Y"]
+
+load(paste0(dir.path,'/',
+            folder.name,
+            '/shapeFiles_gadm/',
+            country,
+            '_Amat.rda'))
+load(paste0(dir.path,'/',
+            folder.name,
+            '/shapeFiles_gadm/',
+            country,
+            '_Amat_Names.rda'))
 
 ```
-
-<!-- # Load Data: Country Info -->
-
-
-```{r load_countryinfo, echo = FALSE}
-info.name <- paste0(country, "_general_info.Rdata")
-
-# load the country info
-
-info.name <- paste0(country, "_general_info.Rdata")
-load(file = paste0(home.dir, '/Info/', info.name, sep=''))
-```
-
-<!-- #### load admin1 and admin2 weights #### -->
-```{r load_adminwts}
-load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
-load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
-if(exists('poly.layer.adm2')){
-  load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
-  load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
-}
-
-```
-
-
-<!-- Load model data -->
-
-```{r load_cluster_dat}
-load(paste0(data.dir, '/', country, '_cluster_dat_1frame.rda'), 
-     envir = .GlobalEnv)
-
-
-load(paste0(data.dir, '/', country, '_cluster_dat.rda'),
-     envir = .GlobalEnv)
-
-end.year.1frame <- max(mod.dat$survey)
-end.year <- max(mod.dat$survey)
-
-## Define a bunch of time parameters!
-if(((end.year-beg.year+1) %% 3) == 0){
-  beg.period.years <- seq(beg.year, end.year, 3) 
-  end.period.years <- beg.period.years + 2 
-}else if(((end.year-beg.year+1) %% 3) == 1){
-  beg.period.years <- c(beg.year, beg.year+2,
-                        seq(beg.year+4,end.year, 3))
-  end.period.years <- c(beg.year+1, beg.year+3,
-                        seq(beg.year+6,end.year, 3))
-}else if(((end.year-beg.year+1) %% 3) == 2){
-  beg.period.years <- c(beg.year, seq(beg.year+2, end.year, 3))
-  end.period.years <- c(beg.year+1,seq(beg.year+4, end.year, 3))
-}
-
-if(end.year > end.year.1frame & end.year > 2018){
-  beg.proj.years <- seq(end.year+1,2021,3)
-}else{
-  beg.proj.years <- seq(end.year+1,2020,3)
-}
-
-end.proj.years <- beg.proj.years+2
-pane.years <- (c((end.period.years + beg.period.years)/2,
-                 (end.proj.years+beg.proj.years)/2))
-pane.years <- pane.years[pane.years <= end.proj.year]
-est.period.idx <- 1:length(beg.period.years)
-pred.period.idx <-
-  (length(beg.period.years)+1):(length(beg.period.years) +
-                                  length(beg.proj.years))
-```
-
 # Intro
 
-These estimates are created using a `r if(strata`BB8 model with subnational estimates using a RW1xICAR interaction model with area-specific random slopes. \par
+These estimates are created using the BB8 model with Admin 2 estimates using a RW1xICAR interaction model with area-specific random slopes. \par
 
 
 `r country` has `r nrow(admin1.names)` Admin 1 areas and `r nrow(admin2.names)` Admin 2 areas.\par
@@ -267,7 +115,7 @@ All uncertainty intervals displayed in subsequent figures are 95\% intervals.
 
 # National Survey Data
 ```{r sumstat, echo = F,results='asis', warning=FALSE}
-
+library(xtable)
 load(paste0(dir.path, '/',
             folder.name, '/',
             country,
