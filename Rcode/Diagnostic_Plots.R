@@ -21,6 +21,7 @@ models <- gsub("natl_unstrat", paste0("natl_", time.model, "_unstrat"), models)
 # Libraries
 options(gsubfn.engine = "R")
 library(tidyverse)
+library(SUMMER)
 
 # extract file location of this script
 code.path <- rstudioapi::getActiveDocumentContext()$path
