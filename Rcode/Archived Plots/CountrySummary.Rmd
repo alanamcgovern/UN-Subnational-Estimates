@@ -1,7 +1,5 @@
 ---
 title: "Country Summary: Senegal"
-header-includes:
-  - \usepackage{pdfpages}
 output: 
   pdf_document:
     toc: true
@@ -13,7 +11,7 @@ output:
 
 <!-- Libraries -->
 
-```{r libs}
+```{r libs, echo = FALSE, message=FALSE, warning=FALSE}
 rm(list = ls())
 
 options(gsubfn.engine = "R")
@@ -27,17 +25,18 @@ library(RColorBrewer)
 library(xtable)
 
 ## knitr options
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 ```
 
 <!-- User-defined Arguments -->
 ```{r params}
 country <- "Senegal"
-
+debugging <- FALSE
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 time.model <- c('rw2','ar1')[2]
-strat.model <- c("strat", "unstrat")[1]
+strata.model <- c("strat", "unstrat")[1]
+bench.model <- c("", "bench")[1]
 
 
 ## Timing of projection
@@ -168,14 +167,15 @@ if(exists('poly.layer.adm2')){
 <!-- Load model data -->
 
 ```{r load_cluster_dat}
-load(paste0(data.dir, '/', country, '_cluster_dat_1frame.rda'), 
-     envir = .GlobalEnv)
 
+if(strata.model == "strat"){
+  load(paste0(data.dir, '/', country, '_cluster_dat_1frame.rda'), 
+       envir = .GlobalEnv)
+}else{
+  load(paste0(data.dir, '/', country, '_cluster_dat.rda'),
+       envir = .GlobalEnv)
+}
 
-load(paste0(data.dir, '/', country, '_cluster_dat.rda'),
-     envir = .GlobalEnv)
-
-end.year.1frame <- max(mod.dat$survey)
 end.year <- max(mod.dat$survey)
 
 ## Define a bunch of time parameters!
@@ -191,21 +191,6 @@ if(((end.year-beg.year+1) %% 3) == 0){
   beg.period.years <- c(beg.year, seq(beg.year+2, end.year, 3))
   end.period.years <- c(beg.year+1,seq(beg.year+4, end.year, 3))
 }
-
-if(end.year > end.year.1frame & end.year > 2018){
-  beg.proj.years <- seq(end.year+1,2021,3)
-}else{
-  beg.proj.years <- seq(end.year+1,2020,3)
-}
-
-end.proj.years <- beg.proj.years+2
-pane.years <- (c((end.period.years + beg.period.years)/2,
-                 (end.proj.years+beg.proj.years)/2))
-pane.years <- pane.years[pane.years <= end.proj.year]
-est.period.idx <- 1:length(beg.period.years)
-pred.period.idx <-
-  (length(beg.period.years)+1):(length(beg.period.years) +
-                                  length(beg.proj.years))
 ```
 
 # Intro
@@ -218,75 +203,25 @@ These estimates are created using `r ifelse(strata.model == "unstrat", "an unstr
 
 All uncertainty intervals displayed in subsequent figures are 95\% intervals.
 
-\begin{figure}
-\centering
-\includegraphics[width=3.5in]{U://UN-Subnational-Estimates/Results/Senegal/Figures/ShapeCheck/Senegal_adm1_neighb.pdf}
-\includegraphics[width=3.5in]{U://UN-Subnational-Estimates/Results/Senegal/Figures/ShapeCheck/Senegal_adm2_neighb.pdf}
-\caption{Top: The neighborhood structure of Admin 1 areas. Bottom: The neighborhood structure of Admin 2 areas.}
-\end{figure}
-\clearpage
-
-<!-- \begin{figure} -->
-<!-- \centering -->
-<!-- \includegraphics[width=5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_median.pdf} -->
-<!-- \caption{Median estimates of U5MR (deaths per 1000 children) in 2019.} -->
-<!-- \end{figure} -->
-<!-- \begin{figure} -->
-<!-- \centering -->
-<!-- \includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K2_measuremap.pdf} -->
-<!-- \includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K3_measuremap.pdf} -->
-<!-- \caption{Expression of uncertainty of U5MR (deaths per 1000 children) based on the average true classification probability (ATCP) in 2019.} -->
-<!-- \end{figure} -->
-<!-- \clearpage -->
-
-<!-- \begin{figure} -->
-<!-- \centering -->
-<!-- \includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_19902019_median.pdf} -->
-<!-- \caption{Median estimates for selected years.} -->
-<!-- \end{figure} -->
-<!-- \clearpage -->
-
-<!-- \clearpage -->
-
-<!-- \includepdf[pages={-}]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_spaghetti_allByMedian.pdf} -->
-
-<!-- \begin{figure} -->
-<!-- \centering -->
-<!-- \includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/ridge/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_ridgeplot.pdf} -->
-<!-- \caption{Posterior distributions of U5MR (deaths per 1000 children) in 2019. Areas are ordered by median estimated U5MR in 2019.} -->
-<!-- \end{figure} -->
-<!-- \clearpage -->
-<!-- \begin{figure} -->
-<!-- \centering -->
-<!-- \includegraphics[height=10in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_median.pdf} -->
-<!-- \caption{Posterior medians of U5MR (deaths per 1000 births) by Admin 2 area and year.} -->
-<!-- \end{figure} -->
-<!-- \clearpage -->
-
-
 
 # National Survey Data
 ```{r sumstat, echo = F,results='asis', warning=FALSE}
-
-load(paste0(data.dir, '/',
-            country,
-            '_cluster_dat.rda'))
 levels(mod.dat$urban) <- tolower(levels(mod.dat$urban))
-clus.table <- aggregate(cluster ~ survey + urban,
+
+mod.dat$survey.table <- paste(mod.dat$survey.type,
+                              mod.dat$survey, sep = " ")
+clus.table <- aggregate(cluster ~ survey.table + urban,
                         data = mod.dat,
                         FUN = function(x){length(unique(x))})
 clus.xtable <- reshape(clus.table,
                        v.names = "cluster",
-                       idvar = "survey",
+                       idvar = "survey.table",
                        timevar = "urban",
                        direction = "wide")
 clus.xtable$Total <- clus.xtable$cluster.urban + 
   clus.xtable$cluster.rural
-row.names(clus.xtable) <- clus.xtable[,'survey']
-survey_names <- as.character(rev(survey.legends))
-survey_names <- sapply(survey_names, 
-                       function(x){substr(x, start=5, stop=nchar(x))})
-clus.xtable$survey <- survey_names
+row.names(clus.xtable) <- clus.xtable[,'survey.table']
+
 colnames(clus.xtable) <- c("Survey", "Urban",
                            "Rural", "Total")
 clus.printxtable <- xtable(clus.xtable, 
@@ -298,15 +233,16 @@ print.xtable(clus.printxtable,
              comment = F, 
              include.rownames = F)
 
-sum.table <- aggregate(cbind(Y, total) ~ survey + age,
+sum.table <- aggregate(cbind(Y, total) ~ survey.table + age,
                        data = mod.dat,
                        FUN = sum)
 sum.tableList <- list()
-idx <- 0
-for(i in 1:length(surveys)){
-  idx <- idx + 1
-  survey <- surveys[i]
-  sum.tableList[[idx]] <- sum.table[sum.table$survey == survey,-1]
+
+surveys <- unique(mod.dat$survey.table) %>% sort()
+
+for(idx in 1:length(surveys)){
+  survey <- surveys[idx]
+  sum.tableList[[idx]] <- sum.table[sum.table$survey.table == survey,-1]
   names(sum.tableList[[idx]]) <- c("Age", 
                                    "No. Deaths",
                                    "No. Agemonths")
@@ -315,7 +251,7 @@ for(i in 1:length(surveys)){
                       digits = c(0,0,0,0),
                       align = "cccc", 
                       caption = paste0("Numbers of agemonths and deaths by age for ",
-                                       survey.legends[i], "."))
+                                       survey, "."))
   print.xtable(sum.print,
                comment = F,
                include.rownames = F,
@@ -323,93 +259,147 @@ for(i in 1:length(surveys)){
 }
 ```
 
-\clearpage
-
-# Admin 2 Figures
-
-The following few pages have estimates by area across time with underlying data included. There are six admin areas per page.
-<!-- ,they are ordered by increasing median U5MR in the year 2019.  -->
-Colored lines with circular points and light grey uncertainty bands are 5-year survey-weighted estimates of U5MR for years 1990--1994 up to 2015--2019 depending on survey timing. For a survey that ends in the middle of a 5-year period, we plot the estimates at the mid-point of the years in that interval for which the survey provides data. Black lines and corresponding intervals represent posterior medians and 95\% uncertainty intervals respectively for the betabinomial model.
-<!-- IHME's estimates and corresponding intervals, where we can compare, are in aquamarine. -->
-
-\includepdf[pages=-]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_noStrata_spaghetti_6per.pdf}
-
-
-
-
-
 # National Figures and Results
-```{r, results ='asis', echo = FALSE}
-load(paste0(dir.path, '/',
-            folder.name, '/',
-            country,
-            '_rw2_natl_noStrata_fixed.rda'))
-coefs <- fixed.eff
 
-load(paste0(dir.path, '/',
-            folder.name, '/',
-            country,
-            '_rw2_natlBench_noStrata_fixed.rda'))
-coefs.bench <- fixed.eff
+<!-- ```{r, results ='asis', echo = FALSE} -->
+<!-- load(paste0(dir.path, '/', -->
+<!--             folder.name, '/', -->
+<!--             country, -->
+<!--             '_rw2_natl_noStrata_fixed.rda')) -->
+<!-- coefs <- fixed.eff -->
 
-coefs$tab <- paste0("(",
-                    round(expit(coefs$`0.025quant`)*1000,1),
-                    ",",
-                    round(expit(coefs$`0.975quant`)*1000,1),
-                    ")")
-coefs <- coefs[,c("0.5quant", "tab")]
-coefs$`0.5quant` <- round(expit(coefs$`0.5quant`)*1000,1)
+<!-- load(paste0(dir.path, '/', -->
+<!--             folder.name, '/', -->
+<!--             country, -->
+<!--             '_rw2_natlBench_noStrata_fixed.rda')) -->
+<!-- coefs.bench <- fixed.eff -->
 
-coefs.bench$tab <- paste0("(",
-                          round(expit(coefs.bench$`0.025quant`)*1000,1),
-                          ",",
-                          round(expit(coefs.bench$`0.975quant`)*1000,1),
-                          ")")
-coefs.bench <- coefs.bench[,c("0.5quant", "tab")]
-coefs.bench$`0.5quant` <- round(expit(coefs.bench$`0.5quant`)*1000,1)
+<!-- coefs$tab <- paste0("(", -->
+<!--                     round(expit(coefs$`0.025quant`)*1000,1), -->
+<!--                     ",", -->
+<!--                     round(expit(coefs$`0.975quant`)*1000,1), -->
+<!--                     ")") -->
+<!-- coefs <- coefs[,c("0.5quant", "tab")] -->
+<!-- coefs$`0.5quant` <- round(expit(coefs$`0.5quant`)*1000,1) -->
 
-names(coefs) <- c("Median", "Interval")
-names(coefs.bench) <- c("Median- Bench", "Interval")
+<!-- coefs.bench$tab <- paste0("(", -->
+<!--                           round(expit(coefs.bench$`0.025quant`)*1000,1), -->
+<!--                           ",", -->
+<!--                           round(expit(coefs.bench$`0.975quant`)*1000,1), -->
+<!--                           ")") -->
+<!-- coefs.bench <- coefs.bench[,c("0.5quant", "tab")] -->
+<!-- coefs.bench$`0.5quant` <- round(expit(coefs.bench$`0.5quant`)*1000,1) -->
 
-row.names(coefs) <- row.names(coefs.bench) <- c("0", "1-11", "12-23",
-                                                "24-35", "36-47", "48-59")
+<!-- names(coefs) <- c("Median", "Interval") -->
+<!-- names(coefs.bench) <- c("Median- Bench", "Interval") -->
 
-coefs.xtable <- xtable(cbind.data.frame(coefs, coefs.bench),
-                       align = c("l|cc|cc"),
-                       digits = c(0,2,0,2,0),
-                       caption = paste0("Monthly hazards in terms of 1000 children by age band for national, unstratified model for ", country, "."))
-print.xtable(coefs.xtable,
-             comment = F)
+<!-- row.names(coefs) <- row.names(coefs.bench) <- c("0", "1-11", "12-23", -->
+<!--                                                 "24-35", "36-47", "48-59") -->
+
+<!-- coefs.xtable <- xtable(cbind.data.frame(coefs, coefs.bench), -->
+<!--                        align = c("l|cc|cc"), -->
+<!--                        digits = c(0,2,0,2,0), -->
+<!--                        caption = paste0("Monthly hazards in terms of 1000 children by age band for national, unstratified model for ", country, ".")) -->
+<!-- print.xtable(coefs.xtable, -->
+<!--              comment = F) -->
+<!-- ``` -->
+
+
+```{r ur_odds, results = 'asis'}
+bench_str <- ifelse(bench.model == "", bench.model, "_bench")
+ur.odds.filename <- paste0(country, "_URodds_natl_",
+                           time.model, "_", strata.model,
+                           "_u5", bench_str, ".pdf")
+
+if(!file.exists(paste0(res.dir, "/Figures/Trends/U5MR/", ur.odds.filename))){
+  if(file.exists(paste0(res.dir, "/Figures/Trends/U5MR/",
+                    gsub(paste0(time.model, "_"), "", ur.odds.filename)))){
+    ur.odds.filename <- gsub(paste0(time.model, "_"), "", ur.odds.filename)
+  }else{
+    message("Cannot find the UR odds file specified.")
+  }
+}
+cat("\\begin{figure}\n \\centering\n")
+cat(paste0("\\includegraphics[width=5in]{", res.dir, 
+           "/Figures/Trends/U5MR/",
+           ur.odds.filename, "}\n"))
+cat(paste0("\\caption{The urban rural odds from the national BB8 model.}\n",
+           "\\end{figure}\n",
+           "\\clearpage"))
 ```
 
+```{r natl, results = 'asis'}
+natl.nmr.filename <- paste0(country, "_natl_", strata.model,
+                          "_", time.model, 
+                           "_nmr_Spaghetti.pdf")
 
-\begin{figure}
-\centering
-\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/National/Togo_rw2_natlBenchmarks.pdf}
-\caption{Benchmark offsets: $
-\mbox{BENCH}(t) = \mbox{U5MR}^\star(t)/\mbox{U5MR}(t)$
-where $\mbox{U5MR}^\star(t)$ is modeled estimate and  $\mbox{U5MR}(t)
-$ is UN-IGME estimate.}
-\end{figure}
+if(!file.exists(paste0(res.dir, "/Figures/Summary/NMR/", natl.nmr.filename))){
+  if(file.exists(paste0(res.dir, "/Figures/Summary/NMR/",
+                    gsub(paste0(time.model, "_"), "", natl.nmr.filename)))){
+    natl.nmr.filename <- gsub(paste0(time.model, "_"), "", natl.nmr.filename)
+  }else{
+    message("Cannot find the national NMR file specified.")
+  }
+}
+
+natl.u5.filename <- paste0(country, "_natl_", strata.model,
+                          "_", time.model, 
+                           "_u5_Spaghetti.pdf")
+
+if(!file.exists(paste0(res.dir, "/Figures/Summary/U5MR/", natl.u5.filename))){
+  if(file.exists(paste0(res.dir, "/Figures/Summary/U5MR/",
+                    gsub(paste0(time.model, "_"), "", natl.u5.filename)))){
+    natl.u5.filename <- gsub(paste0(time.model, "_"), "", natl.u5.filename)
+  }else{
+    message("Cannot find the national U5MR file specified.")
+  }
+}
+
+cat("\\begin{figure}\n \\centering\n")
+cat(paste0("\\includegraphics[width=8in]{", res.dir, 
+           "/Figures/Summary/NMR/",
+           natl.nmr.filename, "}\n"))
+cat(paste0("\\caption{NMR results from the national BB8 model.}\n",
+           "\\end{figure}\n",
+           "\\clearpage"))
+cat("\\begin{figure}\n \\centering\n")
+cat(paste0("\\includegraphics[width=8in]{", res.dir, 
+           "/Figures/Summary/U5MR/",
+           natl.u5.filename, "}\n"))
+cat(paste0("\\caption{U5MR results from the national BB8 model.}\n",
+           "\\end{figure}\n",
+           "\\clearpage"))
+```
+
+<!-- # Admin 1 Figures -->
 
 
-\begin{figure}
-\centering
-\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/National/Togo_rw2_natlBench_temporal.pdf}
-\caption{Monthly hazards of death in terms of U5MR (number deaths per 1000 children) by agebands.}
-\end{figure}
+<!-- # Admin 2 Figures -->
+
+<!-- The following few pages have estimates by area across time with underlying data included. There are six admin areas per page. -->
+<!-- <!-- ,they are ordered by increasing median U5MR in the year 2019.  --> -->
+<!-- Colored lines with circular points and light grey uncertainty bands are 5-year survey-weighted estimates of U5MR for years 1990--1994 up to 2015--2019 depending on survey timing. For a survey that ends in the middle of a 5-year period, we plot the estimates at the mid-point of the years in that interval for which the survey provides data. Black lines and corresponding intervals represent posterior medians and 95\% uncertainty intervals respectively for the betabinomial model. -->
+<!-- <!-- IHME's estimates and corresponding intervals, where we can compare, are in aquamarine. --> -->
+
+<!-- \includepdf[pages=-]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_noStrata_spaghetti_6per.pdf} -->
+
 \clearpage
-
-\begin{figure}
-\centering
-\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/National/Togo_rw2_natlBench_noStrata_spaghetti.pdf}
-\caption{Benchmarked U5MR rates per 1000 live births. Top: DHS direct estimates with national trends from IHME GBD, UN-IGME, Smoothed Direct and Betabinomial estimates. Middle: 95\% uncertainty intervals for DHS data. Bottom: IHME GBD, UN-IGME, Smoothed Direct and Betabinomial estimates with for the unstratified model. 95\% uncertainty intervals}
-\end{figure}
-\clearpage
+# Subnational Results
 
 
+```{r neighb_adm1, results='asis'}
 
-# Admin 1 Figures
+cat("\\begin{figure}\n \\centering\n")
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir, 
+           "/Figures/ShapeCheck/",
+           country, "_adm1_neighb.pdf}\n"))
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir, 
+           "/Figures/ShapeCheck/",
+           country, "_adm2_neighb.pdf}\n"))
+cat(paste0("\\caption{Top: The neighborhood structure of Admin 1 areas. ",
+           "Bottom: The neighborhood structure of Admin 2 areas.}\n",
+           "\\end{figure}\n",
+           "\\clearpage"))
+```
 
-\includepdf[pages=-]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin1/Togo_rw2main_randomSlopes_rw1xICAR_admin1Bench_noStrata_spaghetti_6per.pdf}
 
