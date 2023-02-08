@@ -252,6 +252,19 @@ get_subnatl_frac<-function(adm.names,adm.idx,wp,poly_file,wp_adm=NULL,
 
 # Correct urban clusters ----------------------------------------------------------
 
+
+if('DHS' %in% mod.dat$survey.type){  
+  # The codes below fulfills the process defined in the constr_prior function by assigning the possibly misclassified urban clusters to the nearest most densely populated areas.
+  # It's generally true that the urban areas tend to have a higher population density so this process can alleviate the side effect
+  # of jittering.
+  
+  cluster_list$x_adj <- cluster_list$y_adj <- NA
+  # only correct urban clusters 
+  # check if the strata are named 'urban' and 'rural'
+  urban_clus<-cluster_list[cluster_list$urban=='urban' & !(is.na(cluster_list$LATNUM)),]
+  rural_clus<-cluster_list[cluster_list$urban=='rural' & !(is.na(cluster_list$LATNUM)),]
+
+
 # The codes below fulfills the process defined in the constr_prior function by assigning the possibly misclassified urban clusters to the nearest most densely populated areas.
 # It's generally true that the urban areas tend to have a higher population density so this process can alleviate the side effect
 # of jittering.
@@ -261,11 +274,13 @@ cluster_list$x_adj <- cluster_list$y_adj <- NA
 # check if the strata are named 'urban' and 'rural'
 urban_clus<-cluster_list[cluster_list$urban=='urban' & !(is.na(cluster_list$LATNUM)),]
 rural_clus<-cluster_list[cluster_list$urban=='rural' & !(is.na(cluster_list$LATNUM)),]
+  prep_dat<-rbind(urban_clus,rural_clus,cluster_list[is.na(cluster_list$LATNUM),])
 
-urban_clus$x_adj<-NA
-urban_clus$y_adj<-NA
-rural_clus$x_adj<-rural_clus$LONGNUM
-rural_clus$y_adj<-rural_clus$LATNUM
+}else{
+  prep_dat <- cluster_list
+}  
+  # create directory to store cluster data
+  setwd(paste0(data.dir))
 
 # points have to stay within the same admin2 region 
 #for( i in 1:dim(urban_clus)[1]){
@@ -475,46 +490,44 @@ write.xlsx(ref.tab, file='prepared_dat/reference_table.xlsx',
 
 # Check classification accuracy based on clusters ----------------------------------------------------------
 
-### remove rows with missing covariates, could also build model with missing data
-crc_dat<-crc_dat_final[complete.cases(crc_dat_final), ]
-uncrc_dat<-uncrc_dat_final[complete.cases(uncrc_dat_final), ]
-
-
-xy_crc <- as.matrix(crc_dat[c('x','y')])
-xy_uncrc <- as.matrix(uncrc_dat[c('x','y')])
-
-# extract the urban/rural prediction
-crc_dat$urb_pred<-raster::extract(urb_surf,xy_crc)
-uncrc_dat$urb_pred<-raster::extract(urb_surf,xy_uncrc)
-pred_crc <- factor( ifelse(crc_dat$urb_pred ==1 ,"urban","rural" ))
-pred_crc  <- relevel(pred_crc, "urban") # make sure levels are same 
-pred_uncrc <- factor( ifelse(uncrc_dat$urb_pred ==1 ,"urban","rural" ))
-pred_uncrc  <- relevel(pred_uncrc, "urban") # make sure levels are same 
-
-### set directory for results
-setwd(paste0(res.dir,'/UR/'))
-
-
-# compute the confusion to evaluate the accuracy
-confmatrix_crc<-caret::confusionMatrix(
-  data = pred_crc,
-  reference = crc_dat$urban
-)
-
-confmatrix_crc
-if(!dir.exists("Threshold/")){
-  dir.create("Threshold/")
-}
-save(confmatrix_crc,file='Threshold/confmatrix_crc.rda')
-
-confmatrix_uncrc<-caret::confusionMatrix(
-  data = pred_uncrc,
-  reference = uncrc_dat$urban
-)
-
-confmatrix_uncrc
-save(confmatrix_uncrc,file='Threshold/confmatrix_uncrc.rda')
-
+if('DHS' %in% mod.dat$survey.type){
+  ### remove rows with missing covariates, could also build model with missing data
+  crc_dat<-crc_dat_final[complete.cases(crc_dat_final), ]
+  uncrc_dat<-uncrc_dat_final[complete.cases(uncrc_dat_final), ]
+  
+  
+  xy_crc <- as.matrix(crc_dat[c('x','y')])
+  xy_uncrc <- as.matrix(uncrc_dat[c('x','y')])
+  
+  # extract the urban/rural prediction
+  crc_dat$urb_pred<-raster::extract(urb_surf,xy_crc)
+  uncrc_dat$urb_pred<-raster::extract(urb_surf,xy_uncrc)
+  pred_crc <- factor( ifelse(crc_dat$urb_pred ==1 ,"urban","rural" ))
+  pred_crc  <- relevel(pred_crc, "urban") # make sure levels are same 
+  pred_uncrc <- factor( ifelse(uncrc_dat$urb_pred ==1 ,"urban","rural" ))
+  pred_uncrc  <- relevel(pred_uncrc, "urban") # make sure levels are same 
+  
+  ### set directory for results
+  setwd(paste0(res.dir,'/UR/'))
+  
+  
+  # compute the confusion to evaluate the accuracy
+  confmatrix_crc<-caret::confusionMatrix(
+    data = pred_crc,
+    reference = crc_dat$urban
+  )
+  
+  confmatrix_crc
+  save(confmatrix_crc,file='Threshold/confmatrix_crc.rda')
+  
+  confmatrix_uncrc<-caret::confusionMatrix(
+    data = pred_uncrc,
+    reference = uncrc_dat$urban
+  )
+  
+  confmatrix_uncrc
+  save(confmatrix_uncrc,file='Threshold/confmatrix_uncrc.rda')
+}  
 
 # Save national U1 and U5 urban proportions ----------------------------------------------------------  
 setwd(paste0(data.dir,'/Population'))

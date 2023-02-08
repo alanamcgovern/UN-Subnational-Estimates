@@ -1,8 +1,8 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- "Myanmar"
 
+country <- "Myanmar"
 
 # Load libraries and info ----------------------------------------------------------
 options(gsubfn.engine = "R")
@@ -230,7 +230,13 @@ for(survey_year in dhs_survey_years){
     
     if(country=='Ethiopia'){
       cmc.adjust <- 92
+    }else if(country=='Nepal'){
+      cmc.adjust <- -681
     }else{cmc.adjust <- 0}
+    
+    if(country=='Pakistan' & survey_year==2017){
+      raw.dat.tmp[raw.dat.tmp$v005==0,]$v005 <- raw.dat.tmp[raw.dat.tmp$v005==0,]$sv005
+    }
     
     # read DHS data
     dat.tmp <- getBirths(data=raw.dat.tmp,
@@ -497,6 +503,9 @@ if(country=='Malawi'){
             mod.dat$admin2.name=='Kasungu',]$admin1 <- 2
 }
 if(country=='Guinea'){
+  mod.dat <- mod.dat[!(mod.dat$years==2018),]
+}
+if(country=='Ghana'){
   mod.dat <- mod.dat[!(mod.dat$years==2018),]
 }
 

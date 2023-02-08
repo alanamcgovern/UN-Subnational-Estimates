@@ -5,7 +5,6 @@ rm(list = ls())
 # in the country name to "_" if there is.
 country <- "Senegal"
 
-
 # Setup
 # Load libraries and info ----------------------------------------------------------
 
@@ -431,68 +430,75 @@ if(doHIVAdj){
       adj.varnames <- c("country", "years")
     }
     
-    # warning if HIV adjustment has not been calculated for that year
-    if(nrow(adj.frame)==0){message(paste0('HIV Adjustment for ',country,' ',survey,' survey has not been calculated. Please calculate the HIV adjustment before proceeding.'))}
+    ## National Adjustment  ------------------------------------------------------
+    for(survey in survey_years){
+      if(natl.unaids){
+        adj.frame <- hiv.adj[hiv.adj$survey == survey,]
+        adj.varnames <- c("country", "years")
+      }else{
+        adj.frame <- hiv.adj[hiv.adj$survey == survey,]
+        adj.frame <- aggregate(ratio ~ country + years,data = adj.frame, FUN = mean)
+        adj.varnames <- c("country", "years")
+      }
+      
+      # warning if HIV adjustment has not been calculated for that year
+      if(nrow(adj.frame)==0){message(paste0('HIV Adjustment for ',country,' ',survey,' survey has not been calculated. Please calculate the HIV adjustment before proceeding.'))}
+      
+      # adjustment for yearly u5mr
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,],
+                                     ratio = adj.frame, 
+                                     logit.lower = NULL,
+                                     logit.upper = NULL,
+                                     prob.upper = "upper",
+                                     prob.lower = "lower")
+      direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.yearly.u5),
+                          colnames(tmp.adj))]
+      
+      # adjustment for 3-year period u5mr
+      if(survey==beg.year){
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      }else{
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]}
+      adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
     
-    # adjustment for yearly u5mr
-    tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,],
-                                   ratio = adj.frame, 
-                                   logit.lower = NULL,
-                                   logit.upper = NULL,
-                                   prob.upper = "upper",
-                                   prob.lower = "lower")
-    direct.natl.yearly.u5[direct.natl.yearly.u5$surveyYears == survey,] <- 
-      tmp.adj[ ,  match(colnames(direct.natl.yearly.u5),
-                        colnames(tmp.adj))]
-    
-    adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]
-    adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
-    
-    # adjustment for 3-year period u5mr
-    tmp.adj <- SUMMER::getAdjusted(direct.natl.u5[direct.natl.u5$surveyYears == survey,],
-                                   ratio = adj.frame.tmp, 
-                                   logit.lower = NULL,
-                                   logit.upper = NULL,
-                                   prob.upper = "upper",
-                                   prob.lower = "lower")
-    direct.natl.u5[direct.natl.u5$surveyYears == survey,] <- 
-      tmp.adj[ ,  match(colnames(direct.natl.u5),
-                        colnames(tmp.adj))]
-    
-    # adjustment for yearly nmr
-    tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,],
-                                   ratio = adj.frame, 
-                                   logit.lower = NULL,
-                                   logit.upper = NULL,
-                                   prob.upper = "upper",
-                                   prob.lower = "lower")
-    direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,] <- 
-      tmp.adj[ ,  match(colnames(direct.natl.yearly.nmr),
-                        colnames(tmp.adj))]
-    
-    adj.frame.tmp <- adj.frame[adj.frame$years  %in%  (beg.period.years + 1), ]
-    adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
-    
-    # adjustment for 3-year period nmr
-    tmp.adj <- SUMMER::getAdjusted(direct.natl.nmr[direct.natl.nmr$surveyYears == survey,],
-                                   ratio = adj.frame.tmp, 
-                                   logit.lower = NULL,
-                                   logit.upper = NULL,
-                                   prob.upper = "upper",
-                                   prob.lower = "lower")
-    direct.natl.nmr[direct.natl.nmr$surveyYears == survey,] <- 
-      tmp.adj[ ,  match(colnames(direct.natl.nmr),
-                        colnames(tmp.adj))]
-  }
-  
-  ## Admin 1 and 2 Adjustment ------------------------------------------------------
-  for(survey in survey_years){
-    if(natl.unaids){
-      adj.frame <- hiv.adj[hiv.adj$survey == survey,]
-      adj.varnames <- c("country", "years")
-    }else{
-      adj.frame <- hiv.adj[hiv.adj$survey == survey,]
-      adj.varnames <- c("country", "region", "years")
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.u5[direct.natl.u5$surveyYears == survey,],
+                                     ratio = adj.frame.tmp, 
+                                     logit.lower = NULL,
+                                     logit.upper = NULL,
+                                     prob.upper = "upper",
+                                     prob.lower = "lower")
+      direct.natl.u5[direct.natl.u5$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.u5),
+                          colnames(tmp.adj))]
+      
+      # adjustment for yearly nmr
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,],
+                                     ratio = adj.frame, 
+                                     logit.lower = NULL,
+                                     logit.upper = NULL,
+                                     prob.upper = "upper",
+                                     prob.lower = "lower")
+      direct.natl.yearly.nmr[direct.natl.yearly.nmr$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.yearly.nmr),
+                          colnames(tmp.adj))]
+      
+      # adjustment for 3-year period nmr
+      if(survey==beg.year){
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+      }else{
+        adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]}
+      adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
+      
+      tmp.adj <- SUMMER::getAdjusted(direct.natl.nmr[direct.natl.nmr$surveyYears == survey,],
+                                     ratio = adj.frame.tmp, 
+                                     logit.lower = NULL,
+                                     logit.upper = NULL,
+                                     prob.upper = "upper",
+                                     prob.lower = "lower")
+      direct.natl.nmr[direct.natl.nmr$surveyYears == survey,] <- 
+        tmp.adj[ ,  match(colnames(direct.natl.nmr),
+                          colnames(tmp.adj))]
     }
     
     for(area in admin1.names$GADM){
@@ -502,8 +508,31 @@ if(doHIVAdj){
         adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
         
       }else{
-        if(country == "Zambia" & area == "North-Western"){
-          adj.frame$area[adj.frame$area == "Northwestern"] <- area
+        adj.frame <- hiv.adj[hiv.adj$survey == survey,]
+        adj.varnames <- c("country", "region", "years")
+      }
+      
+      for(area in admin1.names$GADM){
+        if(natl.unaids){
+          if(survey==beg.year){
+            adj.frame.tmp <- adj.frame[adj.frame$years %in%  beg.period.years, ]
+          }else{
+            adj.frame.tmp <- adj.frame[adj.frame$years %in%  (beg.period.years + 1), ]}
+          adj.frame.tmp$years <- periods[1:nrow(adj.frame.tmp)]
+          adj.frame.tmp.yearly <- adj.frame
+          
+        }else{
+          if(country == "Zambia" & area == "North-Western"){
+            adj.frame$area[adj.frame$area == "Northwestern"] <- area
+          }
+          if(survey==beg.year){
+            adj.frame.tmp <- adj.frame[adj.frame$area == area & adj.frame$years %in% beg.period.years, ]
+            adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years)]
+          }else{
+            adj.frame.tmp <- adj.frame[adj.frame$area == area & adj.frame$years %in% (beg.period.years + 1), ]
+            adj.frame.tmp$years <- periods[match(adj.frame.tmp$years, beg.period.years+1)]
+          }
+          adj.frame.tmp.yearly <- adj.frame[adj.frame$area == area, ]
         }
         adj.frame.tmp <- adj.frame[adj.frame$area == area &
                                      adj.frame$years %in%

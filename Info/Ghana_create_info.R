@@ -17,12 +17,12 @@ gadm.abbrev <- "GHA"
 doHIVAdj <- F
 
 ### please fill in the path to country shape files ####
-poly.path <- paste0("shapeFiles/gadm41_GHA_shp")
+poly.path <- paste0("shapeFiles/gadm40_GHA_shp")
 
 ##### explain how these may need to be changed
-poly.layer.adm0 <- paste('gadm41', gadm.abbrev,
+poly.layer.adm0 <- paste('gadm40', gadm.abbrev,
                          '0', sep = "_") # specify the name of the national shape file
-poly.layer.adm1 <- paste('gadm41', gadm.abbrev,
+poly.layer.adm1 <- paste('gadm40', gadm.abbrev,
                          '1', sep = "_") # specify the name of the admin2 shape file
 
 poly.label.adm1 <- "poly.adm1@data$NAME_1"
