@@ -58,7 +58,8 @@ n_years <- length(plot.years)
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-3)],
+                  collapse = "/")
 
 
 knitr::opts_chunk$set(root.dir = home.dir)
@@ -74,7 +75,7 @@ data.dir <- paste0("R://Project/STAB/", country)
 
 # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 
-res.dir <- paste0(home.dir, '/Results/', country)
+res.dir <- paste0(home.dir,'/Results/', country)
 ```
 
 
@@ -131,16 +132,6 @@ draw_1y_adm<-function(admin_draws, year_num,admin_vec, nsim=1000){
 
 ```
 
-<!-- #### Load admin names  ------------------------------------------------------ -->
-
-```{r load_adminnames}
-setwd(data.dir)
-
-load(paste0(poly.path,'/', country, '_Amat.rda'))
-load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
-
-```
-
 <!-- # Load Data: Country Info -->
 
 
@@ -152,6 +143,15 @@ info.name <- paste0(country, "_general_info.Rdata")
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep=''))
 ```
+
+<!-- #### Load admin names  ------------------------------------------------------ -->
+
+```{r load_adminnames}
+load(paste0(data.dir, '/',poly.path,'/', country, '_Amat.rda'))
+load(paste0(data.dir, '/', poly.path,'/', country, '_Amat_Names.rda'))
+```
+
+
 
 <!-- #### load admin1 and admin2 weights #### -->
 ```{r load_adminwts}
@@ -210,7 +210,7 @@ pred.period.idx <-
 
 # Intro
 
-These estimates are created using a `r if(strata`BB8 model with subnational estimates using a RW1xICAR interaction model with area-specific random slopes. \par
+These estimates are created using `r ifelse(strata.model == "unstrat", "an unstratified", "a stratified")` BB8 model with subnational estimates using a `r toupper(time.model)` main temporal effect and a `r toupper(time.model)`xICAR spatiotemporal interaction term with area-specific random slopes. \par
 
 
 `r country` has `r nrow(admin1.names)` Admin 1 areas and `r nrow(admin2.names)` Admin 2 areas.\par
@@ -220,56 +220,55 @@ All uncertainty intervals displayed in subsequent figures are 95\% intervals.
 
 \begin{figure}
 \centering
-\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/ShapeCheck/Togo_adm2_neighb.pdf}
-\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/ShapeCheck/Togo_Admin2Names.pdf}
-\caption{Top: The neighborhood structure of Admin 2 areas. Bottom: The names of Admin 2 areas.}
+\includegraphics[width=3.5in]{U://UN-Subnational-Estimates/Results/Senegal/Figures/ShapeCheck/Senegal_adm1_neighb.pdf}
+\includegraphics[width=3.5in]{U://UN-Subnational-Estimates/Results/Senegal/Figures/ShapeCheck/Senegal_adm2_neighb.pdf}
+\caption{Top: The neighborhood structure of Admin 1 areas. Bottom: The neighborhood structure of Admin 2 areas.}
 \end{figure}
 \clearpage
 
-\begin{figure}
-\centering
-\includegraphics[width=5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_median.pdf}
-\caption{Median estimates of U5MR (deaths per 1000 children) in 2019.}
-\end{figure}
-\begin{figure}
-\centering
-\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K2_measuremap.pdf}
-\includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K3_measuremap.pdf}
-\caption{Expression of uncertainty of U5MR (deaths per 1000 children) based on the average true classification probability (ATCP) in 2019.}
-\end{figure}
-\clearpage
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \includegraphics[width=5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_median.pdf} -->
+<!-- \caption{Median estimates of U5MR (deaths per 1000 children) in 2019.} -->
+<!-- \end{figure} -->
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K2_measuremap.pdf} -->
+<!-- \includegraphics[width=3.5in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/measure/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_Y2019_K3_measuremap.pdf} -->
+<!-- \caption{Expression of uncertainty of U5MR (deaths per 1000 children) based on the average true classification probability (ATCP) in 2019.} -->
+<!-- \end{figure} -->
+<!-- \clearpage -->
 
-\begin{figure}
-\centering
-\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_19902019_median.pdf}
-\caption{Median estimates for selected years.}
-\end{figure}
-\clearpage
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_19902019_median.pdf} -->
+<!-- \caption{Median estimates for selected years.} -->
+<!-- \end{figure} -->
+<!-- \clearpage -->
 
-\clearpage
+<!-- \clearpage -->
 
-\includepdf[pages={-}]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_spaghetti_allByMedian.pdf}
+<!-- \includepdf[pages={-}]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_spaghetti_allByMedian.pdf} -->
 
-\begin{figure}
-\centering
-\includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/ridge/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_ridgeplot.pdf}
-\caption{Posterior distributions of U5MR (deaths per 1000 children) in 2019. Areas are ordered by median estimated U5MR in 2019.}
-\end{figure}
-\clearpage
-\begin{figure}
-\centering
-\includegraphics[height=10in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_median.pdf}
-\caption{Posterior medians of U5MR (deaths per 1000 births) by Admin 2 area and year.}
-\end{figure}
-\clearpage
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \includegraphics{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/ridge/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_2019_ridgeplot.pdf} -->
+<!-- \caption{Posterior distributions of U5MR (deaths per 1000 children) in 2019. Areas are ordered by median estimated U5MR in 2019.} -->
+<!-- \end{figure} -->
+<!-- \clearpage -->
+<!-- \begin{figure} -->
+<!-- \centering -->
+<!-- \includegraphics[height=10in]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/map/Togo_rw2main_randomSlopes_rw1xICAR_admin2_NotStrat_median.pdf} -->
+<!-- \caption{Posterior medians of U5MR (deaths per 1000 births) by Admin 2 area and year.} -->
+<!-- \end{figure} -->
+<!-- \clearpage -->
 
 
 
 # National Survey Data
 ```{r sumstat, echo = F,results='asis', warning=FALSE}
 
-load(paste0(dir.path, '/',
-            folder.name, '/',
+load(paste0(data.dir, '/',
             country,
             '_cluster_dat.rda'))
 levels(mod.dat$urban) <- tolower(levels(mod.dat$urban))
