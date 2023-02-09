@@ -7,19 +7,17 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Senegal"
+country <- "Guinea"
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
 time.model <- c('rw2','ar1')[2]
-
 # specify time model for smoothed direct
 sd.time.model <- c("rw2", "ar1")[2]
-# specify stratification
+# specify stratification for BB8 model
 strata.model <- c("unstrat", "strat")[2]
 
 # specify whether benchmarked or not
-
 bench.model <- c("", "bench")[1]
 
 # Setup -----------------------------------------------
@@ -57,8 +55,8 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-data.dir <- paste0("R://Project/STAB/", country)
+data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+# data.dir <- paste0("R://Project/STAB/", country)
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep = '')) # load the country info
@@ -82,7 +80,7 @@ if(!dir.exists(paste0(res.dir,'/Figures/Summary/NMR'))){
 
 # Load helper functions ####
 setwd(home.dir)
-# source('~/Downloads/Report_Plot_00.R')
+#source('~/Downloads/Report_Plot_00.R')
 source("Rcode/Report_Plot_00.R")
 
 # Load Data ####
@@ -163,17 +161,7 @@ if(((end.year-beg.year+1) %% 3) == 0){
 
 period.years <- paste(beg.period.years, end.period.years, sep = "-")
 
-## //AM: why are these different? shouldn't it always be seq(end.year+1,end.proj.year,3)?
-#if(end.year>end.year.1frame & end.year>2018){
-## //JG: are you refering to period.years above or the ifelse below?
-## I ripped this out of my version of BB8.R but it may have been something I
-## changed because Mauritania didn't work for your tests as it has a 2021 survey
-## feel free to make it whatever you think is correct!
-if(end.year>2018){
-  beg.proj.years <- seq(end.year+1,2021,3)
-}else{
-  beg.proj.years <- seq(end.year+1,2020,3)
-}
+beg.proj.years <- seq(end.year+1,2021,3)
 end.proj.years <- beg.proj.years+2
 pane.years <- (c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2))
 pane.years <- pane.years[pane.years<=end.proj.year]
@@ -748,8 +736,6 @@ if(country=='Uganda'){
     load(file = paste0('Betabinomial/NMR/', nmr.filename))
     load(file = paste0('Betabinomial/U5MR/', u5.filename))
     
-    ##//AM needed to add
-    ##//JG do we need this for stratified?
     if(exists('bb.res.adm1.unstrat.nmr.allsurveys')){
       bb.res.adm1.unstrat.nmr <- bb.res.adm1.unstrat.nmr.allsurveys
     }
@@ -1243,9 +1229,6 @@ if(exists('poly.layer.adm2')){
       load(file = paste0('Betabinomial/NMR/', nmr.filename))
       load(file = paste0('Betabinomial/U5MR/', u5.filename))
       
-      ##//AM needed to add
-      ##//JG do we need to add this in the next else?
-      ## i.e. for strat models
       if(exists('bb.res.adm2.unstrat.nmr.allsurveys')){
         bb.res.adm2.unstrat.nmr <- bb.res.adm2.unstrat.nmr.allsurveys
       }

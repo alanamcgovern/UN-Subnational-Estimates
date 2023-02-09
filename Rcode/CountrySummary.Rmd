@@ -4,6 +4,7 @@ output:
   pdf_document:
     toc: true
     number_sections: true
+geometry: margin=0.5in
 ---
 
 
@@ -57,12 +58,14 @@ n_years <- length(plot.years)
 code.path <- rstudioapi::getActiveDocumentContext()$path
 code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-3)],
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
                   collapse = "/")
 
 
 knitr::opts_chunk$set(root.dir = home.dir)
 
+## You need to run this line IN THE CONSOLE
+## if you need to debug
 if(debugging == TRUE){
   setwd(home.dir)
 }
@@ -201,10 +204,12 @@ These estimates are created using `r ifelse(strata.model == "unstrat", "an unstr
 `r country` has `r nrow(admin1.names)` Admin 1 areas and `r nrow(admin2.names)` Admin 2 areas.\par
 
 
-All uncertainty intervals displayed in subsequent figures are 95\% intervals.
+All uncertainty intervals displayed in subsequent figures are 90\% intervals.
 
 
-# National Survey Data
+# National Data Summaries and Results
+
+## Survey data
 ```{r sumstat, echo = F,results='asis', warning=FALSE}
 levels(mod.dat$urban) <- tolower(levels(mod.dat$urban))
 
@@ -227,8 +232,9 @@ colnames(clus.xtable) <- c("Survey", "Urban",
 clus.printxtable <- xtable(clus.xtable, 
                            digits = c(0,0,0,0,0),
                            align = "ccccc",
-                           caption = paste0("Number of clusters by urban/rural designation by survey for ",
-                                            country, "."))
+                           caption =
+                             paste0("Number of clusters by urban/rural ",
+                                    "designation by survey for ", country, "."))
 print.xtable(clus.printxtable, 
              comment = F, 
              include.rownames = F)
@@ -242,70 +248,128 @@ surveys <- unique(mod.dat$survey.table) %>% sort()
 
 for(idx in 1:length(surveys)){
   survey <- surveys[idx]
-  sum.tableList[[idx]] <- sum.table[sum.table$survey.table == survey,-1]
-  names(sum.tableList[[idx]]) <- c("Age", 
+  sum.tableList[[survey]] <- sum.table[sum.table$survey.table == survey,-1]
+  names(sum.tableList[[survey]]) <- c("Age", 
                                    "No. Deaths",
                                    "No. Agemonths")
-  
-  sum.print <- xtable(sum.tableList[[idx]],
-                      digits = c(0,0,0,0),
-                      align = "cccc", 
-                      caption = paste0("Numbers of agemonths and deaths by age for ",
-                                       survey, "."))
-  print.xtable(sum.print,
-               comment = F,
-               include.rownames = F,
-               table.placement = "!ht")
 }
+
+attr(sum.tableList, "subheadings") <- names(sum.tableList)
+  
+sum.print <- xtableList(sum.tableList,
+                       digits = c(0,0,0,0),
+                       align = "cccc", 
+                       caption = paste0("Numbers of agemonths and deaths by ",
+                                        "age group for each survey used ",
+                                        "in analysis for ", country, "."))
+print.xtableList(sum.print,
+                 comment = F,
+                 include.rownames = F,
+                 table.placement = "!ht",
+                 colnames.format = "multiple")
 ```
 
-# National Figures and Results
 
-<!-- ```{r, results ='asis', echo = FALSE} -->
-<!-- load(paste0(dir.path, '/', -->
-<!--             folder.name, '/', -->
-<!--             country, -->
-<!--             '_rw2_natl_noStrata_fixed.rda')) -->
-<!-- coefs <- fixed.eff -->
+```{r coefs, results ='asis', echo = FALSE}
+bench_str <- ifelse(bench.model == "", bench.model, "_bench")
 
-<!-- load(paste0(dir.path, '/', -->
-<!--             folder.name, '/', -->
-<!--             country, -->
-<!--             '_rw2_natlBench_noStrata_fixed.rda')) -->
-<!-- coefs.bench <- fixed.eff -->
+if(strata.model == "strat"){
+  fixed.filename <- paste0(country, "_fixed_adm1_",
+                           time.model, "_", strata.model,
+                           "_u5", bench_str, ".rda")
+}else{
+  fixed.filename <- paste0(country, "_fixed_adm1_",
+                           time.model, "_", strata.model,
+                           "_u5_allsurveys", bench_str, ".rda")
 
-<!-- coefs$tab <- paste0("(", -->
-<!--                     round(expit(coefs$`0.025quant`)*1000,1), -->
-<!--                     ",", -->
-<!--                     round(expit(coefs$`0.975quant`)*1000,1), -->
-<!--                     ")") -->
-<!-- coefs <- coefs[,c("0.5quant", "tab")] -->
-<!-- coefs$`0.5quant` <- round(expit(coefs$`0.5quant`)*1000,1) -->
+}
 
-<!-- coefs.bench$tab <- paste0("(", -->
-<!--                           round(expit(coefs.bench$`0.025quant`)*1000,1), -->
-<!--                           ",", -->
-<!--                           round(expit(coefs.bench$`0.975quant`)*1000,1), -->
-<!--                           ")") -->
-<!-- coefs.bench <- coefs.bench[,c("0.5quant", "tab")] -->
-<!-- coefs.bench$`0.5quant` <- round(expit(coefs.bench$`0.5quant`)*1000,1) -->
-
-<!-- names(coefs) <- c("Median", "Interval") -->
-<!-- names(coefs.bench) <- c("Median- Bench", "Interval") -->
-
-<!-- row.names(coefs) <- row.names(coefs.bench) <- c("0", "1-11", "12-23", -->
-<!--                                                 "24-35", "36-47", "48-59") -->
-
-<!-- coefs.xtable <- xtable(cbind.data.frame(coefs, coefs.bench), -->
-<!--                        align = c("l|cc|cc"), -->
-<!--                        digits = c(0,2,0,2,0), -->
-<!--                        caption = paste0("Monthly hazards in terms of 1000 children by age band for national, unstratified model for ", country, ".")) -->
-<!-- print.xtable(coefs.xtable, -->
-<!--              comment = F) -->
-<!-- ``` -->
+if(!file.exists(paste0(res.dir, "/Betabinomial/U5MR/",
+                       fixed.filename))){
+  if(file.exists(paste0(res.dir, "/Betabinomial/U5MR/",
+                    gsub(paste0(time.model, "_"), "", fixed.filename)))){
+    fixed.filename <- gsub(paste0(time.model, "_"), "", fixed.filename)
+    message("Loading fixed effects from the file\n", fixed.filename, "\n")
+  }else{
+    message("Cannot find the fixed effects file specified.")
+  }
+}else{
+ message("Loading fixed effects from the file\n", fixed.filename, "\n")  
+}
 
 
-```{r ur_odds, results = 'asis'}
+load(paste0(res.dir, "/Betabinomial/U5MR/", fixed.filename))
+
+if(strata.model == "unstrat"){
+  if(bench.model == ""){
+    coefs <- bb.fixed.adm1.unstrat.u5.allsurveys
+  }else{
+    coefs <- bb.fixed.adm1.unstrat.u5.allsurveys.bench
+  }
+}else{
+  if(bench.model == ""){
+    coefs <- bb.fixed.adm1.strat.u5
+  }else{
+    coefs <- bb.fixed.adm1.strat.u5.bench
+  }
+}
+coefs$tab <- paste0("(",
+                    round(expit(coefs$`0.025quant`)*1000,1),
+                    ",",
+                    round(expit(coefs$`0.975quant`)*1000,1),
+                    ")")
+coefs <- coefs[,c("0.5quant", "tab")]
+coefs$`0.5quant` <- round(expit(coefs$`0.5quant`)*1000,1)
+names(coefs) <- c("Median", "Interval")
+
+if(strata.model == "strat"){
+coefs_tab <- coefs %>% 
+  mutate(varname = row.names(coefs)) %>% 
+  filter(grepl("age", varname)) %>% 
+  mutate(Urban = substr(varname, nchar(varname) - 5 + 1, nchar(varname))) %>% 
+  mutate(varname = gsub("age.intercept", "", varname),
+         varname = gsub(":urban", "", varname),
+         varname = gsub(":rural", "", varname)) %>%
+  pivot_wider(id_cols = varname,
+              names_from = "Urban",
+              values_from = Interval) %>%  
+  rename("Age" = "varname") %>% 
+  as.data.frame()
+}else{
+  coefs_tab <- coefs %>% 
+  mutate(varname = row.names(coefs)) %>% 
+  filter(grepl("age", varname)) %>% 
+   mutate(varname = gsub("age.intercept", "", varname),
+         varname = gsub(":urban", "", varname),
+         varname = gsub(":rural", "", varname)) %>%  
+  rename("Age" = "varname") %>% 
+    as.data.frame()
+}
+
+bench_cap_str <- ifelse(bench.model == "", "unbenchmarked", "benchmarked")
+strata_cap_str <- ifelse(strata.model == "unstrat", "unstratified",
+                         "stratified")
+coefs.xtable <- xtable(coefs_tab,
+                       align = c("ll|cc"),
+                       digits = c(0,0, 0,0),
+                       caption =
+                         paste0("The 95\\% credible intervals for monthly ", 
+                                "hazards in terms of 1000 ",
+                                "children by age band for the Admin-1, ",
+                                bench_cap_str, " ", strata_cap_str,
+                                " model for ",
+                                country, "."))
+print.xtable(coefs.xtable, 
+             comment = F, 
+             include.rownames = F,
+             table.placement = "ht")
+```
+
+\clearpage
+
+## Figures
+
+```{r urodds, results = 'asis'}
 bench_str <- ifelse(bench.model == "", bench.model, "_bench")
 ur.odds.filename <- paste0(country, "_URodds_natl_",
                            time.model, "_", strata.model,
@@ -320,7 +384,7 @@ if(!file.exists(paste0(res.dir, "/Figures/Trends/U5MR/", ur.odds.filename))){
   }
 }
 cat("\\begin{figure}\n \\centering\n")
-cat(paste0("\\includegraphics[width=5in]{", res.dir, 
+cat(paste0("\\includegraphics[width=5in]{", res.dir,
            "/Figures/Trends/U5MR/",
            ur.odds.filename, "}\n"))
 cat(paste0("\\caption{The urban rural odds from the national BB8 model.}\n",
@@ -330,7 +394,7 @@ cat(paste0("\\caption{The urban rural odds from the national BB8 model.}\n",
 
 ```{r natl, results = 'asis'}
 natl.nmr.filename <- paste0(country, "_natl_", strata.model,
-                          "_", time.model, 
+                          "_", time.model,
                            "_nmr_Spaghetti.pdf")
 
 if(!file.exists(paste0(res.dir, "/Figures/Summary/NMR/", natl.nmr.filename))){
@@ -343,7 +407,7 @@ if(!file.exists(paste0(res.dir, "/Figures/Summary/NMR/", natl.nmr.filename))){
 }
 
 natl.u5.filename <- paste0(country, "_natl_", strata.model,
-                          "_", time.model, 
+                          "_", time.model,
                            "_u5_Spaghetti.pdf")
 
 if(!file.exists(paste0(res.dir, "/Figures/Summary/U5MR/", natl.u5.filename))){
@@ -356,14 +420,13 @@ if(!file.exists(paste0(res.dir, "/Figures/Summary/U5MR/", natl.u5.filename))){
 }
 
 cat("\\begin{figure}\n \\centering\n")
-cat(paste0("\\includegraphics[width=8in]{", res.dir, 
+cat(paste0("\\includegraphics[width=7.5in]{", res.dir,
            "/Figures/Summary/NMR/",
            natl.nmr.filename, "}\n"))
 cat(paste0("\\caption{NMR results from the national BB8 model.}\n",
-           "\\end{figure}\n",
-           "\\clearpage"))
+           "\\end{figure}\n"))
 cat("\\begin{figure}\n \\centering\n")
-cat(paste0("\\includegraphics[width=8in]{", res.dir, 
+cat(paste0("\\includegraphics[width=7.5in]{", res.dir,
            "/Figures/Summary/U5MR/",
            natl.u5.filename, "}\n"))
 cat(paste0("\\caption{U5MR results from the national BB8 model.}\n",
@@ -371,35 +434,199 @@ cat(paste0("\\caption{U5MR results from the national BB8 model.}\n",
            "\\clearpage"))
 ```
 
-<!-- # Admin 1 Figures -->
-
-
-<!-- # Admin 2 Figures -->
-
-<!-- The following few pages have estimates by area across time with underlying data included. There are six admin areas per page. -->
-<!-- <!-- ,they are ordered by increasing median U5MR in the year 2019.  --> -->
-<!-- Colored lines with circular points and light grey uncertainty bands are 5-year survey-weighted estimates of U5MR for years 1990--1994 up to 2015--2019 depending on survey timing. For a survey that ends in the middle of a 5-year period, we plot the estimates at the mid-point of the years in that interval for which the survey provides data. Black lines and corresponding intervals represent posterior medians and 95\% uncertainty intervals respectively for the betabinomial model. -->
-<!-- <!-- IHME's estimates and corresponding intervals, where we can compare, are in aquamarine. --> -->
-
-<!-- \includepdf[pages=-]{/Users/j_godwin/Dropbox/AfricaAdmin2Estimates/Data/countryDataFolders/Togo/Plots/Betabinomial/Admin2/Togo_rw2main_randomSlopes_rw1xICAR_admin2Bench_noStrata_spaghetti_6per.pdf} -->
-
 \clearpage
+
 # Subnational Results
 
 
-```{r neighb_adm1, results='asis'}
+```{r neighbadm1, results='asis'}
 
-cat("\\begin{figure}\n \\centering\n")
-cat(paste0("\\includegraphics[width=3.5in]{", res.dir, 
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir,
            "/Figures/ShapeCheck/",
            country, "_adm1_neighb.pdf}\n"))
-cat(paste0("\\includegraphics[width=3.5in]{", res.dir, 
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir,
            "/Figures/ShapeCheck/",
            country, "_adm2_neighb.pdf}\n"))
 cat(paste0("\\caption{Top: The neighborhood structure of Admin 1 areas. ",
            "Bottom: The neighborhood structure of Admin 2 areas.}\n",
+           "\\end{figure}\n"))
+```
+
+
+## Admin 1 Figures
+
+```{r adm1, results = 'asis'}
+adm1.nmr.filename <- paste0(country, "_adm1_", time.model, "_",
+                            strata.model, "_nmr", bench_str,
+                            "_", "medianmap_20002021.pdf")
+
+if(!file.exists(paste0(res.dir, "/Figures/Summary/NMR/", adm1.nmr.filename))){
+    message("Cannot find the Admin-1 NMR file specified.")
+}
+
+adm1.u5.filename <- paste0(country, "_adm1_", time.model, "_",
+                            strata.model, "_u5", bench_str,
+                            "_medianmap_20002021.pdf")
+
+if(!file.exists(paste0(res.dir, "/Figures/Summary/U5MR/", adm1.u5.filename))){
+    message("Cannot find the Admin-1 U5MR file specified.")
+}
+
+
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir,
+           "/Figures/Summary/NMR/",
+           adm1.nmr.filename, "}\n"))
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir,
+           "/Figures/Summary/U5MR/",
+           adm1.u5.filename, "}\n"))
+cat(paste0("\\caption{NMR (left) and U5MR (right) ",
+           "results in 2000, 2010, 2015, and 2021 ",
+           "from the Admin-1 BB8 model.}\n",
            "\\end{figure}\n",
            "\\clearpage"))
 ```
 
+```{r adm1spag, results = 'asis', fig.cap = "Median NMR estimates by Admin-1 from the BB8 model."}
 
+adm1.nmr.filenames <- list.files(paste0(res.dir, "/Figures/Summary/NMR/"))
+adm1.nmr.filenames <- adm1.nmr.filenames[grepl("_Admin1_nmr_SpaghettiAll_",
+                                               adm1.nmr.filenames)]
+adm1.nmr.filenames <- adm1.nmr.filenames[grepl(time.model, adm1.nmr.filenames) &
+                                           grepl(strata.model,
+                                                 adm1.nmr.filenames) &
+                                           grepl(bench.model,
+                                                 adm1.nmr.filenames)] %>%
+  sort()
+
+
+if(length(adm1.nmr.filenames) == 0){
+    message("Cannot find the Admin-1 NMR file specified.")
+}
+
+
+adm1.u5.filenames <- list.files(paste0(res.dir, "/Figures/Summary/U5MR/"))
+adm1.u5.filenames <- adm1.u5.filenames[grepl("_Admin1_u5_SpaghettiAll_",
+                                               adm1.u5.filenames)]
+adm1.u5.filenames <- adm1.u5.filenames[grepl(time.model, adm1.u5.filenames) &
+                                           grepl(strata.model,
+                                                 adm1.u5.filenames) &
+                                           grepl(bench.model,
+                                                 adm1.u5.filenames)] %>%
+  sort()
+
+
+if(length(adm1.u5.filenames) == 0){
+    message("Cannot find the Admin-1 U5MR file specified.")
+}
+
+for(nmr.file in adm1.nmr.filenames){
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=7.5in]{", res.dir,
+           "/Figures/Summary/NMR/",
+           nmr.file, "}\n"))
+cat(paste0("\\end{figure}\n"))
+}
+cat("\\clearpage")
+```
+
+```{r adm1spagu5, results = "asis", fig.cap = "Median U5MR estimates by Admin-1 from the BB8 model."}
+for(u5.file in adm1.u5.filenames){
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=7.5in]{", res.dir,
+           "/Figures/Summary/U5MR/",
+           u5.file, "}\n"))
+cat(paste0("\\end{figure}\n"))
+}
+```
+
+\clearpage
+
+
+
+## Admin 2 Figures
+
+```{r adm2, results = 'asis'}
+adm2.nmr.filename <- paste0(country, "_adm2_", time.model, "_",
+                            strata.model, "_nmr", bench_str,
+                            "_", "medianmap_20002021.pdf")
+
+if(!file.exists(paste0(res.dir, "/Figures/Summary/NMR/", adm2.nmr.filename))){
+    message("Cannot find the Admin-2 NMR file specified.")
+}
+
+adm2.u5.filename <- paste0(country, "_adm2_", time.model, "_",
+                            strata.model, "_u5", bench_str,
+                            "_medianmap_20002021.pdf")
+
+if(!file.exists(paste0(res.dir, "/Figures/Summary/U5MR/", adm2.u5.filename))){
+    message("Cannot find the Admin-2 U5MR file specified.")
+}
+
+
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir,
+           "/Figures/Summary/NMR/",
+           adm2.nmr.filename, "}\n"))
+cat(paste0("\\includegraphics[width=3.5in]{", res.dir,
+           "/Figures/Summary/U5MR/",
+           adm2.u5.filename, "}\n"))
+cat(paste0("\\caption{NMR (left) and U5MR (right) ",
+           "results in 2000, 2010, 2015, and 2021 ",
+           "from the Admin-2 BB8 model.}\n",
+           "\\end{figure}\n",
+           "\\clearpage"))
+```
+
+```{r adm2spag, results = 'asis',fig.cap = "Median NMR estimates by Admin-2 from the BB8 model."}
+
+adm2.nmr.filenames <- list.files(paste0(res.dir, "/Figures/Summary/NMR/"))
+adm2.nmr.filenames <- adm2.nmr.filenames[grepl("_Admin2_nmr_SpaghettiAll_",
+                                               adm2.nmr.filenames)]
+adm2.nmr.filenames <- adm1.nmr.filenames[grepl(time.model, adm2.nmr.filenames) &
+                                           grepl(strata.model,
+                                                 adm2.nmr.filenames) &
+                                           grepl(bench.model,
+                                                 adm2.nmr.filenames)] %>%
+  sort()
+
+
+if(length(adm2.nmr.filenames) == 0){
+    message("Cannot find the Admin-2 NMR file specified.")
+}
+
+
+adm2.u5.filenames <- list.files(paste0(res.dir, "/Figures/Summary/U5MR/"))
+adm2.u5.filenames <- adm2.u5.filenames[grepl("_Admin2_u5_SpaghettiAll_",
+                                               adm2.u5.filenames)]
+adm2.u5.filenames <- adm2.u5.filenames[grepl(time.model, adm2.u5.filenames) &
+                                           grepl(strata.model,
+                                                 adm2.u5.filenames) &
+                                           grepl(bench.model,
+                                                 adm2.u5.filenames)] %>%
+  sort()
+
+
+if(length(adm2.u5.filenames) == 0){
+    message("Cannot find the Admin-2 U5MR file specified.")
+}
+
+for(nmr.file in adm2.nmr.filenames){
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=7.5in]{", res.dir,
+           "/Figures/Summary/NMR/",
+           nmr.file, "}\n"))
+cat(paste0("\\end{figure}\n"))
+}
+cat("\\clearpage")
+```
+```{r adm2spagu5, results = "asis", fig.cap = "Median U5MR estimates by Admin-2 from the BB8 model."}
+for(u5.file in adm2.u5.filenames){
+cat("\\begin{figure}[!h]\n \\centering\n")
+cat(paste0("\\includegraphics[width=7.5in]{", res.dir,
+           "/Figures/Summary/U5MR/",
+           u5.file, "}\n"))
+cat(paste0("\\end{figure}\n"))
+}
+```
