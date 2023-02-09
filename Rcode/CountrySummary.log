@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.2.7)  9 FEB 2023 11:44
+This is pdfTeX, Version 3.141592653-2.6-1.40.24 (TeX Live 2022) (preloaded format=pdflatex 2023.2.7)  9 FEB 2023 12:06
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -470,77 +470,86 @@ File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_A
 <use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_strat_1.pdf>
 Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_strat_1.pdf  used on input line 246.
 (pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
-<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_stratunbenchmarked_1.pdf, id=143, 505.89pt x 505.89pt>
-File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_stratunbenchmarked_1.pdf Graphic file (type pdf)
-<use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_stratunbenchmarked_1.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_stratunbenchmarked_1.pdf  used on input line 250.
-(pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
-
-LaTeX Warning: `!h' float specifier changed to `!ht'.
-
 [7
 
- <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_strat_1.pdf>] [8 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_stratunbenchmarked_1.pdf>]
-<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf, id=163, 505.89pt x 505.89pt>
+ <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin1_u5_SpaghettiAll_ar1_strat_1.pdf>]
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf, id=153, 505.89pt x 505.89pt>
 File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf Graphic file (type pdf)
 <use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf  used on input line 260.
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf  used on input line 256.
 (pdftex.def)             Requested size: 252.94437pt x 252.94437pt.
-<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf, id=164, 505.89pt x 505.89pt>
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf, id=154, 505.89pt x 505.89pt>
 File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf Graphic file (type pdf)
 <use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf  used on input line 261.
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf  used on input line 257.
 (pdftex.def)             Requested size: 252.94437pt x 252.94437pt.
-[9
+[8
 
  <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_adm2_ar1_strat_nmr_medianmap_20002021.pdf> <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_adm2_ar1_strat_u5_medianmap_20002021.pdf>]
-File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin1_nmr_SpaghettiAll_ar1_strat_1.pdf Graphic file (type pdf)
-<use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin1_nmr_SpaghettiAll_ar1_strat_1.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin1_nmr_SpaghettiAll_ar1_strat_1.pdf  used on input line 268.
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_1.pdf, id=173, 505.89pt x 505.89pt>
+File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_1.pdf Graphic file (type pdf)
+<use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_1.pdf>
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_1.pdf  used on input line 264.
 (pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
-[10
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_2.pdf, id=174, 505.89pt x 505.89pt>
+File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_2.pdf Graphic file (type pdf)
+<use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_2.pdf>
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_2.pdf  used on input line 268.
+(pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
 
-]
-<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf, id=187, 505.89pt x 505.89pt>
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_3.pdf, id=175, 505.89pt x 505.89pt>
+File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_3.pdf Graphic file (type pdf)
+<use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_3.pdf>
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_3.pdf  used on input line 272.
+(pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
+
+LaTeX Warning: `!h' float specifier changed to `!ht'.
+
+[9
+
+ <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_1.pdf>] [10 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_2.pdf>] [11 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/NMR/Senegal_Admin2_nmr_SpaghettiAll_ar1_strat_3.pdf>]
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf, id=203, 505.89pt x 505.89pt>
 File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf Graphic file (type pdf)
 <use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf  used on input line 273.
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf  used on input line 277.
 (pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
-<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf, id=188, 505.89pt x 505.89pt>
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf, id=204, 505.89pt x 505.89pt>
 File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf Graphic file (type pdf)
 <use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf  used on input line 277.
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf  used on input line 281.
 (pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf, id=189, 505.89pt x 505.89pt>
+<U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf, id=205, 505.89pt x 505.89pt>
 File: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf Graphic file (type pdf)
 <use U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf>
-Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf  used on input line 281.
+Package pdftex.def Info: U:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf  used on input line 285.
 (pdftex.def)             Requested size: 505.89645pt x 505.89645pt.
 
 LaTeX Warning: `!h' float specifier changed to `!ht'.
 
-[11
+[12
 
- <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf>] [12 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf>] [13 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf>] (./CountrySummary.aux)
+ <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_1.pdf>] [13 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_2.pdf>] [14 <u:/UN-Subnational-Estimates/Results/Senegal/Figures/Summary/U5MR/Senegal_Admin2_u5_SpaghettiAll_ar1_strat_3.pdf>] (./CountrySummary.aux)
 Package rerunfilecheck Info: File `CountrySummary.out' has not changed.
 (rerunfilecheck)             Checksum: 6F18FDAE030CC231A7F98375F6261D04;922.
  ) 
 Here is how much of TeX's memory you used:
- 10606 strings out of 478024
- 182360 string characters out of 5838133
+ 10621 strings out of 478024
+ 183813 string characters out of 5838133
  1870340 words of memory out of 5000000
- 30539 multiletter control sequences out of 15000+600000
+ 30551 multiletter control sequences out of 15000+600000
  557572 words of font info for 70 fonts, out of 8000000 for 9000
  14 hyphenation exceptions out of 8191
  75i,9n,76p,319b,439s stack positions out of 10000i,1000n,20000p,200000b,200000s
 {//csde-fs1.csde.washington.edu/ts-profiles/%username%/AppData/roaming/TinyTeX/texmf-dist/fonts/enc/dvips/lm/lm-ec.enc}<//csde-fs1.csde.washington.edu/ts-profiles/%username%/AppData/roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx10.pfb><//csde-fs1.csde.washington.edu/ts-profiles/%username%/AppData/roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmbx12.pfb><//csde-fs1.csde.washington.edu/ts-profiles/%username%/AppData/roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr10.pfb><//csde-fs1.csde.washington.edu/ts-profiles/%username%/AppData/roaming/TinyTeX/texmf-dist/fonts/type1/public/lm/lmr17.pfb>
-Output written on CountrySummary.pdf (13 pages, 3794507 bytes).
+Output written on CountrySummary.pdf (14 pages, 3846441 bytes).
 PDF statistics:
- 250 PDF objects out of 1000 (max. 8388607)
- 191 compressed objects within 2 object streams
- 38 named destinations out of 1000 (max. 500000)
- 132 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 267 PDF objects out of 1000 (max. 8388607)
+ 202 compressed objects within 3 object streams
+ 39 named destinations out of 1000 (max. 500000)
+ 142 words of extra memory for PDF output out of 10000 (max. 10000000)
 

@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Guinea"
+country <- "Senegal"
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
@@ -55,8 +55,8 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-# data.dir <- paste0("R://Project/STAB/", country)
+# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- paste0("R://Project/STAB/", country)
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep = '')) # load the country info

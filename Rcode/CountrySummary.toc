@@ -4,4 +4,4 @@
 \contentsline {subsection}{\numberline {2.2}Figures}{3}{subsection.2.2}%
 \contentsline {section}{\numberline {3}Subnational Results}{5}{section.3}%
 \contentsline {subsection}{\numberline {3.1}Admin 1 Figures}{5}{subsection.3.1}%
-\contentsline {subsection}{\numberline {3.2}Admin 2 Figures}{9}{subsection.3.2}%
+\contentsline {subsection}{\numberline {3.2}Admin 2 Figures}{8}{subsection.3.2}%

@@ -584,7 +584,7 @@ cat(paste0("\\caption{NMR (left) and U5MR (right) ",
 adm2.nmr.filenames <- list.files(paste0(res.dir, "/Figures/Summary/NMR/"))
 adm2.nmr.filenames <- adm2.nmr.filenames[grepl("_Admin2_nmr_SpaghettiAll_",
                                                adm2.nmr.filenames)]
-adm2.nmr.filenames <- adm1.nmr.filenames[grepl(time.model, adm2.nmr.filenames) &
+adm2.nmr.filenames <- adm2.nmr.filenames[grepl(time.model, adm2.nmr.filenames) &
                                            grepl(strata.model,
                                                  adm2.nmr.filenames) &
                                            grepl(bench.model,
