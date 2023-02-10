@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Guinea"
+country <- "Lesotho"
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
@@ -15,10 +15,10 @@ time.model <- c('rw2','ar1')[2]
 # specify time model for smoothed direct
 sd.time.model <- c("rw2", "ar1")[2]
 # specify stratification for BB8 model
-strata.model <- c("unstrat", "strat")[2]
+strata.model <- c("unstrat", "strat")[1]
 
-# specify whether benchmarked or not
-bench.model <- c("", "bench")[1]
+# specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
+bench.model <- c("", "bench")[2]
 
 # Setup -----------------------------------------------
 ## Load libraries and info ----------------------------------------------------------
@@ -56,13 +56,13 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
 data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-# data.dir <- paste0("R://Project/STAB/", country)
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep = '')) # load the country info
 
 ## what is the equivalent of poly.label.adm2 that
 ## has the column name of admin1 names in the admin2 shapefile
+if(exists('poly.label.adm2'))
 adm1_on_adm2 <- paste0(strsplit(poly.label.adm2, "\\$")[[1]][1], "$",
                        strsplit(poly.label.adm1, "\\$")[[1]][2])
 message("If your country does not use GADM shapefiles, ", 
@@ -80,7 +80,6 @@ if(!dir.exists(paste0(res.dir,'/Figures/Summary/NMR'))){
 
 # Load helper functions ####
 setwd(home.dir)
-#source('~/Downloads/Report_Plot_00.R')
 source("Rcode/Report_Plot_00.R")
 
 # Load Data ####
@@ -1812,6 +1811,8 @@ for (i in 1:numberPages) {
 }
 
 ## Spaghetti: 6 per page ####
+bench_str <- ifelse(bench.model == "", bench.model,
+                    paste0("_", bench.model))
 
 for(outcome in c("nmr", "u5")){
   tmp.dir <- ifelse(outcome == "u5", "u5mr", outcome)
@@ -2136,6 +2137,8 @@ for (i in 1:numberPages) {
     tmp <- tmp_plot[[outcome]]
     tmp <- tmp[tmp$region.orig %in% areas,]
     tmp.dir <- ifelse(outcome == "u5", "u5mr", outcome)
+    bench_str <- ifelse(bench.model == "", bench.model,
+                        paste0("_", bench.model))
     pdf(paste0("Figures/Summary/", toupper(tmp.dir), "/",
                country, '_Admin1_', outcome, '_SpaghettiAll_',
                time.model, '_', strata.model, bench_str, "_",
@@ -2161,6 +2164,8 @@ for (i in 1:numberPages) {
   }
 }
 ## Spaghetti: 6 per page ####
+bench_str <- ifelse(bench.model == "", bench.model,
+                    paste0("_", bench.model))
 
 for(outcome in c("nmr", "u5")){
   tmp.dir <- ifelse(outcome == "u5", "u5mr", outcome)
