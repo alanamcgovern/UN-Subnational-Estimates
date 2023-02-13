@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Lesotho"
+country <- "Burundi"
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
@@ -15,10 +15,10 @@ time.model <- c('rw2','ar1')[2]
 # specify time model for smoothed direct
 sd.time.model <- c("rw2", "ar1")[2]
 # specify stratification for BB8 model
-strata.model <- c("unstrat", "strat")[1]
+strata.model <- c("unstrat", "strat")[2]
 
 # specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
-bench.model <- c("", "bench")[2]
+bench.model <- c("", "bench")[1]
 
 # Setup -----------------------------------------------
 ## Load libraries and info ----------------------------------------------------------
@@ -141,8 +141,6 @@ if(strata.model=='unstrat'){
 surveys <- unique(mod.dat$survey)
 end.year <- max(mod.dat$survey)
 end.proj.year <- 2021
-
-#### end of edit
 
 plot.years <- 2000:end.proj.year
 n_years <- length(plot.years)
@@ -946,6 +944,7 @@ if(exists('poly.layer.adm2')){
   
   load(file = paste0("Direct/NMR/",  nmr.filename))
   load(file = paste0("Direct/U5MR/",  u5.filename))
+  
   adm2.dir.reg <- direct.admin2.nmr$region
   adm2.dir.est.nmr <- direct.admin2.nmr[direct.admin2.nmr$years %in%
                                           period.years, "mean"]
@@ -1020,7 +1019,7 @@ if(exists('poly.layer.adm2')){
     
     
     
-    if(exists("admin2.sd.u5")){
+    if(exists("admin2.sd.nmr")){
       sd.adm2.to.natl.frame = matrix(NA, nrow = length(pane.years), ncol =  6)
       
       for (i in 1:length(pane.years)){
@@ -1877,13 +1876,13 @@ for(outcome in c("nmr", "u5")){
                    type = 'l', col = survey_cols[svy.idx], lwd = 2,
                    main = admin2.names$GADM[area.idx])
               
-              lines(pane.years[-length(pane.years)],
+              lines(pane.years[-pred.period.idx],
                     1000*tmp[, paste0("median_", outcome)],
                     cex = tmp$cex2,
                     type = 'l', col = survey_cols[svy.idx],
                     lwd = 2)
               
-              points(pane.years[-length(pane.years)],
+              points(pane.years[-pred.period.idx],
                      1000*tmp[, paste0("median_", outcome)],
                      pch = 19,
                      col = alpha(survey_cols[svy.idx], 0.35),
@@ -1899,12 +1898,12 @@ for(outcome in c("nmr", "u5")){
             }
           }else{
             if(dim(tmp)[1] != 0){
-              lines(pane.years[-length(pane.years)],
+              lines(pane.years[-pred.period.idx],
                     1000*tmp[,paste0("median_", outcome)],
                     cex = tmp$cex2,
                     type = 'l', col = survey_cols[svy.idx],
                     lwd = 2)
-              points(pane.years[-length(pane.years)],
+              points(pane.years[-pred.period.idx],
                      1000*tmp[, paste0("median_", outcome)],
                      pch = 19,
                      col = alpha(survey_cols[svy.idx], 0.35),
@@ -2229,13 +2228,13 @@ for(outcome in c("nmr", "u5")){
                    type = 'l', col = survey_cols[svy.idx], lwd = 2,
                    main = admin1.names$GADM[area.idx])
               
-              lines(pane.years[-length(pane.years)],
+              lines(pane.years[-pred.period.idx],
                     1000*tmp[, paste0("median_", outcome)],
                     cex = tmp$cex2,
                     type = 'l', col = survey_cols[svy.idx],
                     lwd = 2)
               
-              points(pane.years[-length(pane.years)],
+              points(pane.years[-pred.period.idx],
                      1000*tmp[, paste0("median_", outcome)],
                      pch = 19,
                      col = alpha(survey_cols[svy.idx], 0.35),
@@ -2251,12 +2250,12 @@ for(outcome in c("nmr", "u5")){
             }
           }else{
             if(dim(tmp)[1] != 0){
-              lines(pane.years[-length(pane.years)],
+              lines(pane.years[-pred.period.idx],
                     1000*tmp[,paste0("median_", outcome)],
                     cex = tmp$cex2,
                     type = 'l', col = survey_cols[svy.idx],
                     lwd = 2)
-              points(pane.years[-length(pane.years)],
+              points(pane.years[-pred.period.idx],
                      1000*tmp[, paste0("median_", outcome)],
                      pch = 19,
                      col = alpha(survey_cols[svy.idx], 0.35),
