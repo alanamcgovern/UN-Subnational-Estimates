@@ -70,6 +70,9 @@ Run Comparison_Plot.R again, this time generating a figure comparing the Beta-bi
 
 After determining whether we will use the stratified model or the unstratified model which uses all surveys, go back to the BB8.R script and now run the benchmarked models which correspond to the model we have chosen (strat or unstrat_allsurveys). *Make sure to run all applicable setup chunks before fitting models*
 
+#### Step 10b: Crisis Adjustments
+TBD -- if your country needs a crisis adjustment, stop here for now.
+
 #### Step 11: Reporting Results
 
-TBD
+Run Report_Plot.R to generate figures for the final report and be sure to specify 1) country of interest 2) which time model is used for BB8 models (AR1 is the default) 3) which time model is best for smooth direct (if both are good, choose AR1) 4) whether stratified or unstratified is used for the final model. Then knit CountrySummary.Rmd, specifying the same fields at the top of the script, and then save this pdf report.

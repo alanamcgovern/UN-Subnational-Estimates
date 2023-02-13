@@ -1,0 +1,235 @@
+---
+title: "Country Summary: Guinea, U5MR"
+header-includes:
+  - \usepackage{pdfpages}
+output: 
+  pdf_document:
+    toc: true
+    number_sections: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# ENTER COUNTRY OF INTEREST -----------------------------------------------
+# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+country <- 'Guinea'
+
+# Load info ----------------------------------------------------------
+
+# extract file location of this script
+code.path <- rstudioapi::getActiveDocumentContext()$path
+code.path.splitted <- strsplit(code.path, "/")[[1]]
+
+# retrieve directories
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
+data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
+info.name <- paste0(country, "_general_info.Rdata")
+load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
+
+knitr::opts_chunk$set(root.dir = res.dir)
+
+logit <- function(x){
+  log(x/(1-x))
+}
+expit <- function(x){
+  exp(x)/(1 + exp(x))
+}
+
+```
+
+```{r params, echo = F}
+load(paste0(data.dir,'/',poly.path,'/', country, '_Amat.rda'))
+load(paste0(data.dir,'/',poly.path,'/', country, '_Amat_Names.rda'))
+```
+
+# Intro
+
+These estimates are created using the BB8 model for Admin 2 estimates using a AR1xICAR interaction model with area-specific random slopes. \par
+
+
+`r country` has `r nrow(admin1.names)` Admin 1 areas and `r nrow(admin2.names)` Admin 2 areas.\par
+
+
+All uncertainty intervals displayed in subsequent figures are 95\% intervals.
+
+\begin{figure}
+\centering
+\includegraphics[width=4.5in]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/ShapeCheck/Guinea_adm1_neighb.pdf}
+\includegraphics[width=4.5in]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/ShapeCheck/Guinea_adm2_neighb.pdf}
+\caption{Top: The neighborhood structure of Admin 1 areas. Bottom: The neighborhood structure of Admin 2 areas.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+\centering
+\includegraphics[width=5in]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/map/Guinea_adm2_strat_u5_2020.pdf}
+\caption{Median estimates of U5MR (deaths per 1000 children) in 2020.}
+\end{figure}
+\begin{figure}
+\centering
+\includegraphics[width=3.5in]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/tcp/Guinea_adm2_strat_u5_Y2020_K2_measuremap.pdf}
+\includegraphics[width=3.5in]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/tcp/Guinea_adm2_strat_u5_Y2020_K3_measuremap.pdf}
+\caption{Expression of uncertainty of U5MR (deaths per 1000 children) based on the average true classification probability (ATCP) in 2020.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+\centering
+\includegraphics{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/map/Guinea_adm2_strat_u5_someyearsMedian.pdf}
+\caption{Median estimates for selected years.}
+\end{figure}
+\clearpage
+
+\includepdf[pages={-}]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/trend/Guinea_adm1_strat_u5.pdf}
+
+\includepdf[pages={-}]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/trend/Guinea_adm2_strat_u5.pdf}
+
+\begin{figure}
+\centering
+\includegraphics{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/ridge/Guinea_adm2_strat_u5_2020_ridgeplot.pdf}
+\caption{Posterior distributions of U5MR (deaths per 1000 children) in 2020. Areas are ordered by median estimated U5MR in 2020.}
+\end{figure}
+\clearpage
+
+\includepdf[pages={-}]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/heatmap/Guinea_adm2_strat_u5_heatmap.pdf}
+
+\begin{figure}
+\centering
+\includegraphics[height=10in]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/map/Guinea_adm2_strat_u5_median.pdf}
+\caption{Posterior medians of U5MR (deaths per 1000 births) by Admin 2 area and year.}
+\end{figure}
+\clearpage
+
+# National Survey Data
+```{r sumstat, echo = F,results='asis', warning=FALSE}
+library(xtable)
+load(paste0(data.dir, '/', country,'_cluster_dat.rda'))
+levels(mod.dat$urban) <- tolower(levels(mod.dat$urban))
+clus.table <- aggregate(cluster ~ survey + urban,
+                        data = mod.dat,
+                        FUN = function(x){length(unique(x))})
+clus.xtable <- reshape(clus.table,
+                       v.names = "cluster",
+                       idvar = "survey",
+                       timevar = "urban",
+                       direction = "wide")
+clus.xtable$Total <- clus.xtable$cluster.urban + 
+  clus.xtable$cluster.rural
+row.names(clus.xtable) <- clus.xtable[,'survey']
+survey.legends <- unique(mod.dat[,c("survey","survey.type")])
+survey.legends <- survey.legends[order(survey.legends$survey),]
+survey_names <- paste0(survey.legends$survey.type, ' ', survey.legends$survey)
+clus.xtable$survey <- survey_names
+colnames(clus.xtable) <- c("Survey", "Urban",
+                           "Rural", "Total")
+clus.printxtable <- xtable(clus.xtable, 
+                           digits = c(0,0,0,0,0),
+                           align = "ccccc",
+                           caption = paste0("Number of clusters by urban/rural designation by survey for ",
+                                            country, "."))
+print.xtable(clus.printxtable, 
+             comment = F, 
+             include.rownames = F)
+
+sum.table <- aggregate(cbind(Y, total) ~ survey + age,
+                       data = mod.dat,
+                       FUN = sum)
+sum.tableList <- list()
+idx <- 0
+for(i in 1:length(survey_years)){
+  idx <- idx + 1
+  survey <- survey_years[i]
+  sum.tableList[[idx]] <- sum.table[sum.table$survey == survey,-1]
+  names(sum.tableList[[idx]]) <- c("Age", 
+                                   "No. Deaths",
+                                   "No. Agemonths")
+  
+  sum.print <- xtable(sum.tableList[[idx]],
+                      digits = c(0,0,0,0),
+                      align = "cccc", 
+                      caption = paste0("Numbers of agemonths and deaths by age for ",
+                                       survey_names[i], "."))
+  print.xtable(sum.print,
+               comment = F,
+               include.rownames = F,
+               table.placement = "!ht")
+}
+```
+\clearpage
+
+# Admin 2 Figures
+
+The following few pages show direct, smoothed direct, and Betabinomial estimates by area across time. There are three admin areas per page. Lines and corresponding intervals represent posterior medians and 95\% uncertainty intervals respectively.
+
+\includepdf[pages={-}]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Summary/U5MR/Guinea_admin2_strat_u5_9per.pdf}
+
+
+\clearpage
+
+# National Figures and Results
+
+* Note: intervals need correcting
+
+```{r, results ='asis', echo = FALSE}
+load(paste0(res.dir,'/Betabinomial/U5MR/', country, '_fixed_natl_strat_u5.rda'))
+load(paste0(res.dir,'/Betabinomial/U5MR/', country, '_temporals_natl_strat_u5.rda'))
+
+ages <- levels(mod.dat$age)
+ages.strata <- c(paste0(ages,':urban'),paste0(ages,':rural'))
+coefs <- matrix(NA,length(ages.strata),3)
+temporals <- bb.temporals.natl.strat.u5
+for(age.strata in ages.strata){
+      age <- ages[sapply(ages,grepl,age.strata)]
+      age.idx <- which(age==ages)
+      temporal.idx <- grepl(paste0(age.strata), temporals$group) | is.na(temporals$group)
+      fixed.idx <- grepl(paste0(age.strata),  row.names(bb.fixed.natl.strat.u5))|grepl(paste0('group',age.idx), row.names(bb.fixed.natl.strat.u5))
+      fixed.eff <- data.frame(t(colSums(bb.fixed.natl.strat.u5[fixed.idx,3:5])))
+      colnames(fixed.eff) <- c('lower','median','upper')
+      tmp <- data.frame(temporals[temporal.idx & temporals$years.num==end.proj.year,])
+      coefs[which(age.strata==ages.strata),] <- c(sum(tmp$lower) + sum(fixed.eff$lower),
+                                                  sum(tmp$median) + sum(fixed.eff$median),
+                                                  sum(tmp$upper) + sum(fixed.eff$upper))
+}
+
+coefs <- data.frame(coefs)
+colnames(coefs) <- c('0.025quant',   '0.5quant', '0.975quant') 
+
+coefs$tab <- paste0("(",
+                    round(expit(coefs$`0.025quant`)*1000,1),
+                    ",",
+                    round(expit(coefs$`0.975quant`)*1000,1),
+                    ")")
+coefs <- coefs[,c("0.5quant", "tab")]
+coefs$`0.5quant` <- round(expit(coefs$`0.5quant`)*1000,1)
+
+names(coefs) <- c("Median", "Interval")
+row.names(coefs) <- ages.strata
+
+coefs.xtable <- xtable(data.frame(coefs),
+                       align = c("l|cc"),
+                       caption = paste0("Monthly hazards in terms of 1000 children by age band for national, stratified model for ", country, " in 2020."))
+print.xtable(coefs.xtable, comment = F)
+```
+
+\begin{figure}
+\centering
+\includegraphics{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Betabinomial/U5MR/trend/Guinea_natl_strat_u5_temporal.pdf}
+\caption{Monthly hazards of death in terms of U5MR (number deaths per 1000 children) by agebands.}
+\end{figure}
+\clearpage
+
+\begin{figure}
+\centering
+\includegraphics{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Summary/U5MR/Guinea_natl_strat_u5_spaghetti.pdf}
+\caption{U5MR rates per 1000 live births. Top left: DHS direct estimates with national trends from UN-IGME, Smoothed Direct and Betabinomial estimates. Top right: 95\% uncertainty intervals for DHS data and Betabinomial estimates. Bottom: 95\% uncertainty intervals for UN-IGME, Smoothed Direct and Betabinomial estimates.}
+\end{figure}
+\clearpage
+
+# Admin 1 Figures
+
+\includepdf[pages={-}]{/Users/alanamcgovern/Desktop/UN_Estimates/UN-Subnational-Estimates/Results/Guinea/Figures/Summary/U5MR/Guinea_admin1_strat_u5_9per.pdf}
+
+
+
