@@ -25,28 +25,63 @@ if (country != "Haiti") {
   deaths <- get(paste0("df_", country_code))
 }
 
-# population
-# TODO: create these files, should have columns:
-# country, level (i.e. admin1, admin2), gadm (area name), years, pop_0_1, pop_1_5
-load(file = paste0("CrisisAdjustment/pop_", country_code, ".rda"))
-pop <- get(paste0("pop_", country_code))
+# population weights
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm1_weights_u1.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm1_weights_u5.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm2_weights_u1.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm2_weights_u5.rda"))
 
 # final admin1 and admin2 benchmarked nmr and u5mr without crisis adjustment
-# TODO: different file names?
-load(paste0("Results/Betabinomial/U5MR/", country, "_res_adm1_unstrat_u5_allsurveys.rda"))
-load(paste0("Results/Betabinomial/NMR/", country, "_res_adm1_unstrat_nmr_allsurveys.rda"))
-load(paste0("Results/Betabinomial/U5MR/", country, "_res_adm2_unstrat_u5_allsurveys.rda"))
-load(paste0("Results/Betabinomial/NMR/", country, "_res_adm2_unstrat_u5_allsurveys.rda"))
+load(paste0("Results/Betabinomial/U5MR/", country, "_res_adm1_unstrat_u5_allsurveys_bench.rda"))
+load(paste0("Results/Betabinomial/NMR/", country, "_res_adm1_unstrat_nmr_allsurveys_bench.rda"))
+load(paste0("Results/Betabinomial/U5MR/", country, "_res_adm2_unstrat_u5_allsurveys_bench.rda"))
+load(paste0("Results/Betabinomial/NMR/", country, "_res_adm2_unstrat_nmr_allsurveys_bench.rda"))
 
-# TODO: fill in "xxx" with names of objects loaded in above
-res_adm1_u5 <- xxx$overall
-res_adm1_nmr <- xxx$overall
-res_adm2_u5 <- xxx$overall
-res_adm2_nmr <- xxx$overall
+# simplify names of objects above
+res_adm1_u5 <- bb.res.adm1.unstrat.u5.allsurveys.bench$overall
+res_adm1_nmr <- bb.res.adm1.unstrat.nmr.allsurveys.bench$overall
+res_adm2_u5 <- bb.res.adm2.unstrat.u5.allsurveys.bench$overall
+res_adm2_nmr <- bb.res.adm2.unstrat.nmr.allsurveys.bench$overall
 
 # load admin1.names and admin2.names (map from area id to name)
 load(paste0("Data/", country, "/shapeFiles/gadm41_", country_code,
             "_shp/", country, "_Amat_Names.rda"))
+
+# UN-IGME national crisis adjustments
+igme <- readxl::read_xlsx("CrisisAdjustment/Crisis_Under5_deaths_2022.xlsx")
+
+
+# Prep population from UN-IGME pop and weights ----------------------------
+
+# national pop
+pop <- igme[igme$Country == country, c("Country", "Year", "Pop 0", "Pop 1-4")]
+names(pop) <- c("country", "years", "nat_pop_0_1", "nat_pop_1_5")
+pop$years <- as.integer(floor(pop$years))
+
+# Admin 1: merge on weights and format
+pop_adm1 <- merge(weight.adm1.u1, weight.adm1.u5, by = c("region", "years"))
+names(pop_adm1) <- c("region", "years", "prop_0_1", "prop_1_5")
+pop_adm1$level <- "admin1"
+pop_adm1 <- merge(pop_adm1, admin1.names, by.x = "region", by.y = "Internal")
+names(pop_adm1)[names(pop_adm1) == "GADM"] <- "gadm"
+pop_adm1 <- merge(pop_adm1, pop, by = "years")
+
+# Admin 2: merge on weights and format
+pop_adm2 <- merge(weight.adm2.u1, weight.adm2.u5, by = c("region", "years"))
+names(pop_adm2) <- c("region", "years", "prop_0_1", "prop_1_5")
+pop_adm2$level <- "admin2"
+pop_adm2 <- merge(pop_adm2, admin2.names, by.x = "region", by.y = "Internal")
+names(pop_adm2)[names(pop_adm2) == "GADM"] <- "gadm"
+pop_adm2 <- merge(pop_adm2, pop, by = "years")
+
+# combine and compute area-level population from weights and national pop
+pop <- rbind(pop_adm1, pop_adm2)
+pop$pop_0_1 <- pop$prop_0_1 * pop$nat_pop_0_1
+pop$pop_1_5 <- pop$prop_1_5 * pop$nat_pop_1_5
+
+# final columns: country, level (i.e. admin1, admin2), gadm (area name),
+# region (area code), years, pop_0_1, pop_1_5
+pop <- pop[, c("country", "level", "gadm", "region", "years", "pop_0_1", "pop_1_5")]
 
 
 # utilities ----------------------------------------------------------------
@@ -73,15 +108,17 @@ get_ed_5q0 <- function (df) {
 # Liberia only has admin1 ebola deaths; split to admin2 by pop
 if (country == "Liberia") {
   
-  # create starting point
+  # create empty starting point
   deaths_adm2 <- data.frame(
     country = "Liberia", level = "admin2",
-    gadm = admin2.names$GADM
+    gadm = admin2.names$GADM,
+    region = admin2.names$Internal
   )
   gadm <- rgdal::readOGR(
     dsn = "CrisisAdjustment/gadm41_LBR_shp",
     layer = "gadm41_LBR_2"
   )@data[, c("NAME_1", "NAME_2")]
+  # TODO: does Liberia have multiple admin2 with same name? If yes the following 2 merges will be bad.
   deaths_adm2 <- merge(deaths_adm2, gadm, by.x = "gadm", by.y = "NAME_2")
   
   # merge on admin1 deaths
@@ -164,14 +201,16 @@ if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
   stop("Incomplete merge of Admin 1 location information.")
 }
 df <- df %>% select(region = Internal, years, ed_5q0)
-res_adm1_u5 <- merge(res_adm1_u5, df, by = c("region", "years")) # TODO: right now this will only include years w/ crisis adjustments
-res_adm1_u5 %>%
+res_adm1_u5_crisis <- merge(res_adm1_u5, df, by = c("region", "years"), all=T)
+res_adm1_u5_crisis %>%
+  mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
          upper = upper + ed_5q0,
          variance = NULL,
          mean = NULL) # TODO: do we need variance and mean?
-# TODO: just save this file? Any additional formatting? filename and location?
+save(res_adm1_u5_crisis, paste0("Results/Betabinomial/U5MR/", country,
+                                "_res_adm1_unstrat_u5_allsurveys_bench_crisis.rda"))
 
 # admin2 u5mr
 deaths_adm2 <- deaths %>% filter(level == "admin2")
@@ -183,15 +222,12 @@ if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
   stop("Incomplete merge of Admin 2 location information.")
 }
 df <- df %>% select(region = Internal, years, ed_5q0)
-res_adm2_u5 <- merge(res_adm2_u5, df, by = c("region", "years"))
-res_adm2_u5 %>%
+res_adm2_u5_crisis <- merge(res_adm2_u5, df, by = c("region", "years"), all=T)
+res_adm2_u5_crisis %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
          upper = upper + ed_5q0,
          variance = NULL,
          mean = NULL) # TODO: do we need variance and mean?
-# TODO: just save this file? Any additional formatting? filename and location?
-
-# TODO: for ebola we are not adjusting nmr. Still re-save?
-# TODO: should we adjust nmr for other crises?
-
+save(res_adm2_u5_crisis, paste0("Results/Betabinomial/U5MR/", country,
+                                "_res_adm2_unstrat_u5_allsurveys_bench_crisis.rda"))
