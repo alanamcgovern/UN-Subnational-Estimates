@@ -1,5 +1,5 @@
 ---
-title: "Country Summary: Lesotho"
+title: "Country Summary: Malawi"
 output: 
   pdf_document:
     toc: true
@@ -31,12 +31,12 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 
 <!-- User-defined Arguments -->
 ```{r params}
-country <- "Lesotho"
+country <- "Malawi"
 debugging <- FALSE
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 time.model <- c('rw2','ar1')[2] #time model for BB8
-strata.model <- c("strat", "unstrat")[2]
+strata.model <- c("strat", "unstrat")[1]
 bench.model <- c("", "bench")[2] #this should be equal to 'bench' unless trying to troubleshoot
 
 
@@ -61,10 +61,8 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)],
                   collapse = "/")
 
-## ONLY NEED TO DO IF USING MAC -- change user path to that of your local computer
-user.path <- "/Users/alanamcgovern"
-home.dir <- gsub('~',user.path,home.dir)
-
+## ONLY NEED TO DO IF USING MAC -- changes user path to that of your local computer
+home.dir <- fs::path_expand(home.dir)
 
 knitr::opts_chunk$set(root.dir = home.dir)
 
