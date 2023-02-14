@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Burundi"
+country <- "Guinea"
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
@@ -18,7 +18,7 @@ sd.time.model <- c("rw2", "ar1")[2]
 strata.model <- c("unstrat", "strat")[2]
 
 # specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
-bench.model <- c("", "bench")[1]
+bench.model <- c("", "bench")[2]
 
 # Setup -----------------------------------------------
 ## Load libraries and info ----------------------------------------------------------
