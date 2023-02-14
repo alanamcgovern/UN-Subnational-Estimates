@@ -9,7 +9,7 @@ library(rgdal)
 # Ebola epidemic in West Africa. PLoS computational biology.
 # 2016 Dec 8;12(12):e1005210.
 
-df <- read.table("CrisisAdjustment/ebola.txt", header=T)
+df <- read.table("ebola.txt", header=T)
 
 df <- df %>%
   pivot_longer(cols = starts_with("W")) %>%
@@ -20,7 +20,7 @@ df <- df %>%
   mutate(prop_deaths = deaths / sum(deaths))
 
 # UN-IGME national crisis adjustments
-nat <- readxl::read_xlsx("CrisisAdjustment/Crisis_Under5_deaths_2022.xlsx")
+nat <- readxl::read_xlsx("Crisis_Under5_deaths_2022.xlsx")
 
 
 # Guinea ------------------------------------------------------------------
@@ -137,7 +137,7 @@ save(df_LBR, file = "CrisisAdjustment/crisis_LBR.rda")
 # Get Sierra Leone inputs
 df_SLE <- df %>% filter(country == "SIERRA LEONE")
 gadm_SLE <- readOGR(
-  dsn = "CrisisAdjustment/alt_SLE_shp",
+  dsn = "alt_SLE_shp",
   layer = "sle_adm2_districts_mic_cleaned"
 )
 
@@ -191,9 +191,13 @@ df_SLE_adm1 <- df_SLE_adm1 %>%
   summarise(ed_0_1 = sum(ed_0_1),
             ed_1_5 = sum(ed_1_5))
 
+#alter admin1 names to make compatible w sle_adme_province_mic
+df_SLE_adm1[df_SLE_adm1$gadm=='Western',]$gadm <- 'Western Area'
+df_SLE_adm1[df_SLE_adm1$gadm!='Western Area',]$gadm <- paste0(df_SLE_adm1[df_SLE_adm1$gadm!='Western Area',]$gadm, ' Province')
+
 # combine
 df_SLE <- rbind(df_SLE, df_SLE_adm1)
 
-save(df_SLE, file = "CrisisAdjustment/crisis_SLE.rda")
+save(df_SLE, file = "crisis_SLE.rda")
 
 

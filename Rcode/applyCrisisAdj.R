@@ -6,7 +6,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Liberia'
 # Specify straification of final U5MR model (which was benchmarked)
 mod_label <- c('strat_u5_bench','unstrat_u5_allsurveys_bench')[1]
 
@@ -24,20 +24,19 @@ res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
 
-
 # Load data and results ------------------------------------------------------------------
 
 # excess deaths for admin1 and/or admin2
 if (country != "Haiti") {
-  load(file = paste0("CrisisAdjustment/crisis_", gadm.abbrev, ".rda"))
+  load(file = paste0(home.dir,"/Data/Crisis_Adjustment/crisis_", gadm.abbrev, ".rda"))
   deaths <- get(paste0("df_", gadm.abbrev))
 }
 
 # population weights
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm1_weights_u1.rda"))
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm1_weights_u5.rda"))
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm2_weights_u1.rda"))
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm2_weights_u5.rda"))
+load(paste0(data.dir,'/worldpop/adm1_weights_u1.rda'))
+load(paste0(data.dir,'/worldpop/adm1_weights_u5.rda'))
+load(paste0(data.dir,'/worldpop/adm2_weights_u1.rda'))
+load(paste0(data.dir,'/worldpop/adm2_weights_u5.rda'))
 
 # final admin1 and admin2 benchmarked u5mr without crisis adjustment
 load(paste0(res.dir,"/Betabinomial/U5MR/", country, "_res_adm1_",mod_label,".rda"))
@@ -51,13 +50,13 @@ res_adm2_u5 <- eval(str2lang(paste0('bb.res.adm2.',str_replace_all(mod_label,'_'
 load(paste0(data.dir,'/',poly.path,'/', country, '_Amat_Names.rda'))
 
 # UN-IGME national crisis adjustments
-igme <- readxl::read_xlsx("CrisisAdjustment/Crisis_Under5_deaths_2022.xlsx")
+igme <- readxl::read_xlsx(paste0(home.dir,"/Data/Crisis_Adjustment/Crisis_Under5_deaths_2022.xlsx"))
 
 
 # Prep population from UN-IGME pop and weights ----------------------------
 
 # national pop
-pop <- igme[igme$Country == country, c("Country", "Year", "Pop 0", "Pop 1-4")]
+pop <- igme[igme$ISO3Code == gadm.abbrev, c("Country", "Year", "Pop 0", "Pop 1-4")]
 names(pop) <- c("country", "years", "nat_pop_0_1", "nat_pop_1_5")
 pop$years <- as.integer(floor(pop$years))
 
@@ -117,11 +116,8 @@ if (country == "Liberia") {
     gadm = admin2.names$GADM,
     region = admin2.names$Internal
   )
-  gadm <- rgdal::readOGR(
-    dsn = "CrisisAdjustment/gadm41_LBR_shp",
-    layer = "gadm41_LBR_2"
-  )@data[, c("NAME_1", "NAME_2")]
-  # TODO: does Liberia have multiple admin2 with same name? If yes the following 2 merges will be bad.
+  gadm <- readOGR(dsn = paste0(data.dir,'/',poly.path),encoding = "UTF-8", use_iconv = TRUE,
+                  layer = as.character(poly.layer.adm2))@data[, c("NAME_1", "NAME_2")]
   deaths_adm2 <- merge(deaths_adm2, gadm, by.x = "gadm", by.y = "NAME_2")
   
   # merge on admin1 deaths
@@ -129,13 +125,13 @@ if (country == "Liberia") {
   
   # merge on population and split by proportion
   pop_adm2 <- pop %>% filter(level == "admin2")
-  deaths_adm2 <- merge(deaths_adm2, pop_adm2, by = "gadm")
+  deaths_adm2 <- merge(deaths_adm2, pop_adm2, by = c("gadm",'years'))
   deaths_adm2 <- deaths_adm2 %>%
     group_by(NAME_1) %>%
-    summarise(prop_pop_0_1 = pop_0_1 / sum(pop_0_1),
+    dplyr::mutate(prop_pop_0_1 = pop_0_1 / sum(pop_0_1),
               prop_pop_1_5 = pop_1_5 / sum(pop_1_5)) %>%
-    mutate(ed_0_1 = ed_0_1 * prop_pop_0_1,
-           ed_1_5 = ed_1_5 * prop_pop_1_5)
+    dplyr::mutate(ed_0_1= ed_0_1 * prop_pop_0_1,
+           ed_1_5 = ed_1_5 * prop_pop_1_5) %>% ungroup()
   deaths_adm2 <- deaths_adm2 %>%
     select(country, level, gadm, years, ed_0_1, ed_1_5)
   
@@ -164,10 +160,8 @@ if (country == "Haiti") {
     country = "Haiti", level = "admin2",
     gadm = admin2.names$GADM
   )
-  gadm <- rgdal::readOGR(
-    dsn = "CrisisAdjustment/gadm41_HTI_shp",
-    layer = "gadm41_HTI_2"
-  )@data[, c("NAME_1", "NAME_2")]
+  gadm <- rgdal::readOGR(dsn = paste0(data.dir,'/',poly.path),encoding = "UTF-8", use_iconv = TRUE,
+                         layer = as.character(poly.layer.adm2))@data[, c("NAME_1", "NAME_2")] # load the shape file of admin-1 regions
   deaths_adm2 <- merge(deaths_adm2, gadm, by.x = "gadm", by.y = "NAME_2")
   deaths_adm2 <- deaths_adm2 %>%
     mutate(ed_0_1 = ifelse(NAME_1 == "Ouest", nat_ed_0_1, 0),
@@ -187,6 +181,7 @@ if (country == "Haiti") {
   deaths <- rbind(deaths_adm1, deaths_adm2)
   
 }
+
 
 # Main code ---------------------------------------------------------------
 
@@ -209,7 +204,8 @@ res_adm1_u5_crisis <- res_adm1_u5_crisis %>%
   mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
-         upper = upper + ed_5q0)
+         upper = upper + ed_5q0) %>%
+  dplyr::select(c(region,years,time,area,median,upper,lower,is.yearly))
 save(res_adm1_u5_crisis, file=paste0(res.dir,"/Betabinomial/U5MR/", country,
                                 "_res_adm1_", mod_label,"_crisis.rda"))
 
@@ -225,8 +221,13 @@ if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
 df <- df %>% select(region = Internal, years, ed_5q0)
 res_adm2_u5_crisis <- merge(res_adm2_u5, df, by = c("region", "years"), all=T)
 res_adm2_u5_crisis <- res_adm2_u5_crisis %>%
+  mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
-         upper = upper + ed_5q0) 
+         upper = upper + ed_5q0) %>%
+  dplyr::select(c(region,years,time,area,median,upper,lower,is.yearly))
 save(res_adm2_u5_crisis,  file=paste0(res.dir,"/Betabinomial/U5MR/", country,
                                       "_res_adm2_", mod_label,"_crisis.rda"))
+
+
+
