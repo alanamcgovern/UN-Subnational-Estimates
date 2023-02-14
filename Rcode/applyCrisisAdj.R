@@ -1,51 +1,54 @@
 
 # Take as input subnational excess deaths, population counts, and
-# benchmarked nmr and u5mr without crisis adjustment, and save final
+# benchmarked u5mr without crisis adjustment, and save final
 # crisis-adjusted qx
 
-country <- "Guinea" # change this to run for another country
+rm(list = ls())
+# ENTER COUNTRY OF INTEREST -----------------------------------------------
+# Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
+country <- 'Guinea'
+# Specify straification of final U5MR model (which was benchmarked)
+mod_label <- c('strat_u5_bench','unstrat_u5_allsurveys_bench')[1]
 
-# setup -------------------------------------------------------------------
-
+# Load libraries and info ----------------------------------------------------------
 library(tidyverse)
 
-country_code <- switch(country,
-  "Guinea" = "GIN",
-  "Liberia" = "LBR",
-  "Sierra Leone" = "SLE",
-  "Myanmar" = "MMR",
-  "Haiti" = "HTI"
-)
+# extract file location of this script
+code.path <- rstudioapi::getActiveDocumentContext()$path
+code.path.splitted <- strsplit(code.path, "/")[[1]]
 
-# inputs ------------------------------------------------------------------
+# retrieve directories
+home.dir <- paste(code.path.splitted[1: (length(code.path.splitted)-2)], collapse = "/")
+data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+res.dir <- paste0(home.dir,'/Results/',country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
+info.name <- paste0(country, "_general_info.Rdata")
+load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
+
+
+# Load data and results ------------------------------------------------------------------
 
 # excess deaths for admin1 and/or admin2
 if (country != "Haiti") {
-  load(file = paste0("CrisisAdjustment/crisis_", country_code, ".rda"))
-  deaths <- get(paste0("df_", country_code))
+  load(file = paste0("CrisisAdjustment/crisis_", gadm.abbrev, ".rda"))
+  deaths <- get(paste0("df_", gadm.abbrev))
 }
 
 # population weights
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm1_weights_u1.rda"))
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm1_weights_u5.rda"))
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm2_weights_u1.rda"))
-load(file = paste0("CrisisAdjustment/adm_weights/", tolower(country_code), "_adm2_weights_u5.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm1_weights_u1.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm1_weights_u5.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm2_weights_u1.rda"))
+load(file = paste0("CrisisAdjustment/adm_weights/", tolower(gadm.abbrev), "_adm2_weights_u5.rda"))
 
-# final admin1 and admin2 benchmarked nmr and u5mr without crisis adjustment
-load(paste0("Results/Betabinomial/U5MR/", country, "_res_adm1_unstrat_u5_allsurveys_bench.rda"))
-load(paste0("Results/Betabinomial/NMR/", country, "_res_adm1_unstrat_nmr_allsurveys_bench.rda"))
-load(paste0("Results/Betabinomial/U5MR/", country, "_res_adm2_unstrat_u5_allsurveys_bench.rda"))
-load(paste0("Results/Betabinomial/NMR/", country, "_res_adm2_unstrat_nmr_allsurveys_bench.rda"))
+# final admin1 and admin2 benchmarked u5mr without crisis adjustment
+load(paste0(res.dir,"/Betabinomial/U5MR/", country, "_res_adm1_",mod_label,".rda"))
+load(paste0(res.dir,"/Betabinomial/U5MR/", country, "_res_adm2_", mod_label, ".rda"))
 
 # simplify names of objects above
-res_adm1_u5 <- bb.res.adm1.unstrat.u5.allsurveys.bench$overall
-res_adm1_nmr <- bb.res.adm1.unstrat.nmr.allsurveys.bench$overall
-res_adm2_u5 <- bb.res.adm2.unstrat.u5.allsurveys.bench$overall
-res_adm2_nmr <- bb.res.adm2.unstrat.nmr.allsurveys.bench$overall
+res_adm1_u5 <- eval(str2lang(paste0('bb.res.adm1.',str_replace_all(mod_label,'_','.'),'$overall')))
+res_adm2_u5 <- eval(str2lang(paste0('bb.res.adm2.',str_replace_all(mod_label,'_','.'),'$overall')))
 
 # load admin1.names and admin2.names (map from area id to name)
-load(paste0("Data/", country, "/shapeFiles/gadm41_", country_code,
-            "_shp/", country, "_Amat_Names.rda"))
+load(paste0(data.dir,'/',poly.path,'/', country, '_Amat_Names.rda'))
 
 # UN-IGME national crisis adjustments
 igme <- readxl::read_xlsx("CrisisAdjustment/Crisis_Under5_deaths_2022.xlsx")
@@ -202,15 +205,13 @@ if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
 }
 df <- df %>% select(region = Internal, years, ed_5q0)
 res_adm1_u5_crisis <- merge(res_adm1_u5, df, by = c("region", "years"), all=T)
-res_adm1_u5_crisis %>%
+res_adm1_u5_crisis <- res_adm1_u5_crisis %>%
   mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
-         upper = upper + ed_5q0,
-         variance = NULL,
-         mean = NULL) # TODO: do we need variance and mean?
-save(res_adm1_u5_crisis, paste0("Results/Betabinomial/U5MR/", country,
-                                "_res_adm1_unstrat_u5_allsurveys_bench_crisis.rda"))
+         upper = upper + ed_5q0)
+save(res_adm1_u5_crisis, file=paste0(res.dir,"/Betabinomial/U5MR/", country,
+                                "_res_adm1_", mod_label,"_crisis.rda"))
 
 # admin2 u5mr
 deaths_adm2 <- deaths %>% filter(level == "admin2")
@@ -223,11 +224,9 @@ if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
 }
 df <- df %>% select(region = Internal, years, ed_5q0)
 res_adm2_u5_crisis <- merge(res_adm2_u5, df, by = c("region", "years"), all=T)
-res_adm2_u5_crisis %>%
+res_adm2_u5_crisis <- res_adm2_u5_crisis %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
-         upper = upper + ed_5q0,
-         variance = NULL,
-         mean = NULL) # TODO: do we need variance and mean?
-save(res_adm2_u5_crisis, paste0("Results/Betabinomial/U5MR/", country,
-                                "_res_adm2_unstrat_u5_allsurveys_bench_crisis.rda"))
+         upper = upper + ed_5q0) 
+save(res_adm2_u5_crisis,  file=paste0(res.dir,"/Betabinomial/U5MR/", country,
+                                      "_res_adm2_", mod_label,"_crisis.rda"))
