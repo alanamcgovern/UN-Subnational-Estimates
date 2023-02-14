@@ -137,18 +137,26 @@ save(df_LBR, file = "CrisisAdjustment/crisis_LBR.rda")
 # Get Sierra Leone inputs
 df_SLE <- df %>% filter(country == "SIERRA LEONE")
 gadm_SLE <- readOGR(
-  dsn = "CrisisAdjustment/gadm41_SLE_shp",
-  layer = "gadm41_SLE_2"
+  dsn = "CrisisAdjustment/alt_SLE_shp",
+  layer = "sle_adm2_districts_mic_cleaned"
 )
 
 # compare adm2 we have versus what we need (gadm)
-adm2_SLE <- unique(gadm_SLE$NAME_2)
+adm2_SLE <- unique(gadm_SLE$new_distri)
 setdiff(adm2_SLE, df_SLE$prefecture) %>% sort()
 setdiff(df_SLE$prefecture, adm2_SLE) %>% sort()
 
 # fix difference in naming
-df_SLE[df_SLE$prefecture == "Freetown",]$prefecture <- "Western Urban"
-df_SLE[df_SLE$prefecture == "West Rural",]$prefecture <- "Western Rural"
+df_SLE[df_SLE$prefecture == "Freetown",]$prefecture <- "Western Area Urban"
+df_SLE[df_SLE$prefecture == "West Rural",]$prefecture <- "Western Area Rural"
+
+# add regions which had no ebola
+df_SLE <- rbind(df_SLE, data.frame(
+  prefecture = c("Karene",'Falaba'),
+  country = c("SIERRA LEONE","SIERRA LEONE"),
+  deaths = c(0,0),
+  prop_deaths = c(0,0)
+))
 
 # get national crisis death counts
 nat_SLE <- nat %>%
@@ -173,12 +181,12 @@ df_SLE <- df_SLE %>%
 
 # aggregate to Admin1
 df_SLE_adm1 <- merge(
-  df_SLE, select(gadm_SLE@data, gadm = NAME_2, NAME_1),
+  df_SLE, select(gadm_SLE@data, gadm = new_distri, district_2),
   by = "gadm"
 )
 df_SLE_adm1 <- df_SLE_adm1 %>%
   mutate(level = "admin1") %>%
-  select(country, level, gadm = NAME_1, years, ed_0_1, ed_1_5) %>%
+  select(country, level, gadm = district_2, years, ed_0_1, ed_1_5) %>%
   group_by(country, level, gadm, years) %>%
   summarise(ed_0_1 = sum(ed_0_1),
             ed_1_5 = sum(ed_1_5))
