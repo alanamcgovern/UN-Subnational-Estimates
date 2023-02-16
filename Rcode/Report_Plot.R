@@ -978,7 +978,7 @@ if(exists('poly.layer.adm2')){
     message("Loading Admin-2", bench_str, " ", strata_str, 
             " BB8 U5MR results using surveys ",
             "from a single frame from \n", u5.filename, ".\n" )
-  }else if(bench.model == "" & (paste0(country, '_res_adm1_',
+  }else if(bench.model == "" & (paste0(country, '_res_adm2_',
                                        strata.model, "_u5.rda") %in% 
                                 list.files("Betabinomial/U5MR/"))){
     
