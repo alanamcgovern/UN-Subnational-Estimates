@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Guinea"
+country <- "Malawi"
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
@@ -182,6 +182,13 @@ if(exists('poly.layer.adm2')){
 # set coordinate reference system to be equal
 if(exists("poly.adm2")){
   proj4string(poly.adm1)  <- proj4string(poly.adm2)
+}
+
+if(country=='Malawi'){
+  adm1_adm2_link <- read.csv(paste0(poly.path,'/MWI_adm1_to_adm2.csv'))
+  polyfile_merge <- merge(poly.adm2@data,adm1_adm2_link,by.x='NAME_1',by.y='Admin.2')
+  polyfile_merge$DHSREGEN <- polyfile_merge$Admin.1
+  poly.adm2@data <- polyfile_merge[,!names(polyfile_merge) == 'Admin.1']
 }
 
 if(country=='Uganda'){
@@ -1909,7 +1916,6 @@ for(outcome in c("nmr", "u5")){
 }
 
 ## Maps ####
-### Make map ####
 ### Make map ####
 years_vt <- plot.years
 n_years <- length(years_vt)
