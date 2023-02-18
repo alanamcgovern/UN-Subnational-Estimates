@@ -1569,52 +1569,10 @@ for(outcome in c("nmr", "u5")){
 }
 
 ## Maps ####
-### Get posterior samples frame ####
+### Make map ####
 years_vt <- plot.years
 n_years <- length(years_vt)
-n_samp <- 1000
 bench_str <- ifelse(bench.model == "", "", "_bench")
-for(outcome in c("nmr", "u5")){
-  
-  if(!file.exists(paste0("Betabinomial/", country, "_adm2_",
-                         strata.model, "_", time.model, "_",
-                         outcome, bench_str, "_postsamp.rda"))){
-    
-    if(strata.model == "unstrat" & bench.model==''){
-      res_obj <- eval(str2lang(paste0("bb.res.adm2.unstrat.", outcome)))
-    }else if(strata.model == "unstrat" & bench.model=='bench'){
-      res_obj <- eval(str2lang(paste0("bb.res.adm2.unstrat.", outcome,'.bench')))
-    }else if(strata.model == "strat" & bench.model==''){
-      res_obj <- eval(str2lang(paste0("bb.res.adm2.strat.", outcome)))
-    }else if(strata.model == "strat" & bench.model=='bench'){
-      res_obj <- eval(str2lang(paste0("bb.res.adm2.strat.", outcome,'.bench')))
-    }
-    
-    draws_list <- res_obj$draws.est
-    n_admin <- length(draws_list)/n_years
-    
-    postsamp_mt_list <- vector(mode = "list", length = n_years)
-    
-    
-    for (i in 1:n_years){
-      postsamp_mt_list[[i]]$years <- years_vt[i]
-      postsamp_mt <- matrix(0, nrow = n_admin, ncol = n_samp)
-      
-      for(j in 1:n_admin){
-        postsamp_mt[j, ] <- draws_list[[n_years*(j-1)+i]]$draws
-      }
-      
-      postsamp_mt_list[[i]]$postsamp_mt <- postsamp_mt
-    }
-    
-    save(postsamp_mt_list, 
-         file = paste0("Betabinomial/", country, "_adm2_",
-                       strata.model, "_", time.model, "_",
-                       outcome, bench_str, "_postsamp.rda"))
-  }
-}
-
-### Make map ####
 country_code_dt <- data.table(Country = country,
                               code = gadm.abbrev)
 admin_level_dt <- data.table(Admin = "admin2", level = 2)
@@ -1623,17 +1581,13 @@ admin_name_dt <- as.data.table(admin2.names)
 for(outcome in c("nmr", "u5")){
   
   tmp.dir <- ifelse(outcome == "u5", "u5mr", outcome)
-  ## Load postsamp list
-  load(paste0("Betabinomial/", country, "_adm2_",
-              strata.model, "_", time.model, "_",
-              outcome, bench_str, "_postsamp.rda"))
+  
   
   data_plot_dt <- NULL
   
   for(year in years_vt){
-    cond <- lapply(postsamp_mt_list, function(x){x$years == year})
-    postsamp_mt <- postsamp_mt_list[unlist(cond)][[1]]$postsamp_mt
-    
+    cond <- tmp_plot[[outcome]][tmp_plot[[outcome]]$years.num == year,]
+  
     # create plotting area names (just admin 1 name if admin = 1,
     # or 'admin2,\n admin1' if admin = 2)
     # if this part is not working, please revist how
@@ -1643,28 +1597,19 @@ for(outcome in c("nmr", "u5")){
     # create data to plot
     data_plot_dt_year <- 
       data.table(Year = year, 
-                 Internal = admin_name_dt[, Internal],
-                 GADM = admin_name_dt[, GADM],
-                 nameToPlot = admin_name_dt[, nameToPlot],
-                 U5MR_mean = apply(postsamp_mt, 1, mean, na.rm = T),
-                 U5MR_median = apply(postsamp_mt, 1, median, na.rm = T),
-                 U5MR_sd = apply(postsamp_mt, 1, sd, na.rm = T),
-                 U5MR_low95 = apply(postsamp_mt, 1, quantile, 0.025, na.rm = T),
-                 U5MR_up95 = apply(postsamp_mt, 1, quantile, 0.975, na.rm = T),
-                 U5MR_low90 = apply(postsamp_mt, 1, quantile, 0.05, na.rm = T),
-                 U5MR_up90 = apply(postsamp_mt, 1, quantile, 0.95, na.rm = T),
-                 U5MR_low80 = apply(postsamp_mt, 1, quantile, 0.1, na.rm = T),
-                 U5MR_up80 = apply(postsamp_mt, 1, quantile, 0.9, na.rm = T))
+                 Internal = cond$region.orig,
+                 GADM = admin_name_dt[match(admin_name_dt$Internal,
+                                            cond$region.orig), GADM],
+                 nameToPlot = admin_name_dt[match(admin_name_dt$Internal,
+                                                  cond$region.orig), nameToPlot],
+                 U5MR_median = cond$median)
     
     data_plot_dt_year[, "NAME_2" := GADM]
     
     data_plot_dt <- rbind(data_plot_dt, data_plot_dt_year)
   }
   
-  data_plot_dt[, "U5MR_wid95" := U5MR_up95 - U5MR_low95]
-  data_plot_dt[, "U5MR_wid90" := U5MR_up90 - U5MR_low90]
-  data_plot_dt[, "U5MR_wid80" := U5MR_up80 - U5MR_low80]
-  
+ 
   rowcount <- ceiling(length(years_vt)/5)
   
   pdf(paste0("Figures/Summary/", toupper(tmp.dir),
@@ -1964,52 +1909,13 @@ for(outcome in c("nmr", "u5")){
 }
 
 ## Maps ####
-### Get posterior samples frame ####
+### Make map ####
+### Make map ####
 years_vt <- plot.years
 n_years <- length(years_vt)
-n_samp <- 1000
 bench_str <- ifelse(bench.model == "", "", "_bench")
-for(outcome in c("nmr", "u5")){
-  
-  if(!file.exists(paste0("Betabinomial/", country, "_adm1_",
-                         strata.model, "_", time.model, "_",
-                         outcome, bench_str, "_postsamp.rda"))){
-    
-    if(strata.model == "unstrat" & bench.model==''){
-      res_obj <- eval(str2lang(paste0("bb.res.adm1.unstrat.", outcome)))
-    }else if(strata.model == "unstrat" & bench.model=='bench'){
-      res_obj <- eval(str2lang(paste0("bb.res.adm1.unstrat.", outcome,'.bench')))
-    }else if(strata.model == "strat" & bench.model==''){
-      res_obj <- eval(str2lang(paste0("bb.res.adm1.strat.", outcome)))
-    }else if(strata.model == "strat" & bench.model=='bench'){
-      res_obj <- eval(str2lang(paste0("bb.res.adm1.strat.", outcome,'.bench')))
-    }
-    
-    draws_list <- res_obj$draws.est
-    n_admin <- length(draws_list)/n_years
-    
-    postsamp_mt_list <- vector(mode = "list", length = n_years)
-    
-    
-    for (i in 1:n_years){
-      postsamp_mt_list[[i]]$years <- years_vt[i]
-      postsamp_mt <- matrix(0, nrow = n_admin, ncol = n_samp)
-      
-      for(j in 1:n_admin){
-        postsamp_mt[j, ] <- draws_list[[n_years*(j-1)+i]]$draws
-      }
-      
-      postsamp_mt_list[[i]]$postsamp_mt <- postsamp_mt
-    }
-    
-    save(postsamp_mt_list, 
-         file = paste0("Betabinomial/", country, "_adm1_",
-                       strata.model, "_", time.model, "_",
-                       outcome, bench_str, "_postsamp.rda"))
-  }
-}
-
-### Make map ####
+country_code_dt <- data.table(Country = country,
+                              code = gadm.abbrev)
 country_code_dt <- data.table(Country = country,
                               code = gadm.abbrev)
 admin_level_dt <- data.table(Admin = "admin1", level = 2)
@@ -2018,16 +1924,13 @@ admin_name_dt <- as.data.table(admin1.names)
 for(outcome in c("nmr", "u5")){
   
   tmp.dir <- ifelse(outcome == "u5", "u5mr", outcome)
-  ## Load postsamp list
-  load(paste0("Betabinomial/", country, "_adm1_",
-              strata.model, "_", time.model, "_",
-              outcome, bench_str, "_postsamp.rda"))
+
   
   data_plot_dt <- NULL
   
   for(year in years_vt){
-    cond <- lapply(postsamp_mt_list, function(x){x$years == year})
-    postsamp_mt <- postsamp_mt_list[unlist(cond)][[1]]$postsamp_mt
+    
+    cond <- tmp_plot[[outcome]][tmp_plot[[outcome]]$years.num == year,]
     
     # create plotting area names (just admin 1 name if admin = 1,
     # or 'admin2,\n admin1' if admin = 2)
@@ -2036,27 +1939,16 @@ for(outcome in c("nmr", "u5")){
     # create data to plot
     data_plot_dt_year <- 
       data.table(Year = year, 
-                 Internal = admin_name_dt[, Internal],
-                 GADM = admin_name_dt[, GADM],
-                 nameToPlot = admin_name_dt[, nameToPlot],
-                 U5MR_mean = apply(postsamp_mt, 1, mean, na.rm = T),
-                 U5MR_median = apply(postsamp_mt, 1, median, na.rm = T),
-                 U5MR_sd = apply(postsamp_mt, 1, sd, na.rm = T),
-                 U5MR_low95 = apply(postsamp_mt, 1, quantile, 0.025, na.rm = T),
-                 U5MR_up95 = apply(postsamp_mt, 1, quantile, 0.975, na.rm = T),
-                 U5MR_low90 = apply(postsamp_mt, 1, quantile, 0.05, na.rm = T),
-                 U5MR_up90 = apply(postsamp_mt, 1, quantile, 0.95, na.rm = T),
-                 U5MR_low80 = apply(postsamp_mt, 1, quantile, 0.1, na.rm = T),
-                 U5MR_up80 = apply(postsamp_mt, 1, quantile, 0.9, na.rm = T))
+                 Internal = cond$region.orig,
+                 GADM = cond$region,
+                 nameToPlot = admin_name_dt[match(admin_name_dt$Internal,
+                                                  cond$region.orig), nameToPlot],
+                 U5MR_median = cond$median)
     
     data_plot_dt_year[, "NAME_1" := GADM]
     
     data_plot_dt <- rbind(data_plot_dt, data_plot_dt_year)
   }
-  
-  data_plot_dt[, "U5MR_wid95" := U5MR_up95 - U5MR_low95]
-  data_plot_dt[, "U5MR_wid90" := U5MR_up90 - U5MR_low90]
-  data_plot_dt[, "U5MR_wid80" := U5MR_up80 - U5MR_low80]
   
   rowcount <- ceiling(length(years_vt)/5)
   
