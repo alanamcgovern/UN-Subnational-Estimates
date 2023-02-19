@@ -110,32 +110,31 @@ get_ed_5q0 <- function (df) {
 # Liberia only has admin1 ebola deaths; split to admin2 by pop
 if (country == "Liberia") {
   
-  # create empty starting point
-  deaths_adm2 <- data.frame(
-    country = "Liberia", level = "admin2",
-    gadm = admin2.names$GADM,
-    region = admin2.names$Internal
-  )
-  gadm <- readOGR(dsn = paste0(data.dir,'/',poly.path),encoding = "UTF-8", use_iconv = TRUE,
-                  layer = as.character(poly.layer.adm2))@data[, c("NAME_1", "NAME_2")]
-  deaths_adm2 <- merge(deaths_adm2, gadm, by.x = "gadm", by.y = "NAME_2")
+  #load data to get admin2 labels
+  load(paste0(data.dir,'/',country,'_cluster_dat.rda'),envir = .GlobalEnv)
+  
+  deaths_adm2 <- mod.dat %>% dplyr::select(c(admin2.char,admin1.name,admin2.name)) %>% 
+    rename(gadm=admin2.name,region=admin2.char) %>%unique()
+  deaths_adm2$country <- 'Liberia'
+  deaths_adm2$level <- 'admin2'
   
   # merge on admin1 deaths
-  deaths_adm2 <- merge(deaths_adm2, deaths, by.x = "NAME_1", by.y = "gadm", all = T)
+  deaths_adm2 <- merge(deaths_adm2, deaths, by.x = "admin1.name", by.y = "gadm", all = T)
   
   # merge on population and split by proportion
   pop_adm2 <- pop %>% filter(level == "admin2")
-  deaths_adm2 <- merge(deaths_adm2, pop_adm2, by = c("gadm",'years'))
+  deaths_adm2 <- merge(deaths_adm2, pop_adm2, by = c("region",'years'))
   deaths_adm2 <- deaths_adm2 %>%
-    group_by(NAME_1) %>%
+    group_by(admin1.name) %>%
     dplyr::mutate(prop_pop_0_1 = pop_0_1 / sum(pop_0_1),
               prop_pop_1_5 = pop_1_5 / sum(pop_1_5)) %>%
     dplyr::mutate(ed_0_1= ed_0_1 * prop_pop_0_1,
            ed_1_5 = ed_1_5 * prop_pop_1_5) %>% ungroup()
   deaths_adm2 <- deaths_adm2 %>%
-    select(country, level, gadm, years, ed_0_1, ed_1_5)
+    select(country.x, level.x, gadm.x, region, years, ed_0_1, ed_1_5) %>% rename(country=country.x,level=level.x,gadm=gadm.x)
   
   # combine
+  deaths <- merge(deaths,admin1.names,by.x='gadm',by.y='GADM') %>% rename(region = Internal)
   deaths <- rbind(deaths, deaths_adm2)
 }
 
@@ -192,13 +191,13 @@ if (country == "Haiti") {
 # admin1 u5mr
 deaths_adm1 <- deaths %>% filter(level == "admin1")
 pop_adm1 <- pop %>% filter(level == "admin1")
-df <- merge(deaths_adm1, pop_adm1, by = c("gadm", "years"))
+df <- merge(deaths_adm1, pop_adm1, by = c("region", "years"))
 df <- get_ed_5q0(df) # convert deaths to qx
-df <- merge(df, admin1.names, by.x = "gadm", by.y = "GADM", all=T)
+df <- merge(df, admin1.names, by.x = "region", by.y = "Internal", all=T)
 if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
   stop("Incomplete merge of Admin 1 location information.")
 }
-df <- df %>% select(region = Internal, years, ed_5q0)
+df <- df %>% select(region, years, ed_5q0)
 res_adm1_u5_crisis <- merge(res_adm1_u5, df, by = c("region", "years"), all=T)
 res_adm1_u5_crisis <- res_adm1_u5_crisis %>%
   mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
@@ -212,13 +211,9 @@ save(res_adm1_u5_crisis, file=paste0(res.dir,"/Betabinomial/U5MR/", country,
 # admin2 u5mr
 deaths_adm2 <- deaths %>% filter(level == "admin2")
 pop_adm2 <- pop %>% filter(level == "admin2")
-df <- merge(deaths_adm2, pop_adm2, by = c("gadm", "years"))
+df <- merge(deaths_adm2, pop_adm2, by = c("region", "years"))
 df <- get_ed_5q0(df) # convert deaths to qx
-df <- merge(df, admin2.names, by.x = "gadm", by.y = "GADM", all=T)
-if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
-  stop("Incomplete merge of Admin 2 location information.")
-}
-df <- df %>% select(region = Internal, years, ed_5q0)
+df <- df %>% select(region, years, ed_5q0)
 res_adm2_u5_crisis <- merge(res_adm2_u5, df, by = c("region", "years"), all=T)
 res_adm2_u5_crisis <- res_adm2_u5_crisis %>%
   mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
