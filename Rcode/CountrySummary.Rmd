@@ -1,5 +1,5 @@
 ---
-title: "Country Summary: Mauritania"
+title: "Country Summary: Sierra Leone"
 output: 
   pdf_document:
     toc: true
@@ -32,7 +32,7 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 <!-- User-defined Arguments -->
 ```{r params}
 
-country <- "Mauritania"
+country <- "Sierra_Leone"
 debugging <- FALSE
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
@@ -80,6 +80,12 @@ data.dir <- paste0(home.dir,'/Data/', country)
 # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 
 res.dir <- paste0(home.dir,'/Results/', country)
+
+if(grep('_',country)>0){
+  country_print <- gsub('_',' ',country)
+}else{
+  country_print <- country
+}
 ```
 
 
@@ -203,9 +209,9 @@ These estimates are created using `r ifelse(strata.model == "unstrat", "an unstr
 
 ```{r,  results='asis'}
 if(exists('poly.layer.adm2')){
-  cat("\n",country, ' has ', nrow(admin1.names), ' Admin 1 areas and ', nrow(admin2.names), 'Admin 2 areas. \n')
+  cat("\n",country_print, ' has ', nrow(admin1.names), ' Admin 1 areas and ', nrow(admin2.names), 'Admin 2 areas. \n')
 }else{
-  cat("\n", country, ' has ', nrow(admin1.names), ' Admin 1 areas. \n')
+  cat("\n", country_print, ' has ', nrow(admin1.names), ' Admin 1 areas. \n')
 }
 ```
 
@@ -239,7 +245,7 @@ clus.printxtable <- xtable(clus.xtable,
                            align = "ccccc",
                            caption =
                              paste0("Number of clusters by urban/rural ",
-                                    "designation by survey for ", country, "."))
+                                    "designation by survey for ", country_print, "."))
 print.xtable(clus.printxtable, 
              comment = F, 
              include.rownames = F)
@@ -266,7 +272,7 @@ sum.print <- xtableList(sum.tableList,
                         align = "cccc", 
                         caption = paste0("Numbers of agemonths and deaths by ",
                                          "age group for each survey used ",
-                                         "in analysis for ", country, "."))
+                                         "in analysis for ", country_print, "."))
 
 if(length(sum.print) > 1){
   print.xtableList(sum.print,
@@ -372,7 +378,7 @@ coefs.xtable <- xtable(coefs_tab,
                                 "children by age band for the Admin-1, ",
                                 bench_cap_str, " ", strata_cap_str,
                                 " model for ",
-                                country, "."))
+                                country_print, "."))
 print.xtable(coefs.xtable, 
              comment = F, 
              include.rownames = F,
