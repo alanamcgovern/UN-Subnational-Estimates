@@ -472,7 +472,8 @@ if(country=='Uganda'){
   
   load(file = paste0("Direct/NMR/",  nmr.filename))
   load(file = paste0("Direct/U5MR/",  u5.filename))
-  adm1.dir.reg <- direct.admin1.nmr$region
+  adm1.dir.reg.nmr <- direct.admin1.nmr$region
+  adm1.dir.reg.u5 <- direct.admin1.u5$region
   adm1.dir.est.nmr <- direct.admin1.nmr[direct.admin1.nmr$years %in%
                                           period.years, "mean"]
   adm1.dir.lower.nmr <- direct.admin1.nmr[direct.admin1.nmr$years %in% 
@@ -493,11 +494,14 @@ if(country=='Uganda'){
                                          period.years, "years"]
   adm1.dir.svy.u5 <- direct.admin1.u5[direct.admin1.u5$years %in%
                                         period.years, "surveyYears"]
-  adm1.dir.frame <- data.frame()
-  adm1.dir.frame <- data.frame(region = adm1.dir.reg,
-                               lower_nmr=adm1.dir.lower.nmr, 
-                               median_nmr=adm1.dir.est.nmr,
-                               upper_nmr=adm1.dir.upper.nmr, 
+  adm1.dir.frame.nmr <- data.frame(region = adm1.dir.reg.nmr,
+                                   lower_nmr=adm1.dir.lower.nmr, 
+                                   median_nmr=adm1.dir.est.nmr,
+                                   upper_nmr=adm1.dir.upper.nmr, 
+                                   method='adm1.dir',
+                                   years=adm1.dir.year.nmr,
+                                   surveyYears = adm1.dir.svy.nmr)
+  adm1.dir.frame.u5 <- data.frame(region = adm1.dir.reg.u5,
                                lower_u5=adm1.dir.lower.u5,
                                median_u5=adm1.dir.est.u5, 
                                upper_u5=adm1.dir.upper.u5, 
@@ -505,7 +509,11 @@ if(country=='Uganda'){
                                years=adm1.dir.year.u5,
                                surveyYears = adm1.dir.svy.u5)
   
-  
+  adm1.dir.frame <- data.frame(region = admin1.names$Internal) %>% 
+    full_join(adm1.dir.frame.nmr,
+              by = "region") %>% 
+    full_join(adm1.dir.frame.u5 %>% 
+                by = c("region", "method", "years", "surveyYears"))
   
   ## SD 3-year ####
   nmr.filename <- paste0(country, '_res_admin1_', sd.time.model,
@@ -789,7 +797,8 @@ if(exists('poly.layer.adm2')){
   
   load(file = paste0("Direct/NMR/",  nmr.filename))
   load(file = paste0("Direct/U5MR/",  u5.filename))
-  adm2.dir.reg <- direct.admin2.nmr$region
+  adm2.dir.reg.nmr <- direct.admin2.nmr$region
+  adm2.dir.reg.u5 <- direct.admin2.u5$region
   adm2.dir.est.nmr <- direct.admin2.nmr[direct.admin2.nmr$years %in%
                                           period.years, "mean"]
   adm2.dir.lower.nmr <- direct.admin2.nmr[direct.admin2.nmr$years %in% 
@@ -810,17 +819,25 @@ if(exists('poly.layer.adm2')){
                                          period.years, "years"]
   adm2.dir.svy.u5 <- direct.admin2.u5[direct.admin2.u5$years %in%
                                         period.years, "surveyYears"]
-  adm2.dir.frame <- data.frame()
-  adm2.dir.frame <- data.frame(region = adm2.dir.reg,
-                               lower_nmr=adm2.dir.lower.nmr, 
-                               median_nmr=adm2.dir.est.nmr,
-                               upper_nmr=adm2.dir.upper.nmr, 
+  adm2.dir.nmr.frame <- data.frame(region = adm2.dir.reg.nmr,
+                                   lower_nmr=adm2.dir.lower.nmr, 
+                                   median_nmr=adm2.dir.est.nmr,
+                                   upper_nmr=adm2.dir.upper.nmr,
+                                   method='adm2.dir',
+                                   years=adm2.dir.year.nmr,
+                                   surveyYears = adm2.dir.svy.nmr)
+  adm2.dir.u5.frame <- data.frame(region = adm2.dir.reg.u5, 
                                lower_u5=adm2.dir.lower.u5,
                                median_u5=adm2.dir.est.u5, 
                                upper_u5=adm2.dir.upper.u5, 
                                method='adm2.dir',
                                years=adm2.dir.year.u5,
                                surveyYears = adm2.dir.svy.u5)
+  adm2.dir.frame <- data.frame(region = admin2.names$Internal) %>% 
+    full_join(adm2.dir.nmr.frame,
+              by = "region") %>% 
+    full_join(adm2.dir.u5.frame,
+              by = c("region", "method", "years", "surveyYears"))
   
   
   
