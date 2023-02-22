@@ -7,19 +7,19 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Malawi"
+country <- "Senegal"
+
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
-time.model <- c('rw2','ar1')[2]
+time.model <- c('rw2','ar1')[1]
 # specify time model for smoothed direct
-sd.time.model <- c("rw2", "ar1")[2]
+sd.time.model <- c("rw2", "ar1")[1]
 # specify stratification for BB8 model
-
-# specify whether benchmarked or not
 strata.model <- c("unstrat", "strat")[2]
 
 # specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
+
 bench.model <- c("", "bench")[2]
 
 # Setup -----------------------------------------------
@@ -57,7 +57,9 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- paste0("R://Project/STAB/", country)
+
 
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
@@ -472,7 +474,10 @@ if(country=='Uganda'){
   
   load(file = paste0("Direct/NMR/",  nmr.filename))
   load(file = paste0("Direct/U5MR/",  u5.filename))
-  adm1.dir.reg <- direct.admin1.nmr$region
+  adm1.dir.reg.nmr <- direct.admin1.nmr[direct.admin1.nmr$years %in%
+                                          period.years, "region"]
+  adm1.dir.reg.u5 <- direct.admin1.u5[direct.admin1.u5$years %in%
+                                        period.years, "region"]
   adm1.dir.est.nmr <- direct.admin1.nmr[direct.admin1.nmr$years %in%
                                           period.years, "mean"]
   adm1.dir.lower.nmr <- direct.admin1.nmr[direct.admin1.nmr$years %in% 
@@ -493,11 +498,14 @@ if(country=='Uganda'){
                                          period.years, "years"]
   adm1.dir.svy.u5 <- direct.admin1.u5[direct.admin1.u5$years %in%
                                         period.years, "surveyYears"]
-  adm1.dir.frame <- data.frame()
-  adm1.dir.frame <- data.frame(region = adm1.dir.reg,
-                               lower_nmr=adm1.dir.lower.nmr, 
-                               median_nmr=adm1.dir.est.nmr,
-                               upper_nmr=adm1.dir.upper.nmr, 
+  adm1.dir.frame.nmr <- data.frame(region = adm1.dir.reg.nmr,
+                                   lower_nmr=adm1.dir.lower.nmr, 
+                                   median_nmr=adm1.dir.est.nmr,
+                                   upper_nmr=adm1.dir.upper.nmr, 
+                                   method='adm1.dir',
+                                   years=adm1.dir.year.nmr,
+                                   surveyYears = adm1.dir.svy.nmr)
+  adm1.dir.frame.u5 <- data.frame(region = adm1.dir.reg.u5,
                                lower_u5=adm1.dir.lower.u5,
                                median_u5=adm1.dir.est.u5, 
                                upper_u5=adm1.dir.upper.u5, 
@@ -505,7 +513,11 @@ if(country=='Uganda'){
                                years=adm1.dir.year.u5,
                                surveyYears = adm1.dir.svy.u5)
   
-  
+  adm1.dir.frame <- data.frame(region = admin1.names$Internal) %>% 
+    full_join(adm1.dir.frame.nmr,
+              by = "region") %>% 
+    full_join(adm1.dir.frame.u5,
+                by = c("region", "method", "years", "surveyYears"))
   
   ## SD 3-year ####
   nmr.filename <- paste0(country, '_res_admin1_', sd.time.model,
@@ -690,7 +702,7 @@ if(country=='Uganda'){
                            nmr.filename)
     nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
     nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
-    
+
     u5.bench.file <- gsub(paste0(country, "_res_"), "", u5.filename)
     u5.bench.file <- gsub("_crisis", "", u5.bench.file)
     u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
@@ -789,7 +801,10 @@ if(exists('poly.layer.adm2')){
   
   load(file = paste0("Direct/NMR/",  nmr.filename))
   load(file = paste0("Direct/U5MR/",  u5.filename))
-  adm2.dir.reg <- direct.admin2.nmr$region
+  adm2.dir.reg.nmr <- direct.admin2.nmr[direct.admin2.nmr$years %in%
+                                          period.years, "region"]
+  adm2.dir.reg.u5 <- direct.admin2.u5[direct.admin2.u5$years %in%
+                                        period.years, "region"]
   adm2.dir.est.nmr <- direct.admin2.nmr[direct.admin2.nmr$years %in%
                                           period.years, "mean"]
   adm2.dir.lower.nmr <- direct.admin2.nmr[direct.admin2.nmr$years %in% 
@@ -810,17 +825,25 @@ if(exists('poly.layer.adm2')){
                                          period.years, "years"]
   adm2.dir.svy.u5 <- direct.admin2.u5[direct.admin2.u5$years %in%
                                         period.years, "surveyYears"]
-  adm2.dir.frame <- data.frame()
-  adm2.dir.frame <- data.frame(region = adm2.dir.reg,
-                               lower_nmr=adm2.dir.lower.nmr, 
-                               median_nmr=adm2.dir.est.nmr,
-                               upper_nmr=adm2.dir.upper.nmr, 
+  adm2.dir.nmr.frame <- data.frame(region = adm2.dir.reg.nmr,
+                                   lower_nmr=adm2.dir.lower.nmr, 
+                                   median_nmr=adm2.dir.est.nmr,
+                                   upper_nmr=adm2.dir.upper.nmr,
+                                   method='adm2.dir',
+                                   years=adm2.dir.year.nmr,
+                                   surveyYears = adm2.dir.svy.nmr)
+  adm2.dir.u5.frame <- data.frame(region = adm2.dir.reg.u5, 
                                lower_u5=adm2.dir.lower.u5,
                                median_u5=adm2.dir.est.u5, 
                                upper_u5=adm2.dir.upper.u5, 
                                method='adm2.dir',
                                years=adm2.dir.year.u5,
                                surveyYears = adm2.dir.svy.u5)
+  adm2.dir.frame <- data.frame(region = admin2.names$Internal) %>% 
+    full_join(adm2.dir.nmr.frame,
+              by = "region") %>% 
+    full_join(adm2.dir.u5.frame,
+              by = c("region", "method", "years", "surveyYears"))
   
   
   
@@ -1050,7 +1073,6 @@ if(exists('poly.layer.adm2')){
         admin2.unstrat.u5.BB8.bench <- bb.res.adm2.unstrat.u5.bench$overall
       }
     }
-    
     
   }else{
     load(file = paste0('Betabinomial/NMR/', nmr.filename))
@@ -1920,8 +1942,10 @@ for(outcome in c("nmr", "u5")){
 years_vt <- plot.years
 n_years <- length(years_vt)
 bench_str <- ifelse(bench.model == "", "", "_bench")
+
 country_code_dt <- data.table(Country = country,
                               code = gadm.abbrev)
+
 country_code_dt <- data.table(Country = country,
                               code = gadm.abbrev)
 admin_level_dt <- data.table(Admin = "admin1", level = 2)
