@@ -7,14 +7,14 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Senegal"
+country <- "Pakistan"
 
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 # specify time model for BB8
-time.model <- c('rw2','ar1')[1]
+time.model <- c('rw2','ar1')[2]
 # specify time model for smoothed direct
-sd.time.model <- c("rw2", "ar1")[1]
+sd.time.model <- c("rw2", "ar1")[2]
 # specify stratification for BB8 model
 strata.model <- c("unstrat", "strat")[2]
 
@@ -57,9 +57,7 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-data.dir <- paste0("R://Project/STAB/", country)
-
+data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
@@ -96,17 +94,16 @@ load(paste0(poly.path,'/', country, '_Amat.rda'))
 load(paste0(poly.path,'/', country, '_Amat_Names.rda'))
 
 if(country == "Pakistan"){
-  disputed_areas_gadm <- c("Azad Kashmir", "Gilgit-Baltistan",
-                           "Northern Areas")
-  disputed_areas_internal <- 
-    c(admin1.names$Internal[admin1.names$GADM %in% disputed_areas_gadm],
-      admin2.names$Internal[admin2.names$GADM %in% disputed_areas_gadm])
+  load(paste0(poly.path,'/', country, '_Amat_excluding_disputed.rda'))
+  load(paste0(poly.path,'/', country, '_Amat_Names_excluding_disputed.rda'))
   
-  admin1.names <- admin1.names[!(admin1.names$Internal %in%
-                                   disputed_areas_internal),]
-  
-  admin2.names <- admin2.names[!(admin2.names$Internal %in%
-                                   disputed_areas_internal),]
+  disputed_areas_gadm <- unique(c(setdiff(admin1.names$GADM,admin1.names_excluding_disputed$GADM),
+                                  setdiff(admin2.names$GADM,admin2.names_excluding_disputed$GADM)))
+  disputed_areas_internal <- c(setdiff(admin1.names$Internal,admin1.names_excluding_disputed$Internal),
+                               setdiff(admin2.names$Internal,admin2.names_excluding_disputed$Internal))
+   
+  admin1.names <- admin1.names_excluding_disputed
+  admin2.names <- admin2.names_excluding_disputed
 }
 ## Load IGME estimates ------------------------------------------------------
 
@@ -214,9 +211,21 @@ if(country=='Uganda'){
   merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
                                                                   ADM1_PCODE = unique(ADM1_PCODE))
   poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
-  
 }
 
+if(country=='Pakistan'){
+  poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                       layer = as.character("gadm41_PAK_1_excluding_disputed")) # load the shape file of admin-1 regions
+  
+  if(exists('poly.layer.adm2')){
+    poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                         layer = as.character("gadm41_PAK_2_excluding_disputed"))} # load the shape file of admin-2 regions
+  
+  # set coordinate reference system to be equal
+  if(exists("poly.adm2")){
+    proj4string(poly.adm1)  <- proj4string(poly.adm2)
+  }
+}
 
 # Load Model Results ####
 ## National ####
