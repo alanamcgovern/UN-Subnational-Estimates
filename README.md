@@ -71,7 +71,7 @@ Run Comparison_Plot.R again, this time generating a figure comparing the Beta-bi
 After determining whether we will use the stratified model or the unstratified model which uses all surveys, go back to the BB8.R script and now run the benchmarked models which correspond to the model we have chosen (strat or unstrat_allsurveys). *Make sure to run all applicable setup chunks before fitting models*
 
 #### Step 10b: Crisis Adjustments
-TBD -- if your country needs a crisis adjustment, stop here for now.
+If your country needs a crisis adjustment, download Data/Crisis_Adjustment and Rcode/applyCrisisAdj.R and put them in your Data and Rcode folders in your local directory. Then run applyCrisisAdj.R, making sure to specify country of interest and the final model at the top of the script. This script will apply crisis adjustments to the U5MR estimates for the appropriate years and save them.
 
 #### Step 11: Reporting Results
 
