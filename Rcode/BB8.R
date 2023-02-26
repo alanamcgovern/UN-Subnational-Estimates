@@ -1,7 +1,7 @@
 rm(list = ls())
 ## ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Liberia'
+country <- 'Lesotho'
 
 ## Libraries -----------------------------------------------
 library(SUMMER)
@@ -204,9 +204,11 @@ if(dir.exists(paths = paste0(res.dir,'/UR/'))){
   weight.strata.adm1.u1.natl <- merge(weight.strata.adm1.u1.natl,weight.strata.natl.u1,by=c('years'))
   weight.strata.adm1.u5.natl <- merge(weight.strata.adm1.u5.natl,weight.strata.natl.u5,by=c('years'))
   
+  if(exists('poly.layer.adm2')){
   weight.strata.adm2.u1.natl <- weight.strata.adm2.u5.natl <- expand.grid(region = admin2.names$Internal,years = beg.year:end.proj.year)
   weight.strata.adm2.u1.natl <- merge(weight.strata.adm2.u1.natl,weight.strata.natl.u1,by=c('years'))
   weight.strata.adm2.u5.natl <- merge(weight.strata.adm2.u5.natl,weight.strata.natl.u5,by=c('years'))
+  }
 }
 
 ## Fit BB8 models w surveys from same sampling frame  -----------------------------------------------
