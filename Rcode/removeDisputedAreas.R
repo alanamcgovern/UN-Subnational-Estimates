@@ -5,7 +5,7 @@ rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
 country <- 'Pakistan'
-disputed_regions <- c("Azad Kashmir", "Northern Areas")
+disputed_regions <- c("Azad Kashmir", "Northern Areas","Gilgit-Baltistan")
 
 # Load libraries and info ----------------------------------------------------------
 library(SUMMER)
