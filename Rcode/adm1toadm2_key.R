@@ -381,5 +381,5 @@ rm(poly.adm1,poly.adm2,admin1.names,admin2.names,admin1.mat,admin2.mat)
 
 
 
-
+## write into excel sheet ------------------------
 openxlsx::write.xlsx(adm_link, file='Admin1_Admin2_Key.xlsx')
