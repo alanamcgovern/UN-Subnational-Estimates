@@ -3,11 +3,8 @@ rm(list = ls())
 # Load libraries and info ----------------------------------------------------------
 # options(gsubfn.engine = "R")
 library(rgdal)
-# options(warn=0)
-# library(spdep)
-# library(SUMMER)
-# library(geosphere)
-# library(stringr)
+library(spdep)
+library(maptools)
 library(tidyverse)
 
 # extract file location of this script
@@ -22,7 +19,7 @@ setwd(data.dir)
 #GADM countries -----------------------
 countries.gadm <- c('Angola','Bangladesh','Benin',
                     'Cameroon','Chad','Ethiopia',
-                    'Guinea','Haiti','Kenya','Laos','Liberia',
+                    'Guinea','Haiti','Kenya','Laos','Lesotho','Liberia',
                     'Madagascar','Mali','Mauritania','Mozambique','Myanmar',
                     'Namibia','Nigeria','Rwanda','Senegal',
                     'Togo','Tanzania','Zambia','Zimbabwe')
@@ -89,7 +86,7 @@ for(country in countries.gadm){
   }
 }
 
-#Special countries -- still to do Malawi, Nepal, Sierra Leone ------------------------
+#Special countries ------------------------
 ## Burundi ----------------
 country <- 'Burundi'
 info.name <- paste0(country, "_general_info.Rdata")
@@ -167,7 +164,87 @@ if(exists('poly.adm2')){
      poly.label.adm2,poly.layer.adm2)
 }
 
-## Pakistan -------------------
+## Malawi ---------------------
+country <- 'Malawi'
+info.name <- paste0(country, "_general_info.Rdata")
+load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
+poly.path <- paste0(home.dir,"/Data/shapeFiles_alt/Malawi/shapeFiles_gadm")
+
+# use encoding to read special characters
+poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
+
+poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+
+# set coordinate reference system to be equal
+proj4string(poly.adm1)  <- proj4string(poly.adm2)
+
+# create the adjacency matrix for admin1 regions.
+admin1.mat <- poly2nb(SpatialPolygons(poly.adm1@polygons))
+admin1.mat <- nb2mat(admin1.mat, zero.policy = TRUE)
+colnames(admin1.mat) <- rownames(admin1.mat) <- paste0("admin1_", 1:dim(admin1.mat)[1])
+admin1.names <- data.frame(admin1.name = eval(str2lang(poly.label.adm1)),
+                           admin1.char = rownames(admin1.mat))
+
+#read in admin1 to admin2 sheet
+adm_name_key <- read.csv(paste0(poly.path,'/MWI_adm1_to_adm2.csv'))
+admin2.names <- data.frame(admin2.name = adm_name_key$Admin.2,
+                           admin2.char = paste0("admin2_", 1:dim(adm_name_key)[1]),
+                           admin1.name = adm_name_key$Admin.1)
+
+adm_link_tmp <- merge(admin1.names,admin2.names,by='admin1.name')
+adm_link <- rbind(adm_link,data.frame(country, adm_link_tmp))
+
+#clean up
+rm(poly.adm1, admin1.mat,admin1.names,
+   country,country.abbrev,gadm.abbrev,
+   poly.label.adm1,poly.layer.adm0,poly.layer.adm1,
+   poly.adm2,admin2.mat,admin2.names,
+   poly.label.adm2,poly.layer.adm2)
+## Nepal ----------------
+country <- 'Nepal'
+info.name <- paste0(country, "_general_info.Rdata")
+load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
+poly.path <- paste0(home.dir,"/Data/shapeFiles_alt/Nepal/shapeFiles")
+
+# use encoding to read special characters
+poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
+
+poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+
+# set coordinate reference system to be equal
+proj4string(poly.adm1)  <- proj4string(poly.adm2)
+
+# create the adjacency matrix for admin1 regions.
+admin1.mat <- poly2nb(SpatialPolygons(poly.adm1@polygons))
+admin1.mat <- nb2mat(admin1.mat, zero.policy = TRUE)
+colnames(admin1.mat) <- rownames(admin1.mat) <- paste0("admin1_", 1:dim(admin1.mat)[1])
+admin1.names <- data.frame(admin1.name = paste0("District #", poly.adm1@data$ADM1_EN),
+                           admin1.char = rownames(admin1.mat))
+
+# create the adjacency matrix for admin2 regions.
+admin2.mat <- poly2nb(SpatialPolygons(poly.adm2@polygons))
+admin2.mat <- nb2mat(admin2.mat, zero.policy = TRUE)
+colnames(admin2.mat) <- rownames(admin2.mat) <- paste0("admin2_", 1:dim(admin2.mat)[1])
+admin2.names <- data.frame(admin2.name = eval(str2lang(poly.label.adm2)),
+                           admin2.char = rownames(admin2.mat),
+                           admin1.name = paste0("District #",poly.adm2@data$ADM1_EN))
+
+adm_link_tmp <- merge(admin1.names,admin2.names,by='admin1.name')
+adm_link <- rbind(adm_link,data.frame(country, adm_link_tmp))
+
+#clean up
+rm(poly.adm1, admin1.mat,admin1.names,
+   country,country.abbrev,gadm.abbrev,
+   poly.label.adm1,poly.layer.adm0,poly.layer.adm1,
+   poly.adm2,admin2.mat,admin2.names,
+   poly.label.adm2,poly.layer.adm2)
+
+
+## Pakistan  -------------------
 country <- 'Pakistan'
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
@@ -183,6 +260,12 @@ if(!file.exists(gsub('.zip','',gadm.link))){
 # use encoding to read special characters
 poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
                      layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
+# use encoding to read special characters
+poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm2)) # load the shape file of admin-1 regions
+# set coordinate reference system to be equal
+proj4string(poly.adm1)  <- proj4string(poly.adm2)
+
 
 # create the adjacency matrix for admin1 regions.
 admin1.mat <- poly2nb(SpatialPolygons(poly.adm1@polygons))
@@ -190,8 +273,18 @@ admin1.mat <- nb2mat(admin1.mat, zero.policy = TRUE)
 colnames(admin1.mat) <- rownames(admin1.mat) <- paste0("admin1_", 1:dim(admin1.mat)[1])
 admin1.names <- data.frame(admin1.name = eval(str2lang(poly.label.adm1)),
                            admin1.char = rownames(admin1.mat))
-admin1.names <- admin1.names[admin1.names$admin1.name!='Azad Kashmir',]
-adm_link_tmp <- data.frame(admin1.names,admin2.name=NA,admin2.char=NA)
+admin1.names <- admin1.names[!(admin1.names$admin1.name %in% c("Azad Kashmir", "Northern Areas","Gilgit-Baltistan")),]
+
+# create the adjacency matrix for admin2 regions.
+admin2.mat <- poly2nb(SpatialPolygons(poly.adm2@polygons))
+admin2.mat <- nb2mat(admin2.mat, zero.policy = TRUE)
+colnames(admin2.mat) <- rownames(admin2.mat) <- paste0("admin2_", 1:dim(admin2.mat)[1])
+admin2.names <- data.frame(admin2.name = eval(str2lang(poly.label.adm2)),
+                           admin2.char = rownames(admin2.mat),
+                           admin1.name = poly.adm2@data$NAME_1)
+admin2.names <- admin2.names[!(admin2.names$admin2.name %in% c("Azad Kashmir", "Northern Areas","Gilgit-Baltistan")),]
+
+adm_link_tmp <- merge(admin1.names,admin2.names,by='admin1.name')
 adm_link <- rbind(adm_link,data.frame(country, adm_link_tmp))
 
 #clean up
@@ -204,6 +297,48 @@ if(exists('poly.adm2')){
 }
 
 
+## Sierra Leone ----------------
+country <- 'Sierra_Leone'
+info.name <- paste0(country, "_general_info.Rdata")
+load(file = paste0(home.dir,'/Info/',info.name, sep='')) # load the country info
+poly.path <- paste0(home.dir,"/Data/shapeFiles_alt/Sierra_Leone/shapeFiles")
+
+# use encoding to read special characters
+poly.adm1 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm1)) # load the shape file of admin-1 regions
+
+poly.adm2 <- readOGR(dsn = poly.path,encoding = "UTF-8", use_iconv = TRUE,
+                     layer = as.character(poly.layer.adm2)) # load the shape file of admin-2 regions
+
+# set coordinate reference system to be equal
+proj4string(poly.adm1)  <- proj4string(poly.adm2)
+
+# create the adjacency matrix for admin1 regions.
+admin1.mat <- poly2nb(SpatialPolygons(poly.adm1@polygons))
+admin1.mat <- nb2mat(admin1.mat, zero.policy = TRUE)
+colnames(admin1.mat) <- rownames(admin1.mat) <- paste0("admin1_", 1:dim(admin1.mat)[1])
+admin1.names <- data.frame(admin1.name = eval(str2lang(poly.label.adm1)),
+                           admin1.char = rownames(admin1.mat))
+
+# create the adjacency matrix for admin2 regions.
+admin2.mat <- poly2nb(SpatialPolygons(poly.adm2@polygons))
+admin2.mat <- nb2mat(admin2.mat, zero.policy = TRUE)
+colnames(admin2.mat) <- rownames(admin2.mat) <- paste0("admin2_", 1:dim(admin2.mat)[1])
+admin2.names <- data.frame(admin2.name = eval(str2lang(poly.label.adm2)),
+                           admin2.char = rownames(admin2.mat),
+                           admin1.name = poly.adm2@data$district_2)
+admin2.names[admin2.names$admin1.name!='Western',]$admin1.name <- paste0(admin2.names[admin2.names$admin1.name!='Western',]$admin1.name,' Province')
+admin2.names[admin2.names$admin1.name=='Western',]$admin1.name <- paste0(admin2.names[admin2.names$admin1.name=='Western',]$admin1.name,' Area')
+
+adm_link_tmp <- merge(admin1.names,admin2.names,by='admin1.name')
+adm_link <- rbind(adm_link,data.frame(country, adm_link_tmp))
+
+#clean up
+rm(poly.adm1, admin1.mat,admin1.names,
+   country,country.abbrev,gadm.abbrev,
+   poly.label.adm1,poly.layer.adm0,poly.layer.adm1,
+   poly.adm2,admin2.mat,admin2.names,
+   poly.label.adm2,poly.layer.adm2)
 ## Uganda ---------------------------
 country <- 'Uganda'
 poly.path <- paste0(home.dir,"/Data/shapeFiles_alt/Uganda/shapeFiles")
@@ -245,3 +380,6 @@ rm(poly.adm1,poly.adm2,admin1.names,admin2.names,admin1.mat,admin2.mat)
 
 
 
+
+
+openxlsx::write.xlsx(adm_link, file='Admin1_Admin2_Key.xlsx')
