@@ -170,7 +170,9 @@ if (country == "Haiti") {
   deaths_adm2 <- deaths_adm2 %>%
     group_by(NAME_1) %>%
     summarise(prop_pop_0_1 = pop_0_1 / sum(pop_0_1),
-              prop_pop_1_5 = pop_1_5 / sum(pop_1_5)) %>%
+              prop_pop_1_5 = pop_1_5 / sum(pop_1_5),
+              ed_0_1,
+              ed_1_5) %>%
     mutate(ed_0_1 = ed_0_1 * prop_pop_0_1,
            ed_1_5 = ed_1_5 * prop_pop_1_5)
   deaths_adm2 <- deaths_adm2 %>%
