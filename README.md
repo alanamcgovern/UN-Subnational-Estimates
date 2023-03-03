@@ -8,9 +8,9 @@ At some points in the pipeline, you will need to reference this sheet with speci
 
 ## The Pipeline
 
-#### Step 0: Prepare R
+#### Step 0: Prepare R and SUMMER package
 
-Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or more recent version). Otherwise, installation of dependent packages might fail.
+Make sure your R version is at least 4.1.0 (also RStudio is using R 4.1.0 or more recent version). Otherwise, installation of dependent packages might fail. Also, make sure you are using the most recent version of the SUMMER available on github: https://github.com/richardli/SUMMER. You can install this by running: devtools::install_github('richardli/SUMMER')
 
 #### Step 1: Setting up file structure
 
