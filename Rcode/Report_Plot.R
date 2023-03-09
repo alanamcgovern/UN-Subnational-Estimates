@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Pakistan"
+country <- "Rwanda"
 
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
@@ -766,21 +766,23 @@ if(country=='Pakistan'){
     load(file = paste0('Betabinomial/U5MR/', u5.filename))
     
     ##Load benchmarks
-    nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
-                           nmr.filename)
-    nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
-    nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
-    
-    u5.bench.file <- gsub(paste0(country, "_res_"), "", 
-                          u5.filename)
-    u5.bench.file <- gsub("_crisis", "", u5.bench.file)
-    u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
-    u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
-    
-    load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
-    adm1.nmr.benchmarks <- bench.adj
-    load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
-    adm1.u5.benchmarks <- bench.adj
+    if(bench.model=='bench'){
+      nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
+                             nmr.filename)
+      nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
+      nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
+      
+      u5.bench.file <- gsub(paste0(country, "_res_"), "", 
+                            u5.filename)
+      u5.bench.file <- gsub("_crisis", "", u5.bench.file)
+      u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
+      u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
+      
+      load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      adm1.nmr.benchmarks <- bench.adj
+      load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
+      adm1.u5.benchmarks <- bench.adj 
+    }
     
     if(bench.model == ""){
       admin1.strat.nmr.BB8 <- bb.res.adm1.strat.nmr$overall
@@ -1054,6 +1056,7 @@ if(exists('poly.layer.adm2')){
     load(file = paste0('Betabinomial/U5MR/', u5.filename))
     
     ##Load benchmarks
+    if(bench.model=='bench'){
     nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
                            nmr.filename)
     nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
@@ -1069,6 +1072,7 @@ if(exists('poly.layer.adm2')){
     adm2.nmr.benchmarks <- bench.adj
     load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
     adm2.u5.benchmarks <- bench.adj
+    }
     
     if(exists('bb.res.adm2.unstrat.nmr.allsurveys')){
       bb.res.adm2.unstrat.nmr <- bb.res.adm2.unstrat.nmr.allsurveys
@@ -1100,6 +1104,7 @@ if(exists('poly.layer.adm2')){
     load(file = paste0('Betabinomial/U5MR/', u5.filename))
     
     ##Load benchmarks
+    if(bench.model=='bench'){
     nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
                            nmr.filename)
     nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
@@ -1115,7 +1120,7 @@ if(exists('poly.layer.adm2')){
     adm2.nmr.benchmarks <- bench.adj
     load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
     adm2.u5.benchmarks <- bench.adj
-    
+    }
     
     if(bench.model == ""){
       admin2.strat.nmr.BB8 <- bb.res.adm2.strat.nmr$overall
