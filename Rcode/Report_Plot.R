@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Rwanda"
+country <- "Sierra_Leone"
 
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
@@ -20,7 +20,7 @@ strata.model <- c("unstrat", "strat")[2]
 
 # specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
 
-bench.model <- c("", "bench")[2]
+bench.model <- c("", "bench")[1]
 
 # Setup -----------------------------------------------
 ## Load libraries and info ----------------------------------------------------------
@@ -70,6 +70,9 @@ if(exists('poly.label.adm2')){
                          strsplit(poly.label.adm1, "\\$")[[1]][2])
   message("If your country does not use GADM shapefiles, ", 
           "you will need to specify this manually.\n")
+}
+if(country=='Sierra_Leone'){
+  adm1_on_adm2 <- paste0('poly.adm2@data$district_2')
 }
 
 if(!dir.exists(paste0(res.dir,  '/Figures/Summary'))){
@@ -174,12 +177,14 @@ if(((end.year-beg.year+1) %% 3) == 0){
 
 period.years <- paste(beg.period.years, end.period.years, sep = "-")
 
-beg.proj.years <- seq(end.year+1,2021,3)
-end.proj.years <- beg.proj.years+2
-pane.years <- (c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2))
-pane.years <- pane.years[pane.years<=end.proj.year]
-est.period.idx <- 1:length(beg.period.years)
-pred.period.idx <- (length(beg.period.years)+1):(length(beg.period.years)+length(beg.proj.years))
+if(end.year==end.proj.year){
+ pane.years <- (end.period.years+beg.period.years)/2
+}else{
+  beg.proj.years <- seq(end.year+1,2021,3)
+  end.proj.years <- beg.proj.years+2
+  pane.years <- (c((end.period.years + beg.period.years)/2, (end.proj.years+beg.proj.years)/2))
+  pane.years <- pane.years[pane.years<=end.proj.year]
+}
 
 ## Load Polygon files ####
 setwd(data.dir)
