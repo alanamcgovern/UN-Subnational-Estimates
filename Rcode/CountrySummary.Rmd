@@ -1,5 +1,5 @@
 ---
-title: "Country Summary: Sierra Leone"
+title: "Country Summary: Rwanda"
 output: 
   pdf_document:
     toc: true
@@ -32,13 +32,13 @@ knitr::opts_chunk$set(echo = FALSE, message=FALSE, warning=FALSE)
 <!-- User-defined Arguments -->
 ```{r params}
 
-country <- "Sierra_Leone"
+country <- "Rwanda"
 debugging <- FALSE
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
 time.model <- c('rw2','ar1')[2]
 strata.model <- c("strat", "unstrat")[1]
-bench.model <- c("", "bench")[2]
+bench.model <- c("", "bench")[1]
 
 
 ## Timing of projection
@@ -52,7 +52,6 @@ n_years <- length(plot.years)
 <!-- Working Directory -->
 
 ```{r setwd}
-
 # set the working directory (location of this file in /Rcode)
 
 # extract file location of this script
@@ -81,7 +80,7 @@ data.dir <- paste0(home.dir,'/Data/', country)
 
 res.dir <- paste0(home.dir,'/Results/', country)
 
-if(grep('_',country)>0){
+if(grepl('_',country)){
   country_print <- gsub('_',' ',country)
 }else{
   country_print <- country
