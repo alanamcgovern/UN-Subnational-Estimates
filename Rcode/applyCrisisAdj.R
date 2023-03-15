@@ -231,7 +231,7 @@ deaths_adm1 <- deaths %>%
   mutate(ed_0_1 = `Crisis d0`*(ed_0_1_orig/sum(ed_0_1_orig)),
          ed_1_5 = `Crisis d1-4`*(ed_1_5_orig/sum(ed_1_5_orig)))
 pop_adm1 <- pop %>% filter(level == "admin1")
-df <- merge(deaths_adm1, pop_adm1, by = c("region", "years"))
+df <- merge(deaths_adm1, pop_adm1, by = c("gadm", "years"))
 df <- get_ed_5q0(df) # convert deaths to qx
 df <- merge(df, admin1.names, by.x = "region", by.y = "Internal", all=T)
 if (nrow(df[is.na(df$GADM) | is.na(df$gadm),]) > 0) {
@@ -261,7 +261,7 @@ deaths_adm2 <- deaths %>%
   mutate(ed_0_1 = `Crisis d0`*(ed_0_1_orig/sum(ed_0_1_orig)),
          ed_1_5 = `Crisis d1-4`*(ed_1_5_orig/sum(ed_1_5_orig)))
 pop_adm2 <- pop %>% filter(level == "admin2")
-df <- merge(deaths_adm2, pop_adm2, by = c("region", "years"))
+df <- merge(deaths_adm2, pop_adm2, by = c("gadm", "years"))
 df <- get_ed_5q0(df) # convert deaths to qx
 df <- df %>% select(region, years, ed_5q0)
 res_adm2_u5_crisis <- merge(res_adm2_u5, df, by = c("region", "years"), all=T)
