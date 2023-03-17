@@ -6,7 +6,7 @@
 rm(list = ls())
 # ENTER COUNTRY OF INTEREST -----------------------------------------------
 # Please capitalize the first letter of the country name and replace " " in the country name to "_" if there is.
-country <- 'Guinea'
+country <- 'Liberia'
 # Specify straification of final U5MR model (which was benchmarked)
 mod_label <- c('strat_u5_bench','unstrat_u5_allsurveys_bench')[1]
 
@@ -158,10 +158,10 @@ if (country == "Liberia") {
     dplyr::mutate(ed_0_1= ed_0_1 * prop_pop_0_1,
            ed_1_5 = ed_1_5 * prop_pop_1_5) %>% ungroup()
   deaths_adm2 <- deaths_adm2 %>%
-    dplyr::select(country.x, level.x, gadm.x, region, years, ed_0_1, ed_1_5) %>% rename(country=country.x,level=level.x,gadm=gadm.x)
+    dplyr::select(country.x, level.x, gadm.x, years, ed_0_1, ed_1_5) %>% rename(country=country.x,level=level.x,gadm=gadm.x)
   
   # combine
-  deaths <- merge(deaths,admin1.names,by.x='gadm',by.y='GADM') %>% select(-c(Internal))
+  deaths <- merge(deaths,admin1.names,by.x='gadm',by.y='GADM') %>% dplyr::select(-c(Internal))
   deaths <- rbind(deaths, deaths_adm2)
 }
 
