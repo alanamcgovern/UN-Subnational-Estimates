@@ -873,7 +873,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
                                 Amat=admin1.mat, admin.level='Admin1',
                                 stratified=F, weight.strata=NULL,
                                 outcome='nmr',
-                                time.model='rw2', st.time.model='ar1',
+                                time.model='ar1', st.time.model='ar1',
                                 adj.frame=adj.frame, adj.varnames=adj.varnames,
                                 nsim = 1000)
   
