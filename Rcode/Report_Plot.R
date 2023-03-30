@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Sierra_Leone"
+country <- "Uganda"
 
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
@@ -20,7 +20,7 @@ strata.model <- c("unstrat", "strat")[2]
 
 # specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
 
-bench.model <- c("", "bench")[1]
+bench.model <- c("", "bench")[2]
 
 # Setup -----------------------------------------------
 ## Load libraries and info ----------------------------------------------------------
@@ -205,17 +205,6 @@ if(country=='Malawi'){
   polyfile_merge <- merge(poly.adm2@data,adm1_adm2_link,by.x='NAME_1',by.y='Admin.2')
   polyfile_merge$DHSREGEN <- polyfile_merge$Admin.1
   poly.adm2@data <- polyfile_merge[,!names(polyfile_merge) == 'Admin.1']
-}
-
-if(country=='Uganda'){
-  poly.adm1.poly <- SpatialPolygons(poly.adm1@polygons)
-  poly.adm1 <- unionSpatialPolygons(poly.adm1.poly,
-                                    IDs = match(poly.adm1@data$ADM1_EN,
-                                                unique(poly.adm1@data$ADM1_EN)))
-  proj4string(poly.adm1) <- proj4string(poly.adm2)
-  merge.dat <- poly.adm2@data %>% group_by(ADM1_EN) %>% summarise(n = n(), 
-                                                                  ADM1_PCODE = unique(ADM1_PCODE))
-  poly.adm1 <- SpatialPolygonsDataFrame(poly.adm1, merge.dat)
 }
 
 if(country=='Pakistan'){
@@ -2020,7 +2009,7 @@ for(outcome in c("nmr", "u5")){
     
     # create plotting area names (just admin 1 name if admin = 1,
     # or 'admin2,\n admin1' if admin = 2)
-    admin_name_dt$nameToPlot <- eval(str2lang(poly.label.adm1))
+    admin_name_dt$nameToPlot <- unique(eval(str2lang(poly.label.adm1)))
     
     # create data to plot
     data_plot_dt_year <- 
