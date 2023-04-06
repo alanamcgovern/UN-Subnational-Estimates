@@ -104,7 +104,7 @@ if(country == "Pakistan"){
                                   setdiff(admin2.names$GADM,admin2.names_excluding_disputed$GADM)))
   disputed_areas_internal <- c(setdiff(admin1.names$Internal,admin1.names_excluding_disputed$Internal),
                                setdiff(admin2.names$Internal,admin2.names_excluding_disputed$Internal))
-   
+  
   admin1.names <- admin1.names_excluding_disputed
   admin2.names <- admin2.names_excluding_disputed
 }
@@ -178,7 +178,7 @@ if(((end.year-beg.year+1) %% 3) == 0){
 period.years <- paste(beg.period.years, end.period.years, sep = "-")
 
 if(end.year==end.proj.year){
- pane.years <- (end.period.years+beg.period.years)/2
+  pane.years <- (end.period.years+beg.period.years)/2
 }else{
   beg.proj.years <- seq(end.year+1,2021,3)
   end.proj.years <- beg.proj.years+2
@@ -1051,21 +1051,21 @@ if(exists('poly.layer.adm2')){
     
     ##Load benchmarks
     if(bench.model=='bench'){
-    nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
-                           nmr.filename)
-    nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
-    nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
-    
-    u5.bench.file <- gsub(paste0(country, "_res_"), "", 
-                          u5.filename)
-    u5.bench.file <- gsub("_crisis", "", u5.bench.file)
-    u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
-    u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
-    
-    load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
-    adm2.nmr.benchmarks <- bench.adj
-    load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
-    adm2.u5.benchmarks <- bench.adj
+      nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
+                             nmr.filename)
+      nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
+      nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
+      
+      u5.bench.file <- gsub(paste0(country, "_res_"), "", 
+                            u5.filename)
+      u5.bench.file <- gsub("_crisis", "", u5.bench.file)
+      u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
+      u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
+      
+      load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      adm2.nmr.benchmarks <- bench.adj
+      load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
+      adm2.u5.benchmarks <- bench.adj
     }
     
     if(exists('bb.res.adm2.unstrat.nmr.allsurveys')){
@@ -1099,21 +1099,21 @@ if(exists('poly.layer.adm2')){
     
     ##Load benchmarks
     if(bench.model=='bench'){
-    nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
-                           nmr.filename)
-    nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
-    nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
-    
-    u5.bench.file <- gsub(paste0(country, "_res_"), "", 
-                          u5.filename)
-    u5.bench.file <- gsub("_crisis", "", u5.bench.file)
-    u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
-    u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
-    
-    load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
-    adm2.nmr.benchmarks <- bench.adj
-    load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
-    adm2.u5.benchmarks <- bench.adj
+      nmr.bench.file <- gsub(paste0(country, "_res_"), "", 
+                             nmr.filename)
+      nmr.bench.file <- gsub("_allsurveys", "", nmr.bench.file)
+      nmr.bench.file <- gsub("_bench", "_benchmarks", nmr.bench.file)
+      
+      u5.bench.file <- gsub(paste0(country, "_res_"), "", 
+                            u5.filename)
+      u5.bench.file <- gsub("_crisis", "", u5.bench.file)
+      u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
+      u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
+      
+      load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      adm2.nmr.benchmarks <- bench.adj
+      load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
+      adm2.u5.benchmarks <- bench.adj
     }
     
     if(bench.model == ""){
