@@ -764,4 +764,62 @@ admin2.u5.bench <- admin2.u5.draws.agg %>%
 
 # Apply benchmark ####
 
-admin1.
+admin1.nmr.res.bench <- admin1.nmr.draws %>% 
+  left_join(admin1.nmr.bench %>% 
+              select(years, ratio),
+            by = c("years" = "years")) %>% 
+  mutate(outcome = "nmr", level = "Admin1")
+
+admin2.nmr.res.bench <- admin2.nmr.draws %>% 
+  left_join(admin2.nmr.bench %>% 
+              select(years, ratio),
+            by = c("years" = "years")) %>% 
+  mutate(outcome = "nmr", level = "Admin2")
+
+
+admin1.u5.res.bench <- admin1.u5.draws %>% 
+  left_join(admin1.nmr.bench %>% 
+              select(years, ratio),
+            by = c("years" = "years")) %>% 
+  mutate(outcome = "u5", level = "Admin1")
+
+admin2.u5.res.bench <- admin2.u5.draws %>% 
+  left_join(admin2.u5.bench %>% 
+              select(years, ratio),
+            by = c("years" = "years")) %>% 
+  mutate(outcome = "u5", level = "Admin2")
+
+
+
+all.res.bench <- admin1.nmr.res.bench %>%
+  bind_rows(admin1.u5.res.bench,
+            admin2.nmr.res.bench,
+            admin2.u5.res.bench) %>% 
+  group_by(outcome, level, region, years) %>% 
+  mutate(draws = draws/ratio) %>% 
+  group_by(outcome, level, region, years, GADM) %>% 
+  summarize(variance = var(draws),
+            median = median(draws),
+            mean = mean(draws),
+            upper = quantile(draws, 0.975),
+            lower = quantile(draws, 0.025))
+
+
+# Overwrite old results object ####
+
+res_names <- names(bb.res.adm1.strat.nmr$overall)
+
+## NMR ####
+bb.res.adm1.strat.nmr$overall <- all.res.bench %>% 
+  filter(outcome == "nmr" & level == "Admin1") %>% 
+  left_join(bb.res.adm1.strat.nmr$overall,
+            by = c("region", "years" = "years.num"),
+            suffix = c("", "_old")) %>% 
+  rename("years.num" = "years") %>% 
+  rename("years" = "years_old") %>%
+  ungroup() %>% 
+  select(-contains("_new"), -contains("_old"),
+         -outcome, -level, -GADM) %>% 
+  as.data.frame()
+bb.res.adm1.strat.nmr$overall <- bb.res.adm1.strat.nmr$overall[, res_names]
+
