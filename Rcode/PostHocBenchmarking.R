@@ -3,7 +3,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Rwanda"
+country <- "Senegal"
 
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
@@ -36,7 +36,6 @@ library(viridis)
 library(xtable)
 library(Hmisc)
 library(spdep)
-library(rasterVis)
 library(plotrix)
 library(ggridges)
 library(rgdal)
@@ -53,8 +52,8 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-
+# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- "R://Project/STAB/Senegal/"
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep = '')) # load the country info
@@ -231,6 +230,7 @@ if(country=='Pakistan'){
 }
 
 # Load Model Results ####
+
 ## Admin-1 ####
 
 {
@@ -377,14 +377,14 @@ if(country=='Pakistan'){
     }
     
     if(bench.model == ""){
-      admin1.unstrat.nmr.BB8 <- bb.res.adm1.unstrat.nmr$overall
-      admin1.unstrat.u5.BB8 <- bb.res.adm1.unstrat.u5$overall
+      admin1.unstrat.nmr.BB8 <- bb.res.adm1.unstrat.nmr
+      admin1.unstrat.u5.BB8 <- bb.res.adm1.unstrat.u5
     }else{
-      admin1.unstrat.nmr.BB8.bench <-  bb.res.adm1.unstrat.nmr.bench$overall
+      admin1.unstrat.nmr.BB8.bench <-  bb.res.adm1.unstrat.nmr.bench
       if(grepl('crisis',u5.filename)){
         admin1.unstrat.u5.BB8.bench <- res_adm1_u5_crisis
       }else{
-        admin1.unstrat.u5.BB8.bench <- bb.res.adm1.unstrat.u5.bench$overall
+        admin1.unstrat.u5.BB8.bench <- bb.res.adm1.unstrat.u5.bench
       }
     }
     
@@ -413,14 +413,14 @@ if(country=='Pakistan'){
     }
     
     if(bench.model == ""){
-      admin1.strat.nmr.BB8 <- bb.res.adm1.strat.nmr$overall
-      admin1.strat.u5.BB8 <- bb.res.adm1.strat.u5$overall
+      admin1.strat.nmr.BB8 <- bb.res.adm1.strat.nmr
+      admin1.strat.u5.BB8 <- bb.res.adm1.strat.u5
     }else{
-      admin1.strat.nmr.BB8.bench <-  bb.res.adm1.strat.nmr.bench$overall
+      admin1.strat.nmr.BB8.bench <-  bb.res.adm1.strat.nmr.bench
       if(grepl('crisis',u5.filename)){
         admin1.strat.u5.BB8.bench <- res_adm1_u5_crisis
       }else{
-        admin1.strat.u5.BB8.bench <- bb.res.adm1.strat.u5.bench$overall
+        admin1.strat.u5.BB8.bench <- bb.res.adm1.strat.u5.bench
       }
     }
   }  
@@ -572,14 +572,14 @@ if(exists('poly.layer.adm2')){
     }
     
     if(bench.model == ""){
-      admin2.unstrat.nmr.BB8 <- bb.res.adm2.unstrat.nmr$overall
-      admin2.unstrat.u5.BB8 <- bb.res.adm2.unstrat.u5$overall
+      admin2.unstrat.nmr.BB8 <- bb.res.adm2.unstrat.nmr
+      admin2.unstrat.u5.BB8 <- bb.res.adm2.unstrat.u5
     }else{
-      admin2.unstrat.nmr.BB8.bench <-  bb.res.adm2.unstrat.nmr.bench$overall
+      admin2.unstrat.nmr.BB8.bench <-  bb.res.adm2.unstrat.nmr.bench
       if(grepl('crisis',u5.filename)){
         admin2.unstrat.u5.BB8.bench <- res_adm2_u5_crisis
       }else{
-        admin2.unstrat.u5.BB8.bench <- bb.res.adm2.unstrat.u5.bench$overall
+        admin2.unstrat.u5.BB8.bench <- bb.res.adm2.unstrat.u5.bench
       }
     }
     
@@ -607,26 +607,161 @@ if(exists('poly.layer.adm2')){
     }
     
     if(bench.model == ""){
-      admin2.strat.nmr.BB8 <- bb.res.adm2.strat.nmr$overall
-      admin2.strat.u5.BB8 <- bb.res.adm2.strat.u5$overall
+      admin2.strat.nmr.BB8 <- bb.res.adm2.strat.nmr
+      admin2.strat.u5.BB8 <- bb.res.adm2.strat.u5
     }else{
-      admin2.strat.nmr.BB8.bench <-  bb.res.adm2.strat.nmr.bench$overall
+      admin2.strat.nmr.BB8.bench <-  bb.res.adm2.strat.nmr.bench
       if(grepl('crisis',u5.filename)){
         admin2.strat.u5.BB8.bench <- res_adm2_u5_crisis
       }else{
-        admin2.strat.u5.BB8.bench <- bb.res.adm2.strat.u5.bench$overall
+        admin2.strat.u5.BB8.bench <- bb.res.adm2.strat.u5.bench
       }
     }
   }  
 }
 
-## IGME estimates ####
-igme.frame <- 
-  as.data.frame(cbind(igme.ests.nmr$LOWER_BOUND,
-                      igme.ests.nmr$OBS_VALUE,igme.ests.nmr$UPPER_BOUND,
-                      igme.ests.u5$LOWER_BOUND,
-                      igme.ests.u5$OBS_VALUE,igme.ests.u5$UPPER_BOUND))
-colnames(igme.frame) = c("lower_nmr", "median_nmr", "upper_nmr",
-                         "lower_u5", "median_u5", "upper_u5")
-igme.frame$method <- "igme"
-igme.frame$years <- beg.year:max(igme.ests.nmr$year)
+# Grab posterior draws ####
+
+## NMR ####
+
+### Admin 1 ####
+
+admin1.nmr.draws.list <- lapply(admin1.strat.nmr.BB8$draws.est.overall,
+                                function(draws_list){
+                                  data.frame(years = draws_list$years,
+                                             region = draws_list$region,
+                                             draws = draws_list$draws,
+                                             idx = 1:length(draws_list$draws))
+                                })
+
+admin1.nmr.draws <- do.call(rbind.data.frame, admin1.nmr.draws.list) %>%
+  left_join(admin1.names,
+            by = c("region" = "Internal")) %>% 
+  left_join(weight.adm1.u1,
+            by = c("region", "years"))
+
+
+
+
+### Admin 2 ####
+
+admin2.nmr.draws.list <- lapply(admin2.strat.nmr.BB8$draws.est.overall,
+                                function(draws_list){
+                                  data.frame(years = draws_list$years,
+                                             region = draws_list$region,
+                                             draws = draws_list$draws,
+                                             idx = 1:length(draws_list$draws))
+                                })
+
+admin2.nmr.draws <- do.call(rbind.data.frame, admin2.nmr.draws.list) %>%
+  left_join(admin2.names,
+            by = c("region" = "Internal")) %>% 
+  left_join(weight.adm2.u1,
+            by = c("region", "years"))
+
+
+
+
+## U5MR ####
+
+### Admin 1 ####
+
+admin1.u5.draws.list <- lapply(admin1.strat.u5.BB8$draws.est.overall,
+                                function(draws_list){
+                                  data.frame(years = draws_list$years,
+                                             region = draws_list$region,
+                                             draws = draws_list$draws,
+                                             idx = 1:length(draws_list$draws))
+                                })
+
+admin1.u5.draws <- do.call(rbind.data.frame, admin1.u5.draws.list) %>%
+  left_join(admin1.names,
+            by = c("region" = "Internal")) %>% 
+  left_join(weight.adm1.u5,
+            by = c("region", "years"))
+
+
+
+
+### Admin 2 ####
+
+admin2.u5.draws.list <- lapply(admin2.strat.u5.BB8$draws.est.overall,
+                                function(draws_list){
+                                  data.frame(years = draws_list$years,
+                                             region = draws_list$region,
+                                             draws = draws_list$draws,
+                                             idx = 1:length(draws_list$draws))
+                                })
+
+admin2.u5.draws <- do.call(rbind.data.frame, admin2.u5.draws.list) %>%
+  left_join(admin2.names,
+            by = c("region" = "Internal")) %>% 
+  left_join(weight.adm2.u5,
+            by = c("region", "years"))
+
+# Aggregate to posterior national draws ###
+
+## NMR ####
+admin1.nmr.draws.agg <- admin1.nmr.draws %>% 
+  group_by(years, idx) %>% 
+  summarize(draws = sum(proportion*draws),
+            proportion = sum(proportion))
+
+
+admin2.nmr.draws.agg <- admin2.nmr.draws %>% 
+  group_by(years, idx) %>% 
+  summarize(draws = sum(proportion*draws),
+            proportion = sum(proportion))
+  
+## U5MR ####
+admin1.u5.draws.agg <- admin1.u5.draws %>% 
+  group_by(years, idx) %>% 
+  summarize(draws = sum(proportion*draws),
+            proportion = sum(proportion))
+
+
+admin2.u5.draws.agg <- admin2.u5.draws %>% 
+  group_by(years, idx) %>% 
+  summarize(draws = sum(proportion*draws),
+            proportion = sum(proportion))
+
+# Get benchmark ratios ####
+
+## NMR ####
+admin1.nmr.bench <- admin1.nmr.draws.agg %>% 
+  ungroup() %>% 
+  group_by(years) %>% 
+  summarize(median = median(draws)) %>% 
+  left_join(igme.ests.nmr.nocrisis,
+            by = c("years" = "year")) %>% 
+  mutate(ratio = median/OBS_VALUE)
+
+admin2.nmr.bench <- admin2.nmr.draws.agg %>% 
+  ungroup() %>% 
+  group_by(years) %>% 
+  summarize(median = median(draws)) %>% 
+  left_join(igme.ests.nmr.nocrisis,
+            by = c("years" = "year")) %>% 
+  mutate(ratio = median/OBS_VALUE)
+
+## U5MR ####
+
+admin1.u5.bench <- admin1.u5.draws.agg %>% 
+  ungroup() %>% 
+  group_by(years) %>% 
+  summarize(median = median(draws)) %>% 
+  left_join(igme.ests.u5.nocrisis,
+            by = c("years" = "year")) %>% 
+  mutate(ratio = median/OBS_VALUE)
+
+admin2.u5.bench <- admin2.u5.draws.agg %>% 
+  ungroup() %>% 
+  group_by(years) %>% 
+  summarize(median = median(draws)) %>% 
+  left_join(igme.ests.u5.nocrisis,
+            by = c("years" = "year")) %>% 
+  mutate(ratio = median/OBS_VALUE)
+
+# Apply benchmark ####
+
+admin1.
