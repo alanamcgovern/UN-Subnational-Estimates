@@ -962,37 +962,39 @@ if(strata.model == "strat"){
 
 # Save objects ####
 
+setwd(res.dir)
+
 if(strata.model == "strat"){
   save(bb.res.adm1.strat.nmr, 
-       paste0(country, '_res_adm1_', time.model, 
+       paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, 
               "_", strata.model, "_nmr_bench.rda"))
   
   save(bb.res.adm2.strat.nmr, 
-       paste0(country, '_res_adm2_', time.model, 
+       paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, 
               "_", strata.model, "_nmr_bench.rda"))
   
   save(bb.res.adm1.strat.u5, 
-       paste0(country, '_res_adm1_', time.model, 
+       paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, 
               "_", strata.model, "_u5_bench.rda"))
   
   save(bb.res.adm2.strat.u5, 
-       paste0(country, '_res_adm2_', time.model, 
+       paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, 
               "_", strata.model, "_u5_bench.rda"))
 }else{
   save(bb.res.adm1.unstrat.nmr, 
-       paste0(country, '_res_adm1_', time.model, 
+       paste0('Betabinomial/NMR/', country, '_res_adm1_', time.model, 
               "_", strata.model, "_nmr_bench.rda"))
   
   save(bb.res.adm2.unstrat.nmr, 
-       paste0(country, '_res_adm2_', time.model, 
+       paste0('Betabinomial/NMR/', country, '_res_adm2_', time.model, 
               "_", strata.model, "_nmr_bench.rda"))
   
   save(bb.res.adm1.unstrat.u5, 
-       paste0(country, '_res_adm1_', time.model, 
+       paste0('Betabinomial/U5MR/', country, '_res_adm1_', time.model, 
               "_", strata.model, "_u5_bench.rda"))
   
   save(bb.res.adm2.unstrat.u5, 
-       paste0(country, '_res_adm2_', time.model, 
+       paste0('Betabinomial/U5MR/', country, '_res_adm2_', time.model, 
               "_", strata.model, "_u5_bench.rda"))
   
 }
