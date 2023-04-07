@@ -626,13 +626,24 @@ if(exists('poly.layer.adm2')){
 
 ### Admin 1 ####
 
-admin1.nmr.draws.list <- lapply(admin1.strat.nmr.BB8$draws.est.overall,
-                                function(draws_list){
-                                  data.frame(years = draws_list$years,
-                                             region = draws_list$region,
-                                             draws = draws_list$draws,
-                                             idx = 1:length(draws_list$draws))
-                                })
+if(strata.model == "strat"){
+  admin1.nmr.draws.list <- lapply(admin1.strat.nmr.BB8$draws.est.overall,
+                                  function(draws_list){
+                                    data.frame(years = draws_list$years,
+                                               region = draws_list$region,
+                                               draws = draws_list$draws,
+                                               idx = 1:length(draws_list$draws))
+                                  })
+}else{
+  admin1.nmr.draws.list <- lapply(admin1.unstrat.nmr.BB8$draws.est.overall,
+                                  function(draws_list){
+                                    data.frame(years = draws_list$years,
+                                               region = draws_list$region,
+                                               draws = draws_list$draws,
+                                               idx = 1:length(draws_list$draws))
+                                  })
+  
+}
 
 admin1.nmr.draws <- do.call(rbind.data.frame, admin1.nmr.draws.list) %>%
   left_join(admin1.names,
@@ -645,13 +656,24 @@ admin1.nmr.draws <- do.call(rbind.data.frame, admin1.nmr.draws.list) %>%
 
 ### Admin 2 ####
 
-admin2.nmr.draws.list <- lapply(admin2.strat.nmr.BB8$draws.est.overall,
-                                function(draws_list){
-                                  data.frame(years = draws_list$years,
-                                             region = draws_list$region,
-                                             draws = draws_list$draws,
-                                             idx = 1:length(draws_list$draws))
-                                })
+if(strata.model == "strat"){
+  admin2.nmr.draws.list <- lapply(admin2.strat.nmr.BB8$draws.est.overall,
+                                  function(draws_list){
+                                    data.frame(years = draws_list$years,
+                                               region = draws_list$region,
+                                               draws = draws_list$draws,
+                                               idx = 1:length(draws_list$draws))
+                                  })
+}else{
+  admin2.nmr.draws.list <- lapply(admin2.unstrat.nmr.BB8$draws.est.overall,
+                                  function(draws_list){
+                                    data.frame(years = draws_list$years,
+                                               region = draws_list$region,
+                                               draws = draws_list$draws,
+                                               idx = 1:length(draws_list$draws))
+                                  })
+  
+}
 
 admin2.nmr.draws <- do.call(rbind.data.frame, admin2.nmr.draws.list) %>%
   left_join(admin2.names,
@@ -659,20 +681,27 @@ admin2.nmr.draws <- do.call(rbind.data.frame, admin2.nmr.draws.list) %>%
   left_join(weight.adm2.u1,
             by = c("region", "years"))
 
-
-
-
 ## U5MR ####
 
 ### Admin 1 ####
 
-admin1.u5.draws.list <- lapply(admin1.strat.u5.BB8$draws.est.overall,
-                                function(draws_list){
-                                  data.frame(years = draws_list$years,
-                                             region = draws_list$region,
-                                             draws = draws_list$draws,
-                                             idx = 1:length(draws_list$draws))
-                                })
+if(strata.model == "strat"){
+  admin1.u5.draws.list <- lapply(admin1.strat.u5.BB8$draws.est.overall,
+                                 function(draws_list){
+                                   data.frame(years = draws_list$years,
+                                              region = draws_list$region,
+                                              draws = draws_list$draws,
+                                              idx = 1:length(draws_list$draws))
+                                 })
+}else{
+  admin1.u5.draws.list <- lapply(admin1.unstrat.u5.BB8$draws.est.overall,
+                                 function(draws_list){
+                                   data.frame(years = draws_list$years,
+                                              region = draws_list$region,
+                                              draws = draws_list$draws,
+                                              idx = 1:length(draws_list$draws))
+                                 })
+}
 
 admin1.u5.draws <- do.call(rbind.data.frame, admin1.u5.draws.list) %>%
   left_join(admin1.names,
@@ -684,15 +713,23 @@ admin1.u5.draws <- do.call(rbind.data.frame, admin1.u5.draws.list) %>%
 
 
 ### Admin 2 ####
-
-admin2.u5.draws.list <- lapply(admin2.strat.u5.BB8$draws.est.overall,
-                                function(draws_list){
-                                  data.frame(years = draws_list$years,
-                                             region = draws_list$region,
-                                             draws = draws_list$draws,
-                                             idx = 1:length(draws_list$draws))
-                                })
-
+if(strata.model == "strat"){
+  admin2.u5.draws.list <- lapply(admin2.strat.u5.BB8$draws.est.overall,
+                                 function(draws_list){
+                                   data.frame(years = draws_list$years,
+                                              region = draws_list$region,
+                                              draws = draws_list$draws,
+                                              idx = 1:length(draws_list$draws))
+                                 })
+}else{
+  admin2.u5.draws.list <- lapply(admin2.unstrat.u5.BB8$draws.est.overall,
+                                 function(draws_list){
+                                   data.frame(years = draws_list$years,
+                                              region = draws_list$region,
+                                              draws = draws_list$draws,
+                                              idx = 1:length(draws_list$draws))
+                                 })
+}
 admin2.u5.draws <- do.call(rbind.data.frame, admin2.u5.draws.list) %>%
   left_join(admin2.names,
             by = c("region" = "Internal")) %>% 
@@ -712,7 +749,7 @@ admin2.nmr.draws.agg <- admin2.nmr.draws %>%
   group_by(years, idx) %>% 
   summarize(draws = sum(proportion*draws),
             proportion = sum(proportion))
-  
+
 ## U5MR ####
 admin1.u5.draws.agg <- admin1.u5.draws %>% 
   group_by(years, idx) %>% 
@@ -810,16 +847,152 @@ all.res.bench <- admin1.nmr.res.bench %>%
 res_names <- names(bb.res.adm1.strat.nmr$overall)
 
 ## NMR ####
-bb.res.adm1.strat.nmr$overall <- all.res.bench %>% 
-  filter(outcome == "nmr" & level == "Admin1") %>% 
-  left_join(bb.res.adm1.strat.nmr$overall,
-            by = c("region", "years" = "years.num"),
-            suffix = c("", "_old")) %>% 
-  rename("years.num" = "years") %>% 
-  rename("years" = "years_old") %>%
-  ungroup() %>% 
-  select(-contains("_new"), -contains("_old"),
-         -outcome, -level, -GADM) %>% 
-  as.data.frame()
-bb.res.adm1.strat.nmr$overall <- bb.res.adm1.strat.nmr$overall[, res_names]
 
+if(strata.model == "strat"){
+  bb.res.adm1.strat.nmr$overall <- all.res.bench %>% 
+    filter(outcome == "nmr" & level == "Admin1") %>% 
+    left_join(bb.res.adm1.strat.nmr$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm1.strat.nmr$overall <- bb.res.adm1.strat.nmr$overall[, res_names]
+  
+  bb.res.adm2.strat.nmr$overall <- all.res.bench %>% 
+    filter(outcome == "nmr" & level == "Admin2") %>% 
+    left_join(bb.res.adm2.strat.nmr$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm2.strat.nmr$overall <- bb.res.adm2.strat.nmr$overall[, res_names]
+}else{
+  bb.res.adm1.unstrat.nmr$overall <- all.res.bench %>% 
+    filter(outcome == "nmr" & level == "Admin1") %>% 
+    left_join(bb.res.adm1.unstrat.nmr$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm1.unstrat.nmr$overall <- bb.res.adm1.unstrat.nmr$overall[, res_names]
+  
+  bb.res.adm2.unstrat.nmr$overall <- all.res.bench %>% 
+    filter(outcome == "nmr" & level == "Admin2") %>% 
+    left_join(bb.res.adm2.unstrat.nmr$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm2.unstrat.nmr$overall <- bb.res.adm2.unstrat.nmr$overall[, res_names]
+  
+}
+
+
+## U5MR ####
+
+if(strata.model == "strat"){
+  bb.res.adm1.strat.u5$overall <- all.res.bench %>% 
+    filter(outcome == "u5" & level == "Admin1") %>% 
+    left_join(bb.res.adm1.strat.nmr$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm1.strat.u5$overall <- bb.res.adm1.strat.u5$overall[, res_names]
+  
+  bb.res.adm2.strat.u5$overall <- all.res.bench %>% 
+    filter(outcome == "u5" & level == "Admin2") %>% 
+    left_join(bb.res.adm2.strat.u5$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm2.strat.u5$overall <- bb.res.adm2.strat.u5$overall[, res_names]
+}else{
+  bb.res.adm1.unstrat.u5$overall <- all.res.bench %>% 
+    filter(outcome == "u5" & level == "Admin1") %>% 
+    left_join(bb.res.adm1.unstrat.nmr$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm1.unstrat.u5$overall <- bb.res.adm1.unstrat.u5$overall[, res_names]
+  
+  bb.res.adm2.unstrat.u5$overall <- all.res.bench %>% 
+    filter(outcome == "u5" & level == "Admin2") %>% 
+    left_join(bb.res.adm2.unstrat.u5$overall,
+              by = c("region", "years" = "years.num"),
+              suffix = c("", "_old")) %>% 
+    rename("years.num" = "years") %>% 
+    rename("years" = "years_old") %>%
+    ungroup() %>% 
+    select(-contains("_new"), -contains("_old"),
+           -outcome, -level, -GADM) %>% 
+    as.data.frame()
+  bb.res.adm2.unstrat.u5$overall <- bb.res.adm2.unstrat.u5$overall[, res_names]
+}
+
+# Save objects ####
+
+if(strata.model == "strat"){
+  save(bb.res.adm1.strat.nmr, 
+       paste0(country, '_res_adm1_', time.model, 
+              "_", strata.model, "_nmr_bench.rda"))
+  
+  save(bb.res.adm2.strat.nmr, 
+       paste0(country, '_res_adm2_', time.model, 
+              "_", strata.model, "_nmr_bench.rda"))
+  
+  save(bb.res.adm1.strat.u5, 
+       paste0(country, '_res_adm1_', time.model, 
+              "_", strata.model, "_u5_bench.rda"))
+  
+  save(bb.res.adm2.strat.u5, 
+       paste0(country, '_res_adm2_', time.model, 
+              "_", strata.model, "_u5_bench.rda"))
+}else{
+  save(bb.res.adm1.unstrat.nmr, 
+       paste0(country, '_res_adm1_', time.model, 
+              "_", strata.model, "_nmr_bench.rda"))
+  
+  save(bb.res.adm2.unstrat.nmr, 
+       paste0(country, '_res_adm2_', time.model, 
+              "_", strata.model, "_nmr_bench.rda"))
+  
+  save(bb.res.adm1.unstrat.u5, 
+       paste0(country, '_res_adm1_', time.model, 
+              "_", strata.model, "_u5_bench.rda"))
+  
+  save(bb.res.adm2.unstrat.u5, 
+       paste0(country, '_res_adm2_', time.model, 
+              "_", strata.model, "_u5_bench.rda"))
+  
+}
