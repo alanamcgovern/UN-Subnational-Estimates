@@ -14,8 +14,7 @@ sd.time.model <- c("rw2", "ar1")[2]
 # specify stratification for BB8 model
 strata.model <- c("unstrat", "strat")[2]
 
-# specify whether benchmarked or not -- this should be equal to 'bench' unless trying to troubleshoot
-
+# specify whether benchmarked or not -- this should be equal to '' unless trying to troubleshoot
 bench.model <- ""
 
 # Setup -----------------------------------------------
@@ -52,8 +51,7 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-data.dir <- "R://Project/STAB/Senegal/"
+data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep = '')) # load the country info
