@@ -872,7 +872,7 @@ save(bb.res.adm2.unstrat.u5,file=paste0('Betabinomial/U5MR/',country,'_res_adm2_
   bb.adm1.unstrat.nmr.allsurveys <- getBB8(mod.dat, country, beg.year=beg.year, end.year=end.proj.year,
                                 Amat=admin1.mat, admin.level='Admin1',
                                 stratified=F, weight.strata=NULL,
-                                outcome='nmr',
+                                outcome='nmr', 
                                 time.model='ar1', st.time.model='ar1',
                                 adj.frame=adj.frame, adj.varnames=adj.varnames,
                                 nsim = 1000)
