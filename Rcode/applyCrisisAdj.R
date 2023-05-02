@@ -158,10 +158,11 @@ if (country == "Liberia") {
     dplyr::mutate(ed_0_1= ed_0_1 * prop_pop_0_1,
            ed_1_5 = ed_1_5 * prop_pop_1_5) %>% ungroup()
   deaths_adm2 <- deaths_adm2 %>%
-    dplyr::select(country.x, level.x, gadm.x, years, ed_0_1, ed_1_5) %>% rename(country=country.x,level=level.x,gadm=gadm.x)
+    dplyr::select(country.x, level.x, region, gadm.x, years, ed_0_1, ed_1_5) %>% rename(country=country.x,level=level.x,gadm=gadm.x)
   
   # combine
-  deaths <- merge(deaths,admin1.names,by.x='gadm',by.y='GADM') %>% dplyr::select(-c(Internal))
+  deaths <- merge(deaths,admin1.names,by.x='gadm',by.y='GADM') %>% 
+    select(country,level,Internal.x,gadm,years,ed_0_1,ed_1_5) %>% rename(region=Internal.x)
   deaths <- rbind(deaths, deaths_adm2)
 }
 
@@ -261,7 +262,7 @@ deaths_adm2 <- deaths %>%
   mutate(ed_0_1 = `Crisis d0`*(ed_0_1_orig/sum(ed_0_1_orig)),
          ed_1_5 = `Crisis d1-4`*(ed_1_5_orig/sum(ed_1_5_orig)))
 pop_adm2 <- pop %>% filter(level == "admin2")
-df <- merge(deaths_adm2, pop_adm2, by = c("gadm", "years"))
+df <- merge(deaths_adm2, pop_adm2, by = c("region", "years"))
 df <- get_ed_5q0(df) # convert deaths to qx
 df <- df %>% dplyr::select(region, years, ed_5q0)
 res_adm2_u5_crisis <- merge(res_adm2_u5, df, by = c("region", "years"), all=T)
