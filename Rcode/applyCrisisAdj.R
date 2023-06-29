@@ -272,10 +272,37 @@ res_adm1_u5_crisis <- res_adm1_u5_crisis %>%
   mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
-         upper = upper + ed_5q0) %>%
+         upper = upper + ed_5q0)
+## Update Draws ####
+adm1_ed5q0 <- res_adm1_u5_crisis %>% 
+  filter(ed_5q0 != 0)
+
+results_draws_idx <- lapply(bb.res.adm1.strat.u5.bench$draws.est.overall,
+                              function(draws_list){
+                                data.frame(years = draws_list$years,
+                                           region = draws_list$region)
+                              }) %>% 
+          do.call(rbind.data.frame, .)
+
+
+for(row in 1:nrow(adm1_ed5q0)){
+  update_idx <- which(results_draws_idx$years == adm1_ed5q0$years[row] &
+                        results_draws_idx$region == adm1_ed5q0$region[row])
+  
+  bb.res.adm1.strat.u5.bench$draws.est.overall[[update_idx]]$draws <- 
+    bb.res.adm1.strat.u5.bench$draws.est.overall[[update_idx]]$draws +
+    adm1_ed5q0$ed_5q0[row]
+}
+
+res_adm1_u5_crisis <- res_adm1_u5_crisis %>%
   dplyr::select(c(region,years,time,area,median,upper,lower,is.yearly))
+
 save(res_adm1_u5_crisis, file=paste0(res.dir,"/Betabinomial/U5MR/", country,
                                 "_res_adm1_", mod_label,"_crisis.rda"))
+
+save(bb.res.adm1.strat.u5.bench, file = paste0(res.dir, "/Betabinomial/U5MR/",
+                                               country, "_res_adm1_",
+                                               mod_label, "_crisis_draws.rda"))
 
 ## IGME Compare ####
 
@@ -342,10 +369,34 @@ res_adm2_u5_crisis <- res_adm2_u5_crisis %>%
   mutate(ed_5q0 = ifelse(is.na(ed_5q0), 0, ed_5q0)) %>%
   mutate(median = median + ed_5q0, # final qx = non-crisis qx + crisis qx
          lower = lower + ed_5q0,
-         upper = upper + ed_5q0) %>%
+         upper = upper + ed_5q0)
+## Update Draws ####
+adm2_ed5q0 <- res_adm2_u5_crisis %>% 
+  filter(ed_5q0 != 0)
+
+results_draws_idx <- lapply(bb.res.adm2.strat.u5.bench$draws.est.overall,
+                            function(draws_list){
+                              data.frame(years = draws_list$years,
+                                         region = draws_list$region)
+                            }) %>% 
+  do.call(rbind.data.frame, .)
+
+
+for(row in 1:nrow(adm2_ed5q0)){
+  update_idx <- which(results_draws_idx$years == adm2_ed5q0$years[row] &
+                        results_draws_idx$region == adm2_ed5q0$region[row])
+  
+  bb.res.adm2.strat.u5.bench$draws.est.overall[[update_idx]]$draws <- 
+    bb.res.adm2.strat.u5.bench$draws.est.overall[[update_idx]]$draws +
+    adm2_ed5q0$ed_5q0[row]
+}
+res_adm2_u5_crisis <- res_adm2_u5_crisis %>%
   dplyr::select(c(region,years,time,area,median,upper,lower,is.yearly))
 save(res_adm2_u5_crisis,  file=paste0(res.dir,"/Betabinomial/U5MR/", country,
                                       "_res_adm2_", mod_label,"_crisis.rda"))
 
+save(bb.res.adm2.strat.u5.bench, file = paste0(res.dir, "/Betabinomial/U5MR/",
+                                               country, "_res_adm2_",
+                                               mod_label, "_crisis_draws.rda"))
 
 
