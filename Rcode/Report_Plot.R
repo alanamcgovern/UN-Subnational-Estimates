@@ -7,7 +7,7 @@ rm(list=ls())
 # Country Name & Model Info ####
 # Please capitalize the first letter of the country name and replace " "
 # in the country name to "_" if there is.
-country <- "Senegal"
+country <- "Rwanda"
 
 
 ## MIGHT NEED TO BE CHANGED depending on what you fit
@@ -57,8 +57,8 @@ code.path.splitted <- strsplit(code.path, "/")[[1]]
 ## Directories ####
 home.dir <- paste(code.path.splitted[1:(length(code.path.splitted) - 2)],
                   collapse = "/")
-data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
-
+# data.dir <- paste0(home.dir,'/Data/',country) # set the directory to store the data
+data.dir <- paste0("R://Project/STAB/", country)
 res.dir <- paste0(home.dir,'/Results/', country) # set the directory to store the results (e.g. fitted R objects, figures, tables in .csv etc.)
 info.name <- paste0(country, "_general_info.Rdata")
 load(file = paste0(home.dir, '/Info/', info.name, sep = '')) # load the country info
@@ -528,8 +528,8 @@ if(country=='Pakistan'){
                                   years=adm1.dir.year.u5,
                                   surveyYears = adm1.dir.svy.u5)
   
-  adm1.dir.frame <- data.frame(region = admin1.names$Internal) %>% 
-    full_join(adm1.dir.frame.nmr,
+  adm1.dir.frame <- adm1.dir.frame.nmr %>% 
+    full_join(data.frame(region = admin1.names$Internal),
               by = "region") %>% 
     full_join(adm1.dir.frame.u5,
               by = c("region", "method", "years", "surveyYears"))
@@ -610,6 +610,11 @@ if(country=='Pakistan'){
     nmr.filename <- paste0(country, '_res_adm1_', time.model, 
                            "_", strata.model, "_nmr_allsurveys_bench.rda")
   }
+  
+  if(strata.model == "strat"){
+    nmr.filename <- gsub("_allsurveys", "", nmr.filename)
+  }
+  
   strata_str <- ifelse(strata.model == "unstrat", "unstratified", "stratified")
   bench_str <- ifelse(bench.model == "bench", "benchmarked", "unbenchmarked")
   
@@ -658,6 +663,10 @@ if(country=='Pakistan'){
   }else{
     u5.filename <- paste0(country, '_res_adm1_', time.model, 
                           "_", strata.model, "_u5_allsurveys_bench.rda")
+  }
+  
+  if(strata.model == "strat"){
+    u5.filename <- gsub("_allsurveys", "", u5.filename)
   }
   strata_str <- ifelse(strata.model == "unstrat", "unstratified", "stratified")
   bench_str <- ifelse(bench.model == "bench", "benchmarked", "unbenchmarked")
@@ -772,24 +781,45 @@ if(country=='Pakistan'){
       u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
       u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
       
-      load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
-      adm1.nmr.benchmarks <- bench.adj
-      load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
-      adm1.u5.benchmarks <- bench.adj 
-    }
-    
-    if(bench.model == ""){
-      admin1.strat.nmr.BB8 <- bb.res.adm1.strat.nmr$overall
-      admin1.strat.u5.BB8 <- bb.res.adm1.strat.u5$overall
-    }else{
-      admin1.strat.nmr.BB8.bench <-  bb.res.adm1.strat.nmr.bench$overall
-      if(grepl('crisis',u5.filename)){
-        admin1.strat.u5.BB8.bench <- res_adm1_u5_crisis
+      if(file.exists(paste0('Betabinomial/NMR/', nmr.bench.file))){
+        load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      }else if(file.exists(paste0('Betabinomial/NMR/',
+                                  gsub(paste0("_", time.model),
+                                       "", nmr.bench.file)))){
+        load(file = paste0('Betabinomial/NMR/',
+                           gsub(paste0("_", time.model),
+                                "", nmr.bench.file)))
       }else{
-        admin1.strat.u5.BB8.bench <- bb.res.adm1.strat.u5.bench$overall
+        message("Benchmarks file does not exist.\n")
       }
-    }
-  }  
+      adm1.nmr.benchmarks <- bench.adj
+      
+      if(file.exists(paste0('Betabinomial/U5MR/', u5.bench.file))){
+        load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
+      }else if(file.exists(paste0('Betabinomial/U5MR/',
+                                  gsub(paste0("_", time.model),
+                                       "", u5.bench.file)))){
+        load(file = paste0('Betabinomial/U5MR/',
+                           gsub(paste0("_", time.model),
+                                "", u5.bench.file)))
+      }else{
+        
+        adm1.u5.benchmarks <- bench.adj 
+      }
+      
+      if(bench.model == ""){
+        admin1.strat.nmr.BB8 <- bb.res.adm1.strat.nmr$overall
+        admin1.strat.u5.BB8 <- bb.res.adm1.strat.u5$overall
+      }else{
+        admin1.strat.nmr.BB8.bench <-  bb.res.adm1.strat.nmr.bench$overall
+        if(grepl('crisis',u5.filename)){
+          admin1.strat.u5.BB8.bench <- res_adm1_u5_crisis
+        }else{
+          admin1.strat.u5.BB8.bench <- bb.res.adm1.strat.u5.bench$overall
+        }
+      }
+    }  
+  }
 }
 
 ## Admin-2#####
@@ -856,8 +886,8 @@ if(exists('poly.layer.adm2')){
                                   method='adm2.dir',
                                   years=adm2.dir.year.u5,
                                   surveyYears = adm2.dir.svy.u5)
-  adm2.dir.frame <- data.frame(region = admin2.names$Internal) %>% 
-    full_join(adm2.dir.nmr.frame,
+  adm2.dir.frame <-  adm2.dir.nmr.frame %>% 
+    full_join(data.frame(region = admin2.names$Internal),
               by = "region") %>% 
     full_join(adm2.dir.u5.frame,
               by = c("region", "method", "years", "surveyYears"))
@@ -948,6 +978,10 @@ if(exists('poly.layer.adm2')){
     nmr.filename <- paste0(country, '_res_adm2_', time.model, 
                            "_", strata.model, "_nmr_allsurveys_bench.rda")
   }
+  
+  if(strata.model == "strat"){
+    nmr.filename <- gsub("_allsurveys", "", nmr.filename)
+  }
   strata_str <- ifelse(strata.model == "unstrat", "unstratified", "stratified")
   bench_str <- ifelse(bench.model == "bench", "benchmarked", "unbenchmarked")
   
@@ -995,6 +1029,10 @@ if(exists('poly.layer.adm2')){
   }else{
     u5.filename <- paste0(country, '_res_adm2_', time.model, 
                           "_", strata.model, "_u5_allsurveys_bench.rda")
+  }
+  
+  if(strata.model == "strat"){
+    u5.filename <- gsub("_allsurveys", "", u5.filename)
   }
   strata_str <- ifelse(strata.model == "unstrat", "unstratified", "stratified")
   bench_str <- ifelse(bench.model == "bench", "benchmarked", "unbenchmarked")
@@ -1062,9 +1100,32 @@ if(exists('poly.layer.adm2')){
       u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
       u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
       
-      load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      
+      if(file.exists(paste0('Betabinomial/NMR/', nmr.bench.file))){
+        load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      }else if(file.exists(paste0('Betabinomial/NMR/',
+                                  gsub(paste0("_", time.model),
+                                       "", nmr.bench.file)))){
+        load(file = paste0('Betabinomial/NMR/',
+                           gsub(paste0("_", time.model),
+                                "", nmr.bench.file)))
+      }else{
+        message("Benchmarks file does not exist.\n")
+      }
       adm2.nmr.benchmarks <- bench.adj
-      load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
+      
+      
+      if(file.exists(paste0('Betabinomial/U5MR/', u5.bench.file))){
+        load(file = paste0('Betabinomial/U5MR/', u5.bench.file))
+      }else if(file.exists(paste0('Betabinomial/U5MR/',
+                                  gsub(paste0("_", time.model),
+                                       "", u5.bench.file)))){
+        load(file = paste0('Betabinomial/U5MR/',
+                           gsub(paste0("_", time.model),
+                                "", u5.bench.file)))
+      }else{
+        message("Benchmarks file does not exist.\n")
+      }
       adm2.u5.benchmarks <- bench.adj
     }
     
@@ -1110,9 +1171,31 @@ if(exists('poly.layer.adm2')){
       u5.bench.file <- gsub("_allsurveys", "", u5.bench.file)
       u5.bench.file <- gsub("_bench", "_benchmarks", u5.bench.file)
       
-      load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      if(file.exists(paste0('Betabinomial/NMR/', nmr.bench.file))){
+        load(file = paste0('Betabinomial/NMR/', nmr.bench.file))
+      }else if(file.exists(paste0('Betabinomial/NMR/',
+                                  gsub(paste0("_", time.model),
+                                       "", nmr.bench.file)))){
+        load(file = paste0('Betabinomial/NMR/',
+                           gsub(paste0("_", time.model),
+                                "", nmr.bench.file)))
+      }else{
+        message("Benchmarks file does not exist.\n")
+      }
+      
       adm2.nmr.benchmarks <- bench.adj
-      load(file = paste0("Betabinomial/U5MR/", u5.bench.file))
+      
+      if(file.exists(paste0('Betabinomial/U%MR/', u5.bench.file))){
+        load(file = paste0('Betabinomial/U5MR/', u5.bench.file))
+      }else if(file.exists(paste0('Betabinomial/U5MR/',
+                                  gsub(paste0("_", time.model),
+                                       "", u5.bench.file)))){
+        load(file = paste0('Betabinomial/U5MR/',
+                           gsub(paste0("_", time.model),
+                                "", u5.bench.file)))
+      }else{
+        message("Benchmarks file does not exist.\n")
+      }
       adm2.u5.benchmarks <- bench.adj
     }
     
@@ -1197,7 +1280,7 @@ for(outcome in c("nmr", "u5")){
            main = country)
       legend('topright', bty = 'n', col = c(survey_cols, 
                                             'grey80', 'black'),
-                                            lwd = 2, lty = 1,
+             lwd = 2, lty = 1,
              
              legend = c(surveys, "IGME", "BB8"))
       
@@ -1475,7 +1558,7 @@ for (i in 1:numberPages) {
   for(outcome in c("nmr", "u5")){
     tmp <- tmp_plot[[outcome]]
     tmp <- tmp[tmp$region.orig %in% areas,]
-
+    
     tmp.dir <- ifelse(outcome == "u5", "u5mr", outcome)
     bench_str <- ifelse(bench.model == "", bench.model,
                         paste0("_", bench.model))
@@ -2106,3 +2189,4 @@ if(bench.model == "bench"){
   }
   dev.off()
 }
+
